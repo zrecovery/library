@@ -1,11 +1,12 @@
 package usecase_test
 
 import (
-	"library/pkg/article"
-	"library/pkg/article/repository"
-	"library/pkg/article/usecase"
-	mock_usecase "library/test/mocks/article/usecase"
 	"testing"
+
+	"github.com/zrecovery/library/pkg/article"
+	"github.com/zrecovery/library/pkg/article/repository"
+	"github.com/zrecovery/library/pkg/article/usecase"
+	mock_usecase "github.com/zrecovery/library/test/mocks/article/usecase"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"

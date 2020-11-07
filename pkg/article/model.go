@@ -2,8 +2,9 @@ package article
 
 import (
 	"encoding/json"
-	"library/pkg/article/repository"
-	"library/pkg/nulltype"
+
+	"github.com/zrecovery/library/pkg/article/repository"
+	"github.com/zrecovery/library/pkg/nulltype"
 )
 
 type Article struct {

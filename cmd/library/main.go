@@ -4,7 +4,8 @@ import (
 	"crypto/subtle"
 	"html/template"
 	"io"
-	articleService "library/pkg/article/service"
+
+	articleService "github.com/zrecovery/library/pkg/article/service"
 
 	"database/sql"
 
@@ -24,7 +25,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 func main() {
 	e := echo.New()
 
-	connStr := "postgres://postgres:postgres@localhost/library?sslmode=disable"
+	connStr := "postgres://postgres:postgres@localhost/github.com/zrecovery/library?sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		panic(err)

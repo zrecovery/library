@@ -1,14 +1,15 @@
 package service_test
 
 import (
-	"library/pkg/article"
-	"library/pkg/article/service"
-	mock_service "library/test/mocks/article/service"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/zrecovery/library/pkg/article"
+	"github.com/zrecovery/library/pkg/article/service"
+	mock_service "github.com/zrecovery/library/test/mocks/article/service"
 
 	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"

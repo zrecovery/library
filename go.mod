@@ -1,4 +1,4 @@
-module library
+module github.com/zrecovery/library
 
 go 1.15
 

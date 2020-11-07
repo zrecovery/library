@@ -3,12 +3,13 @@ package service
 import (
 	"database/sql"
 	"html/template"
-	"library/pkg/article"
-	"library/pkg/article/repository"
-	"library/pkg/article/usecase"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/zrecovery/library/pkg/article"
+	"github.com/zrecovery/library/pkg/article/repository"
+	"github.com/zrecovery/library/pkg/article/usecase"
 
 	"github.com/labstack/echo/v4"
 )
