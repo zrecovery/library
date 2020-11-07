@@ -115,7 +115,7 @@ func TestGetByID(t *testing.T) {
 		expected         article.Article
 	}{
 		{
-			name:             "通过ID查找用户",
+			name:             "通过ID查找文章",
 			id:               0,
 			mockReturnEntity: repository.Entity{},
 			mockReturnError:  nil,
@@ -146,7 +146,7 @@ func TestGetAll(t *testing.T) {
 		expected           []article.Article
 	}{
 		{
-			name:               "查找所有用户",
+			name:               "获取所有文章",
 			mockReturnEntities: []repository.Entity{{}},
 			mockReturnError:    nil,
 			expected:           []article.Article{{}},
