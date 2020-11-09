@@ -25,14 +25,14 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 func main() {
 	e := echo.New()
 
-	connStr := "postgres://postgres:postgres@localhost/github.com/zrecovery/library?sslmode=disable"
+	connStr := "postgres://postgres:postgres@localhost/library?sslmode=disable"
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		panic(err)
 	}
 
 	t := &Template{
-		templates: template.Must(template.ParseGlob("../../web/views/*.html")),
+		templates: template.Must(template.ParseGlob("web/views/*.html")),
 	}
 
 	e.Renderer = t
