@@ -2,10 +2,8 @@ package service
 
 import (
 	"database/sql"
-	"html/template"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/zrecovery/library/pkg/article"
 	"github.com/zrecovery/library/pkg/article/repository"
@@ -44,10 +42,9 @@ func (s *Service) GetByID(c echo.Context) error {
 
 	a, err := s.useCase.GetByID(id)
 	if err != nil {
-		return c.Render(http.StatusInternalServerError, "article", "Internal Server Error")
+		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
-	a.Article = strings.Replace(a.Article, "\n", "<br>", -1)
-	return c.Render(http.StatusOK, "article", template.HTML(a.Article))
+	return c.JSON(http.StatusOK, a)
 }
 
 func (s *Service) Gets(c echo.Context) error {
