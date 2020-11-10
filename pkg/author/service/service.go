@@ -1,0 +1,101 @@
+package service
+
+import (
+	"database/sql"
+	"net/http"
+	"strconv"
+
+	"github.com/zrecovery/library/pkg/author"
+	"github.com/zrecovery/library/pkg/author/repository"
+	"github.com/zrecovery/library/pkg/author/usecase"
+
+	"github.com/labstack/echo/v4"
+)
+
+type UseCase interface {
+	GetAll() ([]author.Author, error)
+	GetByID(int) (author.Author, error)
+	Save(e repository.Entity) (int, error)
+	Update(e repository.Entity, id int) error
+	Delete(id int) error
+}
+
+type Service struct {
+	useCase UseCase
+}
+
+func NewService(usecCase UseCase) *Service {
+	return &Service{useCase: usecCase}
+}
+
+func NewauthorModule(d *sql.DB) *Service {
+	repository := repository.NewRepository(d)
+	useCase := usecase.NewUseCase(repository)
+	return NewService(useCase)
+}
+
+func (s *Service) GetByID(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "Bad Request")
+	}
+
+	a, err := s.useCase.GetByID(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
+	}
+
+	return c.JSON(http.StatusOK, a)
+}
+
+func (s *Service) Gets(c echo.Context) error {
+	authors, err := s.useCase.GetAll()
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
+	}
+
+	return c.JSON(http.StatusOK, authors)
+}
+
+func (s *Service) Post(c echo.Context) error {
+	var a author.Author
+	if err := c.Bind(&a); err != nil {
+		return c.JSON(http.StatusBadRequest, "Bad Request")
+	}
+	id, err := s.useCase.Save(a.Entity())
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
+	}
+	return c.JSON(http.StatusCreated, id)
+}
+
+func (s *Service) Put(c echo.Context) error {
+	var a author.Author
+	if err := c.Bind(&a); err != nil {
+		return c.JSON(http.StatusBadRequest, "Bad Request")
+	}
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "Bad Request")
+	}
+
+	err = s.useCase.Update(a.Entity(), id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
+	}
+	return c.JSON(http.StatusNoContent, "No Content")
+}
+
+func (s *Service) Delete(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, "Bad Request")
+	}
+
+	err = s.useCase.Delete(id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
+	}
+
+	return c.JSON(http.StatusNoContent, "No Content")
+}

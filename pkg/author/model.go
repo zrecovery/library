@@ -1,0 +1,36 @@
+package author
+
+import (
+	"encoding/json"
+
+	"github.com/zrecovery/library/pkg/author/repository"
+	"github.com/zrecovery/library/pkg/nulltype"
+)
+
+type Author struct {
+	ID   int64  `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+}
+
+func (a Author) Entity() repository.Entity {
+	return repository.Entity{
+		ID:   nulltype.ToNullInt64(a.ID),
+		Name: nulltype.ToNullString(a.Name),
+	}
+}
+
+func (a Author) JSON() string {
+	jsons, err := json.Marshal(a)
+	if err != nil {
+		panic(err)
+	}
+	return string(jsons)
+
+}
+
+func EntityToAuthor(a repository.Entity) Author {
+	return Author{
+		ID:   nulltype.NullToInt64(a.ID),
+		Name: nulltype.NullToString(a.Name),
+	}
+}
