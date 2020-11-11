@@ -1,8 +1,6 @@
 package main
 
 import (
-	"crypto/subtle"
-
 	articleService "github.com/zrecovery/library/pkg/article/service"
 
 	"database/sql"
@@ -25,14 +23,6 @@ func main() {
 
 	// Middleware
 	// Temp Auth
-	e.Use(middleware.BasicAuth(func(username, password string, c echo.Context) (bool, error) {
-		// Be careful to use constant time comparison to prevent timing attacks
-		if subtle.ConstantTimeCompare([]byte(username), []byte("joe")) == 1 &&
-			subtle.ConstantTimeCompare([]byte(password), []byte("secret")) == 1 {
-			return true, nil
-		}
-		return false, nil
-	}))
 	e.Use(middleware.Recover())
 
 	e.GET("/", articleMod.Gets)
