@@ -26,8 +26,8 @@ func main() {
 	e.Use(middleware.Recover())
 
 	e.GET("/", articleMod.Gets)
-
-	a := e.Group("/articles")
+	api := e.Group("/api")
+	a := api.Group("/articles")
 	a.GET("", articleMod.Gets)
 	a.GET("/:id", articleMod.GetByID)
 
