@@ -3,8 +3,6 @@
 clean:
 	rm -rf tmp
 	mkdir tmp
-	rm -rf test/mocks
-	mkdir -p test/mocks
 	rm ./bin/library
 
 bin/library: build
