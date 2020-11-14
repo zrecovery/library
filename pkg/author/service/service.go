@@ -28,7 +28,7 @@ func NewService(usecCase UseCase) *Service {
 	return &Service{useCase: usecCase}
 }
 
-func NewauthorModule(d *sql.DB) *Service {
+func NewAuthorModule(d *sql.DB) *Service {
 	repository := repository.NewRepository(d)
 	useCase := usecase.NewUseCase(repository)
 	return NewService(useCase)

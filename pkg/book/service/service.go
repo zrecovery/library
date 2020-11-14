@@ -15,6 +15,7 @@ import (
 type UseCase interface {
 	GetAll() ([]book.Book, error)
 	GetByID(int) (book.Book, error)
+	GetByAuthor(string) ([]book.Book, error)
 	Save(e repository.Entity) (int, error)
 	Update(e repository.Entity, id int) error
 	Delete(id int) error
@@ -53,15 +54,28 @@ func (s *Service) GetByID(c echo.Context) error {
 }
 
 func (s *Service) Gets(c echo.Context) error {
-	books, err := s.useCase.GetAll()
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
-	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "No Content",
-		"books":   books,
-	})
+	author := c.QueryParam("author")
+
+	if author == "" {
+		books, err := s.useCase.GetAll()
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		}
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "OK",
+			"books":   books,
+		})
+	} else {
+		books, err := s.useCase.GetByAuthor(author)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, "Internal Server Error")
+		}
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "OK",
+			"books":   books,
+		})
+	}
 }
 
 func (s *Service) Post(c echo.Context) error {

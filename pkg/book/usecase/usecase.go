@@ -10,6 +10,7 @@ type Repository interface {
 	Update(repository.Entity, int) error
 	Delete(id int) error
 	FindByID(id int) (repository.Entity, error)
+	FindByAuthor(author string) ([]repository.Entity, error)
 	FindAll() ([]repository.Entity, error)
 }
 
@@ -52,6 +53,21 @@ func (u *useCase) GetByID(id int) (book.Book, error) {
 		return art, err
 	}
 	return art, err
+}
+
+func (u *useCase) GetByAuthor(author string) ([]book.Book, error) {
+	entities, err := u.repository.FindByAuthor(author)
+
+	var books []book.Book
+
+	for _, entity := range entities {
+		books = append(books, book.EntityToBook(entity))
+	}
+	if err != nil {
+		return books, err
+	}
+
+	return books, err
 }
 
 func (u *useCase) GetAll() ([]book.Book, error) {

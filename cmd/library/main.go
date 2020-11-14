@@ -2,6 +2,8 @@ package main
 
 import (
 	articleService "github.com/zrecovery/library/pkg/article/service"
+	authorService "github.com/zrecovery/library/pkg/author/service"
+	bookService "github.com/zrecovery/library/pkg/book/service"
 
 	"database/sql"
 
@@ -20,9 +22,11 @@ func main() {
 	}
 
 	articleMod := articleService.NewArticleModule(db)
+	authorMod := authorService.NewAuthorModule(db)
+	bookMod := bookService.NewBookModule(db)
 
 	// Middleware
-	// Temp Auth
+	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
 	e.GET("/", articleMod.Gets)
@@ -30,6 +34,14 @@ func main() {
 	a := api.Group("/articles")
 	a.GET("", articleMod.Gets)
 	a.GET("/:id", articleMod.GetByID)
+
+	author := api.Group("/authors")
+	author.GET("", authorMod.Gets)
+	author.GET("/:id", authorMod.GetByID)
+
+	book := api.Group("/books")
+	book.GET("", bookMod.Gets)
+	book.GET("/:id", bookMod.GetByID)
 
 	e.Logger.Fatal(e.Start("0.0.0.0:80"))
 }

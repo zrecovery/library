@@ -82,6 +82,28 @@ func (r *pgRepository) FindByID(id int) (Entity, error) {
 	return e, err
 }
 
+func (r *pgRepository) FindByAuthor(author string) ([]Entity, error) {
+	var entities []Entity
+	stmt, err := r.db.Prepare("SELECT id, author, title FROM public.books WHERE author=$1")
+	if err != nil {
+		panic(err)
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(author)
+	if err != nil {
+		return entities, err
+	}
+
+	for rows.Next() {
+		var e Entity
+		if err := rows.Scan(&e.ID, &e.Author, &e.Title); err != nil {
+			return entities, err
+		}
+		entities = append(entities, e)
+	}
+	return entities, err
+}
+
 func (r *pgRepository) FindAll() ([]Entity, error) {
 	var entities []Entity
 	stmt, err := r.db.Prepare("SELECT id, author, title FROM public.books")
