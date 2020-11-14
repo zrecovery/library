@@ -2,7 +2,7 @@ CREATE DATABASE library;
 
 CREATE TABLE public.authors
 (
-    id integer NOT NULL DEFAULT nextval('authors_id_seq'::regclass),
+    id SERIAL,
     name text COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT authors_pkey PRIMARY KEY (id),
     CONSTRAINT authors_name_unique UNIQUE (name)
@@ -15,7 +15,7 @@ ALTER TABLE public.authors
 
 CREATE TABLE public.books
 (
-    id integer NOT NULL DEFAULT nextval('books_id_seq'::regclass),
+    id SERIAL,
     author text COLLATE pg_catalog."default" NOT NULL,
     title text COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT books_pkey PRIMARY KEY (id),
@@ -43,7 +43,7 @@ CREATE INDEX author_index
 
 CREATE TABLE public.articles
 (
-    id integer NOT NULL DEFAULT nextval('articles_id_seq'::regclass),
+    id SERIAL,
     article text COLLATE pg_catalog."default" NOT NULL,
     serial_sections real,
     title text COLLATE pg_catalog."default",
