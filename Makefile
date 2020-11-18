@@ -1,8 +1,6 @@
 .PHONY: test
 
 clean:
-	rm -rf tmp
-	mkdir tmp
 	rm ./bin/library
 
 bin/library: build
