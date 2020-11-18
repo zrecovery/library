@@ -8,8 +8,8 @@ import (
 )
 
 type Author struct {
-	ID   int64  `json:"id,omitempty"`
-	Name string `json:"name,omitempty"`
+	ID   int64  `json:"id,omitempty" `
+	Name string `json:"name" validate:"required"`
 }
 
 func (a Author) Entity() repository.Entity {

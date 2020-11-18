@@ -9,8 +9,8 @@ import (
 
 type Book struct {
 	ID     int64  `json:"id,omitempty"`
-	Author string `json:"author,omitempty"`
-	Title  string `json:"title,omitempty"`
+	Author string `json:"author" validate:"required"`
+	Title  string `json:"title" validate:"required"`
 }
 
 func (b Book) Entity() repository.Entity {

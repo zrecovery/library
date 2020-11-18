@@ -2,6 +2,7 @@ package service
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -48,7 +49,7 @@ func (s *Service) GetByID(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message": "No Content",
+		"message": "OK",
 		"book":    b,
 	})
 }
@@ -85,6 +86,13 @@ func (s *Service) Post(c echo.Context) error {
 			"message": "Bad Request",
 		})
 	}
+
+	if err := c.Validate(a); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Bad Request",
+		})
+	}
+
 	id, err := s.useCase.Save(a.Entity())
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
@@ -102,6 +110,13 @@ func (s *Service) Put(c echo.Context) error {
 			"message": "Bad Request",
 		})
 	}
+	if err := c.Validate(a); err != nil {
+		fmt.Println(err)
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Bad Request",
+		})
+	}
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{

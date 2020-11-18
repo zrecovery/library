@@ -70,18 +70,26 @@ func (s *Service) Gets(c echo.Context) error {
 }
 
 func (s *Service) Post(c echo.Context) error {
-	var a author.Author
-	if err := c.Bind(&a); err != nil {
+	a := new(author.Author)
+
+	if err := c.Bind(a); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "Bad Request",
 		})
 	}
+	if err := c.Validate(*a); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Bad Request",
+		})
+	}
+
 	id, err := s.useCase.Save(a.Entity())
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Internal Server Error",
 		})
 	}
+
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"message": "Created",
 		"id":      id,

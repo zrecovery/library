@@ -50,7 +50,7 @@ func (r *pgRepository) Update(e Entity, id int) error {
 
 func (r *pgRepository) Delete(id int) error {
 	// Don't delete in authors
-	stmt, err := r.db.Prepare("DELETE FROM public.uthors WHERE id=$1;")
+	stmt, err := r.db.Prepare("DELETE FROM public.authors WHERE id=$1;")
 	if err != nil {
 		panic(err)
 	}

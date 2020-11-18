@@ -64,6 +64,21 @@ func (mr *MockUseCaseMockRecorder) GetByID(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUseCase)(nil).GetByID), arg0)
 }
 
+// GetByAuthor mocks base method
+func (m *MockUseCase) GetByAuthor(arg0 string) ([]book.Book, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByAuthor", arg0)
+	ret0, _ := ret[0].([]book.Book)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByAuthor indicates an expected call of GetByAuthor
+func (mr *MockUseCaseMockRecorder) GetByAuthor(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByAuthor", reflect.TypeOf((*MockUseCase)(nil).GetByAuthor), arg0)
+}
+
 // Save mocks base method
 func (m *MockUseCase) Save(e repository.Entity) (int, error) {
 	m.ctrl.T.Helper()

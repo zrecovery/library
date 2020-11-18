@@ -1,12 +1,16 @@
 package main
 
 import (
+	"net/http"
+
 	articleService "github.com/zrecovery/library/pkg/article/service"
 	authorService "github.com/zrecovery/library/pkg/author/service"
 	bookService "github.com/zrecovery/library/pkg/book/service"
+	echoValidator "github.com/zrecovery/library/pkg/validator"
 
 	"database/sql"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/lib/pq"
@@ -15,7 +19,14 @@ import (
 func main() {
 	e := echo.New()
 
-	connStr := "postgres://postgres:postgres@localhost/library?sslmode=disable"
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://127.0.0.1"},
+		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
+	}))
+
+	e.Validator = echoValidator.New(validator.New())
+	connStr := "postgres://postgres:postgres@localhost/test?sslmode=disable"
+
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		panic(err)
@@ -38,6 +49,8 @@ func main() {
 	author := api.Group("/authors")
 	author.GET("", authorMod.Gets)
 	author.GET("/:id", authorMod.GetByID)
+	author.POST("", authorMod.Post)
+	author.DELETE("/:id", authorMod.Delete)
 
 	book := api.Group("/books")
 	book.GET("", bookMod.Gets)

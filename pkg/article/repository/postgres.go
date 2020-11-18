@@ -13,16 +13,17 @@ type pgRepository struct {
 }
 
 func NewRepository(d *sql.DB) *pgRepository {
-
 	return &pgRepository{db: d}
 }
 
 func (r *pgRepository) Insert(e Entity) (int, error) {
+	// lib/pq不支持Result.LastInsertId()，通过SQL中RETURNING id处理
 	stmt, err := r.db.Prepare("INSERT INTO public.articles(book, author, title, serial_sections, article) VALUES ($1,$2,$3,$4,$5) RETURNING id;")
 	if err != nil {
 		panic(err)
 	}
 	defer stmt.Close()
+
 	var lastID int
 	err = stmt.QueryRow(e.Book.String, e.Author.String, e.Title.String, e.Serial.Float64, e.Article.String).Scan(&lastID)
 	return lastID, err

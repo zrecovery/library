@@ -8,12 +8,13 @@ import (
 )
 
 type Article struct {
-	ID      int64   `json:"id,omitempty"`
-	Author  string  `json:"author,omitempty"`
-	Book    string  `json:"book,omitempty"`
-	Title   string  `json:"title,omitempty"`
-	Article string  `json:"article,omitempty"`
-	Serial  float64 `json:"serial,omitempty"`
+	ID      int64  `json:"id,omitempty"`
+	Author  string `json:"author"`
+	Book    string `json:"book"`
+	Title   string `json:"title"`
+	Article string `json:"article"`
+	// Serial章节排序序号
+	Serial float64 `json:"serial"`
 }
 
 func (a Article) Entity() repository.Entity {
@@ -33,7 +34,6 @@ func (a Article) JSON() string {
 		panic(err)
 	}
 	return string(jsons)
-
 }
 
 func EntityToArticle(a repository.Entity) Article {

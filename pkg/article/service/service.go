@@ -35,6 +35,7 @@ func NewArticleModule(d *sql.DB) *Service {
 	return NewService(useCase)
 }
 
+// GetByID 使用GET通过ID获取指定文章
 func (s *Service) GetByID(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -56,6 +57,7 @@ func (s *Service) GetByID(c echo.Context) error {
 	})
 }
 
+// Gets 使用GET获取多篇文章
 func (s *Service) Gets(c echo.Context) error {
 	articles, err := s.useCase.GetAll()
 	if err != nil {
@@ -70,13 +72,23 @@ func (s *Service) Gets(c echo.Context) error {
 	})
 }
 
+// Post 使用POST通过添加文章
 func (s *Service) Post(c echo.Context) error {
 	var a article.Article
+
 	if err := c.Bind(&a); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "Bad Request",
 		})
 	}
+
+	//	初次添加，json中不应有ID，模型中ID应为0
+	if a.ID != 0 {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Bad Request",
+		})
+	}
+
 	id, err := s.useCase.Save(a.Entity())
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
@@ -89,6 +101,7 @@ func (s *Service) Post(c echo.Context) error {
 	})
 }
 
+// Put 使用PUT通过ID修改指定文章
 func (s *Service) Put(c echo.Context) error {
 	var a article.Article
 	if err := c.Bind(&a); err != nil {
@@ -98,6 +111,13 @@ func (s *Service) Put(c echo.Context) error {
 	}
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Bad Request",
+		})
+	}
+
+	// URL中id应与请求模型中ID一致
+	if int64(id) != a.ID {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "Bad Request",
 		})

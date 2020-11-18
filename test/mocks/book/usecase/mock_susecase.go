@@ -91,6 +91,21 @@ func (mr *MockRepositoryMockRecorder) FindByID(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockRepository)(nil).FindByID), id)
 }
 
+// FindByAuthor mocks base method
+func (m *MockRepository) FindByAuthor(author string) ([]repository.Entity, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByAuthor", author)
+	ret0, _ := ret[0].([]repository.Entity)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByAuthor indicates an expected call of FindByAuthor
+func (mr *MockRepositoryMockRecorder) FindByAuthor(author interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByAuthor", reflect.TypeOf((*MockRepository)(nil).FindByAuthor), author)
+}
+
 // FindAll mocks base method
 func (m *MockRepository) FindAll() ([]repository.Entity, error) {
 	m.ctrl.T.Helper()
