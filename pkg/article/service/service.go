@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/zrecovery/library/pkg/article"
 	"github.com/zrecovery/library/pkg/article/repository"
@@ -50,10 +49,10 @@ func (s *Service) GetByID(c echo.Context) error {
 			"message": "Internal Server Error",
 		})
 	}
-	a.Article = strings.Replace(a.Article, "\n", "<br/>", -1)
+	// a.Article = strings.Replace(a.Article, "\n", "<br/>", -1)
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "OK",
-		"article": a,
+		"data":    a,
 	})
 }
 
@@ -67,8 +66,8 @@ func (s *Service) Gets(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
-		"message":  "OK",
-		"articles": articles,
+		"message": "OK",
+		"data":    articles,
 	})
 }
 
@@ -97,7 +96,7 @@ func (s *Service) Post(c echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"message": "Created",
-		"id":      id,
+		"data":    id,
 	})
 }
 

@@ -50,7 +50,7 @@ func (s *Service) GetByID(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "OK",
-		"book":    b,
+		"data":    b,
 	})
 }
 
@@ -65,7 +65,7 @@ func (s *Service) Gets(c echo.Context) error {
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"message": "OK",
-			"books":   books,
+			"data":    books,
 		})
 	} else {
 		books, err := s.useCase.GetByAuthor(author)
@@ -74,7 +74,7 @@ func (s *Service) Gets(c echo.Context) error {
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"message": "OK",
-			"books":   books,
+			"data":    books,
 		})
 	}
 }
@@ -99,7 +99,7 @@ func (s *Service) Post(c echo.Context) error {
 	}
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"message": "Created",
-		"id":      id,
+		"data":    id,
 	})
 }
 

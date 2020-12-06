@@ -51,7 +51,7 @@ func (s *Service) GetByID(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "OK",
-		"author":  a,
+		"data":    a,
 	})
 }
 
@@ -65,7 +65,7 @@ func (s *Service) Gets(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "OK",
-		"authors": authors,
+		"data":    authors,
 	})
 }
 
@@ -92,7 +92,7 @@ func (s *Service) Post(c echo.Context) error {
 
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"message": "Created",
-		"id":      id,
+		"data":    id,
 	})
 }
 

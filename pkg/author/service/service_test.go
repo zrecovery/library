@@ -61,7 +61,7 @@ func TestService_GetByID(t *testing.T) {
 			id: "0",
 			want: want{
 				Error:      nil,
-				JSON:       "{\"author\":{\"name\":\"\"},\"message\":\"OK\"}\n",
+				JSON:       "{\"data\":{\"name\":\"\"},\"message\":\"OK\"}\n",
 				StatusCode: http.StatusOK,
 			},
 		},
@@ -118,7 +118,7 @@ func TestService_GetAll(t *testing.T) {
 			},
 			want: want{
 				Error:      nil,
-				JSON:       "{\"authors\":[{\"name\":\"\"}],\"message\":\"OK\"}\n",
+				JSON:       "{\"data\":[{\"name\":\"\"}],\"message\":\"OK\"}\n",
 				StatusCode: http.StatusOK,
 			},
 		},
@@ -172,7 +172,7 @@ func TestService_Post(t *testing.T) {
 			},
 			want: want{
 				Error:      nil,
-				JSON:       "{\"id\":0,\"message\":\"Created\"}\n",
+				JSON:       "{\"data\":0,\"message\":\"Created\"}\n",
 				StatusCode: http.StatusCreated,
 			},
 		}, {
