@@ -28,7 +28,7 @@ func (r *pgRepository) Insert(e Entity) (int, error) {
 }
 
 func (r *pgRepository) Update(e Entity, id int) error {
-	stmt, err := r.db.Prepare("UPDATE public.books SET(title, author) VALUES ($1,$2) WHERE id=$3;")
+	stmt, err := r.db.Prepare("UPDATE public.books SET title = $1, author = $2 WHERE id=$3;")
 	if err != nil {
 		panic(err)
 	}

@@ -18,19 +18,19 @@ func NewRepository(d *sql.DB) *pgRepository {
 
 func (r *pgRepository) Insert(e Entity) (int, error) {
 	// lib/pq不支持Result.LastInsertId()，通过SQL中RETURNING id处理
-	stmt, err := r.db.Prepare("INSERT INTO public.articles(book, author, title, serial_sections, article) VALUES ($1,$2,$3,$4,$5) RETURNING id;")
+	stmt, err := r.db.Prepare("INSERT INTO public.articles(book, title, serial_sections, article) VALUES ($1,$2,$3,$4) RETURNING id;")
 	if err != nil {
 		panic(err)
 	}
 	defer stmt.Close()
 
 	var lastID int
-	err = stmt.QueryRow(e.Book.String, e.Author.String, e.Title.String, e.Serial.Float64, e.Article.String).Scan(&lastID)
+	err = stmt.QueryRow(e.Book.String, e.Title.String, e.Serial.Float64, e.Article.String).Scan(&lastID)
 	return lastID, err
 }
 
 func (r *pgRepository) Update(e Entity, id int) error {
-	stmt, err := r.db.Prepare("UPDATE articles SET(book,title, serial_sections, article) VALUES ($1,$2,$3,$4) WHERE id=$5;")
+	stmt, err := r.db.Prepare("UPDATE articles SET book=$1,title=$2, serial_sections=$3, article=$4 WHERE id=$5;")
 	if err != nil {
 		panic(err)
 	}
