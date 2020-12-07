@@ -45,16 +45,20 @@ func main() {
 	a := api.Group("/articles")
 	a.GET("", articleMod.Gets)
 	a.GET("/:id", articleMod.GetByID)
+	a.POST("", articleMod.Post)
+	a.PUT("/:id", articleMod.Put)
 
+	// api/authors
 	author := api.Group("/authors")
 	author.GET("", authorMod.Gets)
 	author.GET("/:id", authorMod.GetByID)
 	author.POST("", authorMod.Post)
 	author.DELETE("/:id", authorMod.Delete)
 
+	// api/books
 	book := api.Group("/books")
 	book.GET("", bookMod.Gets)
 	book.GET("/:id", bookMod.GetByID)
 
-	e.Logger.Fatal(e.Start("0.0.0.0:80"))
+	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
 }
