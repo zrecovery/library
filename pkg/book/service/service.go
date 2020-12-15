@@ -2,7 +2,6 @@ package service
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -111,7 +110,6 @@ func (s *Service) Put(c echo.Context) error {
 		})
 	}
 	if err := c.Validate(a); err != nil {
-		fmt.Println(err)
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "Bad Request",
 		})
