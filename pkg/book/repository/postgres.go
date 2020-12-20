@@ -11,12 +11,16 @@ type pgRepository struct {
 	db *sql.DB
 }
 
-func NewRepository(d *sql.DB) *pgRepository {
-
-	return &pgRepository{db: d}
+func NewRepository(connStr string) *pgRepository {
+	// 硬编码，默认使用Postgres
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		panic(err)
+	}
+	return &pgRepository{db: db}
 }
 
-func (r *pgRepository) Insert(e Entity) (int, error) {
+func (r *pgRepository) Save(e Entity) (int, error) {
 	stmt, err := r.db.Prepare("INSERT INTO public.books(author, title) VALUES ($1,$2) RETURNING id;")
 	if err != nil {
 		panic(err)

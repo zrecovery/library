@@ -8,7 +8,7 @@ import (
 )
 
 type Author struct {
-	ID   int64  `json:"id,omitempty" `
+	ID   int64  `json:"id" `
 	Name string `json:"name" validate:"required"`
 }
 

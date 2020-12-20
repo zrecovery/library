@@ -6,7 +6,7 @@ import (
 )
 
 type Repository interface {
-	Insert(repository.Entity) (int, error)
+	Save(repository.Entity) (int, error)
 	Update(repository.Entity, int) error
 	Delete(id int) error
 	FindByID(id int) (repository.Entity, error)
@@ -23,7 +23,7 @@ func NewUseCase(repository Repository) *useCase {
 }
 
 func (u *useCase) Save(e repository.Entity) (int, error) {
-	id, err := u.repository.Insert(e)
+	id, err := u.repository.Save(e)
 	if err != nil {
 		return 0, err
 	}

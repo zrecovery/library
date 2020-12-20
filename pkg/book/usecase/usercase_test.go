@@ -35,7 +35,7 @@ func TestSave(t *testing.T) {
 	mockRepository := mock_usecase.NewMockRepository(ctrl)
 
 	for _, test := range tests {
-		mockRepository.EXPECT().Insert(gomock.Any()).Return(test.mockReturnID, test.mockReturnError)
+		mockRepository.EXPECT().Save(gomock.Any()).Return(test.mockReturnID, test.mockReturnError)
 		testUseCase := usecase.NewUseCase(mockRepository)
 		t.Run(test.name, func(t *testing.T) {
 			result, err := testUseCase.Save(test.book.Entity())

@@ -1,7 +1,6 @@
 package service
 
 import (
-	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -29,8 +28,8 @@ func NewService(usecCase UseCase) *Service {
 	return &Service{useCase: usecCase}
 }
 
-func NewBookModule(d *sql.DB) *Service {
-	repository := repository.NewRepository(d)
+func NewBookModule(connStr string) *Service {
+	repository := repository.NewRepository(connStr)
 	useCase := usecase.NewUseCase(repository)
 	return NewService(useCase)
 }

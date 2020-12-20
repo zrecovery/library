@@ -32,7 +32,7 @@ func main() {
 		panic(err)
 	}
 
-	articleMod := articleService.NewArticleModule(db)
+	articleMod := articleService.NewArticleModule(connStr)
 	authorMod := authorService.NewAuthorModule(db)
 	bookMod := bookService.NewBookModule(db)
 

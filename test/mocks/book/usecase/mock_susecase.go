@@ -33,19 +33,19 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 	return m.recorder
 }
 
-// Insert mocks base method
-func (m *MockRepository) Insert(arg0 repository.Entity) (int, error) {
+// Save mocks base method
+func (m *MockRepository) Save(arg0 repository.Entity) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Insert", arg0)
+	ret := m.ctrl.Call(m, "Save", arg0)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// Insert indicates an expected call of Insert
-func (mr *MockRepositoryMockRecorder) Insert(arg0 interface{}) *gomock.Call {
+// Save indicates an expected call of Save
+func (mr *MockRepositoryMockRecorder) Save(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepository)(nil).Insert), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockRepository)(nil).Save), arg0)
 }
 
 // Update mocks base method
