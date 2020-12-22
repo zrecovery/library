@@ -1,4 +1,4 @@
-package service
+package api
 
 import (
 	"database/sql"
@@ -20,21 +20,21 @@ type UseCase interface {
 	Delete(id int) error
 }
 
-type Service struct {
+type api struct {
 	useCase UseCase
 }
 
-func NewService(usecCase UseCase) *Service {
-	return &Service{useCase: usecCase}
+func NewApi(usecCase UseCase) *api {
+	return &api{useCase: usecCase}
 }
 
-func NewAuthorModule(d *sql.DB) *Service {
+func NewAuthorModule(d *sql.DB) *api {
 	repository := repository.NewRepository(d)
 	useCase := usecase.NewUseCase(repository)
-	return NewService(useCase)
+	return NewApi(useCase)
 }
 
-func (s *Service) GetByID(c echo.Context) error {
+func (api *api) GetByID(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -42,7 +42,7 @@ func (s *Service) GetByID(c echo.Context) error {
 		})
 	}
 
-	a, err := s.useCase.GetByID(id)
+	a, err := api.useCase.GetByID(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Internal Server Error",
@@ -55,8 +55,8 @@ func (s *Service) GetByID(c echo.Context) error {
 	})
 }
 
-func (s *Service) Gets(c echo.Context) error {
-	authors, err := s.useCase.GetAll()
+func (api *api) Gets(c echo.Context) error {
+	authors, err := api.useCase.GetAll()
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Internal Server Error",
@@ -69,7 +69,7 @@ func (s *Service) Gets(c echo.Context) error {
 	})
 }
 
-func (s *Service) Post(c echo.Context) error {
+func (api *api) Post(c echo.Context) error {
 	a := new(author.Author)
 
 	if err := c.Bind(a); err != nil {
@@ -83,7 +83,7 @@ func (s *Service) Post(c echo.Context) error {
 		})
 	}
 
-	id, err := s.useCase.Save(a.Entity())
+	id, err := api.useCase.Save(a.Entity())
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Internal Server Error",
@@ -96,7 +96,7 @@ func (s *Service) Post(c echo.Context) error {
 	})
 }
 
-func (s *Service) Put(c echo.Context) error {
+func (api *api) Put(c echo.Context) error {
 	var a author.Author
 	if err := c.Bind(&a); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -110,7 +110,7 @@ func (s *Service) Put(c echo.Context) error {
 		})
 	}
 
-	err = s.useCase.Update(a.Entity(), id)
+	err = api.useCase.Update(a.Entity(), id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Internal Server Error",
@@ -121,7 +121,7 @@ func (s *Service) Put(c echo.Context) error {
 	})
 }
 
-func (s *Service) Delete(c echo.Context) error {
+func (api *api) Delete(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -129,7 +129,7 @@ func (s *Service) Delete(c echo.Context) error {
 		})
 	}
 
-	err = s.useCase.Delete(id)
+	err = api.useCase.Delete(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Internal Server Error",

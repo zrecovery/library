@@ -1,4 +1,4 @@
-package service_test
+package api_test
 
 import (
 	"net/http"
@@ -11,8 +11,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/zrecovery/library/pkg/author"
-	"github.com/zrecovery/library/pkg/author/service"
-	mock_service "github.com/zrecovery/library/test/mocks/author/service"
+	"github.com/zrecovery/library/pkg/author/api"
+	mock_api "github.com/zrecovery/library/test/mocks/author/api"
 )
 
 type CustomValidator struct {
@@ -38,7 +38,7 @@ func TestService_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_service.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockUseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -72,7 +72,7 @@ func TestService_GetByID(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(tt.id)
 			mockUseCase.EXPECT().GetByID(gomock.Any()).Return(tt.mock.Author, tt.mock.Error)
-			s := service.NewService(mockUseCase)
+			s := api.NewApi(mockUseCase)
 			err := s.GetByID(c)
 			if assert.NoError(t, err) {
 				assert.Equal(t, tt.want.StatusCode, rec.Code)
@@ -97,7 +97,7 @@ func TestService_GetAll(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_service.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockUseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -128,7 +128,7 @@ func TestService_GetAll(t *testing.T) {
 			c.SetPath("/api/authors")
 
 			mockUseCase.EXPECT().GetAll().Return(tt.mock.Authors, tt.mock.Error)
-			s := service.NewService(mockUseCase)
+			s := api.NewApi(mockUseCase)
 
 			err := s.Gets(c)
 			if assert.NoError(t, err) {
@@ -202,11 +202,11 @@ func TestService_Post(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.SetPath("/api/authors")
 
-			mockUseCase := mock_service.NewMockUseCase(ctrl)
+			mockUseCase := mock_api.NewMockUseCase(ctrl)
 			if tt.useMock {
 				mockUseCase.EXPECT().Save(gomock.Any()).Return(tt.mock.ID, tt.mock.Error)
 			}
-			s := service.NewService(mockUseCase)
+			s := api.NewApi(mockUseCase)
 			err := s.Post(c)
 
 			if assert.NoError(t, err) {
@@ -231,7 +231,7 @@ func TestService_Put(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_service.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockUseCase(ctrl)
 
 	e := echo.New()
 
@@ -269,7 +269,7 @@ func TestService_Put(t *testing.T) {
 			c.SetParamValues(tt.id)
 
 			mockUseCase.EXPECT().Update(gomock.Any(), gomock.Any()).Return(tt.mock.Error)
-			s := service.NewService(mockUseCase)
+			s := api.NewApi(mockUseCase)
 			err := s.Put(c)
 			if assert.NoError(t, err) {
 				assert.Equal(t, tt.want.StatusCode, rec.Code)
@@ -293,7 +293,7 @@ func TestService_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_service.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockUseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodDelete, "/", nil)
@@ -326,7 +326,7 @@ func TestService_Delete(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(tt.id)
 			mockUseCase.EXPECT().Delete(gomock.Any()).Return(tt.mock.Error)
-			s := service.NewService(mockUseCase)
+			s := api.NewApi(mockUseCase)
 			err := s.Delete(c)
 			if assert.NoError(t, err) {
 				assert.Equal(t, tt.want.StatusCode, rec.Code)
