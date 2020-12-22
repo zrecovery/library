@@ -1,0 +1,22 @@
+version: "3"
+services:
+  dev:
+    build: ./
+    ports:
+      - "1323:1323"
+    links:
+      - "db"
+    volumes:
+      - $HOME/go:/go
+    tty: true
+  db:
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+  
+      
