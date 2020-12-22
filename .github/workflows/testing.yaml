@@ -21,6 +21,10 @@ jobs:
     - name: Get dependencies
       run: |
         go mod download
+
     - name: Test
       run: |
         go test ./pkg/... -v
+        
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v1.2.1
