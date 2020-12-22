@@ -3,9 +3,9 @@ package main
 import (
 	"net/http"
 
-	articleService "github.com/zrecovery/library/pkg/article/service"
-	authorService "github.com/zrecovery/library/pkg/author/service"
-	bookService "github.com/zrecovery/library/pkg/book/service"
+	articleService "github.com/zrecovery/library/internal/article/service"
+	authorAPI "github.com/zrecovery/library/internal/author/api"
+	bookService "github.com/zrecovery/library/internal/book/service"
 	echoValidator "github.com/zrecovery/library/pkg/validator"
 
 	"database/sql"
@@ -34,7 +34,7 @@ func main() {
 	}
 
 	articleMod := articleService.NewArticleModule(db)
-	authorMod := authorService.NewAuthorModule(db)
+	authorMod := authorAPI.NewAuthorModule(db)
 	bookMod := bookService.NewBookModule(connStr)
 
 	// Middleware

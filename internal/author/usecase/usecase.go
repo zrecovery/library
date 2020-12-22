@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"github.com/zrecovery/library/pkg/article"
-	"github.com/zrecovery/library/pkg/article/repository"
+	"github.com/zrecovery/library/internal/author"
+	"github.com/zrecovery/library/internal/author/repository"
 )
 
 type Repository interface {
@@ -10,6 +10,7 @@ type Repository interface {
 	Update(repository.Entity, int) error
 	Delete(id int) error
 	FindByID(id int) (repository.Entity, error)
+	FindByName(name string) (repository.Entity, error)
 	FindAll() ([]repository.Entity, error)
 }
 
@@ -45,22 +46,31 @@ func (u *useCase) Delete(id int) error {
 	return err
 }
 
-func (u *useCase) GetByID(id int) (article.Article, error) {
+func (u *useCase) GetByID(id int) (author.Author, error) {
 	entity, err := u.repository.FindByID(id)
-	art := article.EntityToArticle(entity)
+	art := author.EntityToAuthor(entity)
 	if err != nil {
 		return art, err
 	}
 	return art, err
 }
 
-func (u *useCase) GetAll() ([]article.Article, error) {
+func (u *useCase) GetByName(name string) (author.Author, error) {
+	entity, err := u.repository.FindByName(name)
+	art := author.EntityToAuthor(entity)
+	if err != nil {
+		return art, err
+	}
+	return art, err
+}
+
+func (u *useCase) GetAll() ([]author.Author, error) {
 	entities, err := u.repository.FindAll()
 
-	var articles []article.Article
+	var articles []author.Author
 
 	for _, entity := range entities {
-		articles = append(articles, article.EntityToArticle(entity))
+		articles = append(articles, author.EntityToAuthor(entity))
 	}
 	if err != nil {
 		return articles, err

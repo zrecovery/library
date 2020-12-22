@@ -3,7 +3,7 @@ package article
 import (
 	"encoding/json"
 
-	"github.com/zrecovery/library/pkg/article/repository"
+	"github.com/zrecovery/library/internal/article/repository"
 	"github.com/zrecovery/library/pkg/nulltype"
 )
 

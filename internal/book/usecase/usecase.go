@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"github.com/zrecovery/library/pkg/book"
-	"github.com/zrecovery/library/pkg/book/repository"
+	"github.com/zrecovery/library/internal/book"
+	"github.com/zrecovery/library/internal/book/repository"
 )
 
 type Repository interface {

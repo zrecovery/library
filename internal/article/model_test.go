@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/zrecovery/library/pkg/article/repository"
+	"github.com/zrecovery/library/internal/article/repository"
 )
 
 func TestArticle_Entity(t *testing.T) {

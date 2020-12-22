@@ -3,7 +3,7 @@ package author
 import (
 	"encoding/json"
 
-	"github.com/zrecovery/library/pkg/author/repository"
+	"github.com/zrecovery/library/internal/author/repository"
 	"github.com/zrecovery/library/pkg/nulltype"
 )
 

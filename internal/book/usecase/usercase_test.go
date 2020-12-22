@@ -3,10 +3,10 @@ package usecase_test
 import (
 	"testing"
 
-	"github.com/zrecovery/library/pkg/author"
-	"github.com/zrecovery/library/pkg/author/repository"
-	"github.com/zrecovery/library/pkg/author/usecase"
-	mock_usecase "github.com/zrecovery/library/test/mocks/author/usecase"
+	"github.com/zrecovery/library/internal/book"
+	"github.com/zrecovery/library/internal/book/repository"
+	"github.com/zrecovery/library/internal/book/usecase"
+	mock_usecase "github.com/zrecovery/library/test/mocks/book/usecase"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -15,14 +15,14 @@ import (
 func TestSave(t *testing.T) {
 	tests := []struct {
 		name            string
-		author          author.Author
+		book            book.Book
 		mockReturnID    int
 		mockReturnError error
 		expected        int
 	}{
 		{
 			name:            "正常保存",
-			author:          author.Author{},
+			book:            book.Book{},
 			mockReturnID:    0,
 			mockReturnError: nil,
 			expected:        0,
@@ -35,10 +35,10 @@ func TestSave(t *testing.T) {
 	mockRepository := mock_usecase.NewMockRepository(ctrl)
 
 	for _, test := range tests {
-		mockRepository.EXPECT().Insert(gomock.Any()).Return(test.mockReturnID, test.mockReturnError)
+		mockRepository.EXPECT().Save(gomock.Any()).Return(test.mockReturnID, test.mockReturnError)
 		testUseCase := usecase.NewUseCase(mockRepository)
 		t.Run(test.name, func(t *testing.T) {
-			result, err := testUseCase.Save(test.author.Entity())
+			result, err := testUseCase.Save(test.book.Entity())
 			assert.NoError(t, err)
 			assert.Equal(t, test.expected, result)
 		})
@@ -49,14 +49,14 @@ func TestUpdate(t *testing.T) {
 	tests := []struct {
 		name            string
 		id              int
-		author          author.Author
+		book            book.Book
 		mockReturnError error
 		expected        error
 	}{
 		{
 			name:            "正常升级",
 			id:              0,
-			author:          author.Author{},
+			book:            book.Book{},
 			mockReturnError: nil,
 			expected:        nil,
 		},
@@ -71,7 +71,7 @@ func TestUpdate(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			mockRepository.EXPECT().Update(gomock.Any(), gomock.Any()).Return(test.mockReturnError)
 			testUseCase := usecase.NewUseCase(mockRepository)
-			err := testUseCase.Update(test.author.Entity(), test.id)
+			err := testUseCase.Update(test.book.Entity(), test.id)
 			assert.NoError(t, err)
 		})
 	}
@@ -112,14 +112,14 @@ func TestGetByID(t *testing.T) {
 		id               int
 		mockReturnEntity repository.Entity
 		mockReturnError  error
-		expected         author.Author
+		expected         book.Book
 	}{
 		{
-			name:             "通过ID查找作者",
+			name:             "通过ID查找书籍",
 			id:               0,
 			mockReturnEntity: repository.Entity{},
 			mockReturnError:  nil,
-			expected:         author.Author{},
+			expected:         book.Book{},
 		},
 	}
 	ctrl := gomock.NewController(t)
@@ -143,13 +143,13 @@ func TestGetAll(t *testing.T) {
 		name               string
 		mockReturnEntities []repository.Entity
 		mockReturnError    error
-		expected           []author.Author
+		expected           []book.Book
 	}{
 		{
-			name:               "获取所有作者",
+			name:               "获取所有书籍",
 			mockReturnEntities: []repository.Entity{{}},
 			mockReturnError:    nil,
-			expected:           []author.Author{{}},
+			expected:           []book.Book{{}},
 		},
 	}
 	ctrl := gomock.NewController(t)

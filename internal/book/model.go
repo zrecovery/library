@@ -3,7 +3,7 @@ package book
 import (
 	"encoding/json"
 
-	"github.com/zrecovery/library/pkg/book/repository"
+	"github.com/zrecovery/library/internal/book/repository"
 	"github.com/zrecovery/library/pkg/nulltype"
 )
 

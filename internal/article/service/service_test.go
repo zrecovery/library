@@ -6,27 +6,19 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/go-playground/validator/v10"
-	"github.com/golang/mock/gomock"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"github.com/zrecovery/library/pkg/book"
-	"github.com/zrecovery/library/pkg/book/service"
-	mock_service "github.com/zrecovery/library/test/mocks/book/service"
+	"github.com/zrecovery/library/internal/article"
+	"github.com/zrecovery/library/internal/article/service"
+	mock_service "github.com/zrecovery/library/test/mocks/article/service"
+
+	"github.com/golang/mock/gomock"
 )
-
-type CustomValidator struct {
-	validator *validator.Validate
-}
-
-func (cv *CustomValidator) Validate(i interface{}) error {
-	return cv.validator.Struct(i)
-}
 
 func TestService_GetByID(t *testing.T) {
 	type mockReturn struct {
-		Book  book.Book
-		Error error
+		Article article.Article
+		Error   error
 	}
 
 	type want struct {
@@ -53,25 +45,25 @@ func TestService_GetByID(t *testing.T) {
 		want want
 	}{
 		{
-			name: "正常通过ID获取书籍",
+			name: "正常通过ID获取",
 			mock: mockReturn{
-				Book:  book.Book{},
-				Error: nil,
+				Article: article.Article{},
+				Error:   nil,
 			},
 			id: "0",
 			want: want{
 				Error:      nil,
-				JSON:       "{\"data\":{\"author\":\"\",\"title\":\"\"},\"message\":\"OK\"}\n",
+				JSON:       "{\"data\":{\"author\":\"\",\"book\":\"\",\"title\":\"\",\"article\":\"\",\"serial\":0},\"message\":\"OK\"}\n",
 				StatusCode: http.StatusOK,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c.SetPath("/books/:id")
+			c.SetPath("/articles/:id")
 			c.SetParamNames("id")
 			c.SetParamValues(tt.id)
-			mockUseCase.EXPECT().GetByID(gomock.Any()).Return(tt.mock.Book, tt.mock.Error)
+			mockUseCase.EXPECT().GetByID(gomock.Any()).Return(tt.mock.Article, tt.mock.Error)
 			s := service.NewService(mockUseCase)
 			err := s.GetByID(c)
 			if assert.NoError(t, err) {
@@ -84,8 +76,8 @@ func TestService_GetByID(t *testing.T) {
 
 func TestService_GetAll(t *testing.T) {
 	type mockReturn struct {
-		Books []book.Book
-		Error error
+		Articles []article.Article
+		Error    error
 	}
 
 	type want struct {
@@ -111,23 +103,23 @@ func TestService_GetAll(t *testing.T) {
 		want want
 	}{
 		{
-			name: "正常获取全部书籍",
+			name: "正常获取全部文章",
 			mock: mockReturn{
-				Books: []book.Book{{}},
-				Error: nil,
+				Articles: []article.Article{{}},
+				Error:    nil,
 			},
 			want: want{
 				Error:      nil,
-				JSON:       "{\"data\":[{\"author\":\"\",\"title\":\"\"}],\"message\":\"OK\"}\n",
+				JSON:       "{\"data\":[{\"author\":\"\",\"book\":\"\",\"title\":\"\",\"article\":\"\",\"serial\":0}],\"message\":\"OK\"}\n",
 				StatusCode: http.StatusOK,
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c.SetPath("/api/books")
+			c.SetPath("/articles")
 
-			mockUseCase.EXPECT().GetAll().Return(tt.mock.Books, tt.mock.Error)
+			mockUseCase.EXPECT().GetAll().Return(tt.mock.Articles, tt.mock.Error)
 			s := service.NewService(mockUseCase)
 
 			err := s.Gets(c)
@@ -154,18 +146,21 @@ func TestService_Post(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	mockUseCase := mock_service.NewMockUseCase(ctrl)
+
+	e := echo.New()
+
+	rec := httptest.NewRecorder()
+
 	tests := []struct {
 		name     string
 		postJSON string
-		// useMock避免出现在mock函数前返回而导致的无意义测试失败
-		useMock bool
-		mock    mockReturn
-		want    want
+		mock     mockReturn
+		want     want
 	}{
 		{
-			name:     "正常提交用户",
-			postJSON: "{\"title\":\"test title\",\"author\":\"test author\"}",
-			useMock:  true,
+			name:     "正常提交文章",
+			postJSON: `{"book":"test book","author":"test author","serial":1,"title":""test title","article":"test article"}`,
 			mock: mockReturn{
 				ID:    0,
 				Error: nil,
@@ -175,39 +170,17 @@ func TestService_Post(t *testing.T) {
 				JSON:       "{\"data\":0,\"message\":\"Created\"}\n",
 				StatusCode: http.StatusCreated,
 			},
-		}, {
-			name:     "发送不合格数据",
-			postJSON: `{"nm":"test name"}`,
-			useMock:  false,
-			mock: mockReturn{
-				ID:    0,
-				Error: nil,
-			},
-			want: want{
-				Error:      nil,
-				JSON:       "{\"message\":\"Bad Request\"}\n",
-				StatusCode: http.StatusBadRequest,
-			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := echo.New()
-			e.Validator = &CustomValidator{validator: validator.New()}
-
-			rec := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(tt.postJSON))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
-			c.SetPath("/api/books")
-
-			mockUseCase := mock_service.NewMockUseCase(ctrl)
-			if tt.useMock {
-				mockUseCase.EXPECT().Save(gomock.Any()).Return(tt.mock.ID, tt.mock.Error)
-			}
+			c.SetPath("/articles")
+			mockUseCase.EXPECT().Save(gomock.Any()).Return(tt.mock.ID, tt.mock.Error)
 			s := service.NewService(mockUseCase)
 			err := s.Post(c)
-
 			if assert.NoError(t, err) {
 				assert.Equal(t, tt.want.StatusCode, rec.Code)
 				assert.Equal(t, tt.want.JSON, rec.Body.String())
@@ -233,7 +206,7 @@ func TestService_Put(t *testing.T) {
 	mockUseCase := mock_service.NewMockUseCase(ctrl)
 
 	e := echo.New()
-	e.Validator = &CustomValidator{validator: validator.New()}
+
 	rec := httptest.NewRecorder()
 
 	tests := []struct {
@@ -245,8 +218,8 @@ func TestService_Put(t *testing.T) {
 		want want
 	}{
 		{
-			name:     "正常修改用户",
-			postJSON: `{"id":0,"author":"test new author","title":"test new title"}`,
+			name:     "正常修改文章",
+			postJSON: `{"id":0,"book":"test book","author":"test author","serial":1,"title":""test title","article":"test article"}`,
 			mock: mockReturn{
 				Error: nil,
 			},
@@ -261,9 +234,9 @@ func TestService_Put(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			req := httptest.NewRequest(http.MethodPut, "/", strings.NewReader(tt.postJSON))
-			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationForm)
 			c := e.NewContext(req, rec)
-			c.SetPath("/books/:id")
+			c.SetPath("/articles/:id")
 			c.SetParamNames("id")
 			c.SetParamValues(tt.id)
 
@@ -321,7 +294,7 @@ func TestService_Delete(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c.SetPath("/books/:id")
+			c.SetPath("/articles/:id")
 			c.SetParamNames("id")
 			c.SetParamValues(tt.id)
 			mockUseCase.EXPECT().Delete(gomock.Any()).Return(tt.mock.Error)

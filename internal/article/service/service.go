@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/zrecovery/library/pkg/article"
-	"github.com/zrecovery/library/pkg/article/repository"
-	"github.com/zrecovery/library/pkg/article/usecase"
+	"github.com/zrecovery/library/internal/article"
+	"github.com/zrecovery/library/internal/article/repository"
+	"github.com/zrecovery/library/internal/article/usecase"
 
 	"github.com/labstack/echo/v4"
 )
