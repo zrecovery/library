@@ -3,9 +3,10 @@
 clean:
 	rm ./bin/library
 
-bin/library: build
+download:
+	go mod download
 
-build:
+build: download
 	go build -o bin/library cmd/library/*.go
 
 run: build
@@ -17,7 +18,7 @@ mock:
 	sh ./scripts/mock.sh
 
 test: mock
-	go test ./pkg/...
+	go test ./...
 
 cover: mock
-	go test -coverprofile=cover.out -gcflags=-l ./pkg/... && go tool cover -html=cover.out && rm cover.out
+	go test -coverprofile=cover.out -gcflags=-l ./... && go tool cover -html=cover.out && rm cover.out
