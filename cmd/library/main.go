@@ -18,23 +18,24 @@ import (
 
 func main() {
 	e := echo.New()
-
+	e.File("/favicon.ico", "../../web/favicon.ico")
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://127.0.0.1"},
 		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
 	}))
 
 	e.Validator = echoValidator.New(validator.New())
-	connStr := "postgres://postgres:postgres@localhost/test?sslmode=disable"
+	// docker开发用
+	connStr := "postgres://postgres:test@10.211.55.5/test?sslmode=disable"
 
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		panic(err)
 	}
 
-	articleMod := articleService.NewArticleModule(connStr)
+	articleMod := articleService.NewArticleModule(db)
 	authorMod := authorService.NewAuthorModule(db)
-	bookMod := bookService.NewBookModule(db)
+	bookMod := bookService.NewBookModule(connStr)
 
 	// Middleware
 	e.Use(middleware.Logger())
