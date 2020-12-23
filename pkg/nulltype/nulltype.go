@@ -1,9 +1,21 @@
 package nulltype
 
-import "database/sql"
+import (
+	"database/sql"
+	"database/sql/driver"
+)
 
 func ToNullString(str string) sql.NullString {
 	return sql.NullString{String: str, Valid: true}
+}
+
+type nullType interface {
+	Value() (driver.Value, error)
+	Scan(value interface{}) error
+}
+
+func NotNull(nullType nullType) {
+
 }
 
 func ToNullInt64(i int64) sql.NullInt64 {
