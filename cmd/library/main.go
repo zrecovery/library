@@ -3,12 +3,10 @@ package main
 import (
 	"net/http"
 
-	articleService "github.com/zrecovery/library/internal/article/service"
-	authorAPI "github.com/zrecovery/library/internal/author/api"
-	bookService "github.com/zrecovery/library/internal/book/service"
+	articleRouter "github.com/zrecovery/library/internal/article/pkg/router"
+	authorRouter "github.com/zrecovery/library/internal/author/pkg/router"
+	bookRouter "github.com/zrecovery/library/internal/book/pkg/router"
 	echoValidator "github.com/zrecovery/library/pkg/validator"
-
-	"database/sql"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -25,41 +23,15 @@ func main() {
 	}))
 
 	e.Validator = echoValidator.New(validator.New())
-	// docker开发用
+
 	connStr := "postgres://postgres:test@10.211.55.5/test?sslmode=disable"
-
-	db, err := sql.Open("postgres", connStr)
-	if err != nil {
-		panic(err)
-	}
-
-	articleMod := articleService.NewArticleModule(db)
-	authorMod := authorAPI.NewAuthorModule(db)
-	bookMod := bookService.NewBookModule(connStr)
 
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-
-	e.GET("/", articleMod.Gets)
 	api := e.Group("/api")
-	a := api.Group("/articles")
-	a.GET("", articleMod.Gets)
-	a.GET("/:id", articleMod.GetByID)
-	a.POST("", articleMod.Post)
-	a.PUT("/:id", articleMod.Put)
-
-	// api/authors
-	author := api.Group("/authors")
-	author.GET("", authorMod.Gets)
-	author.GET("/:id", authorMod.GetByID)
-	author.POST("", authorMod.Post)
-	author.DELETE("/:id", authorMod.Delete)
-
-	// api/books
-	book := api.Group("/books")
-	book.GET("", bookMod.Gets)
-	book.GET("/:id", bookMod.GetByID)
-
+	articleRouter.NewRouter(api, connStr)
+	authorRouter.NewRouter(api, connStr)
+	bookRouter.NewRouter(api, connStr)
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
 }

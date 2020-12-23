@@ -24,9 +24,10 @@ func TestToNullString(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ToNullString(tt.args.str); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ToNullString() = %v, want %v", got, tt.want)
+		testcase := tt
+		t.Run(testcase.name, func(t *testing.T) {
+			if got := ToNullString(testcase.args.str); !reflect.DeepEqual(got, testcase.want) {
+				t.Errorf("ToNullString() = %v, want %v", got, testcase.want)
 			}
 		})
 	}
@@ -50,9 +51,10 @@ func TestToNullInt64(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ToNullInt64(tt.args.i); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ToNullInt64() = %v, want %v", got, tt.want)
+		testcase := tt
+		t.Run(testcase.name, func(t *testing.T) {
+			if got := ToNullInt64(testcase.args.i); !reflect.DeepEqual(got, testcase.want) {
+				t.Errorf("ToNullInt64() = %v, want %v", got, testcase.want)
 			}
 		})
 	}
@@ -76,9 +78,10 @@ func TestToNullFloat64(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := ToNullFloat64(tt.args.f); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ToNullFloat64() = %v, want %v", got, tt.want)
+		testcase := tt
+		t.Run(testcase.name, func(t *testing.T) {
+			if got := ToNullFloat64(testcase.args.f); !reflect.DeepEqual(got, testcase.want) {
+				t.Errorf("ToNullFloat64() = %v, want %v", got, testcase.want)
 			}
 		})
 	}
@@ -109,9 +112,10 @@ func TestNullToString(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NullToString(tt.args.nullStr); got != tt.want {
-				t.Errorf("NullToString() = %v, want %v", got, tt.want)
+		testcase := tt
+		t.Run(testcase.name, func(t *testing.T) {
+			if got := NullToString(testcase.args.nullStr); got != testcase.want {
+				t.Errorf("NullToString() = %v, want %v", got, testcase.want)
 			}
 		})
 	}
@@ -142,9 +146,10 @@ func TestNullToInt64(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NullToInt64(tt.args.nullInt64); got != tt.want {
-				t.Errorf("NullToInt64() = %v, want %v", got, tt.want)
+		testcase := tt
+		t.Run(testcase.name, func(t *testing.T) {
+			if got := NullToInt64(testcase.args.nullInt64); got != testcase.want {
+				t.Errorf("NullToInt64() = %v, want %v", got, testcase.want)
 			}
 		})
 	}
@@ -175,9 +180,10 @@ func TestNullToFloat64(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := NullToFloat64(tt.args.nullFloat64); got != tt.want {
-				t.Errorf("NullToFloat64() = %v, want %v", got, tt.want)
+		testcase := tt
+		t.Run(testcase.name, func(t *testing.T) {
+			if got := NullToFloat64(testcase.args.nullFloat64); got != testcase.want {
+				t.Errorf("NullToFloat64() = %v, want %v", got, testcase.want)
 			}
 		})
 	}
