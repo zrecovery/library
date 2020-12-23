@@ -25,7 +25,7 @@ func NewAPI(usecCase UseCase) *API {
 	return &API{useCase: usecCase}
 }
 
-// GetByID 使用GET通过ID获取指定文章
+// GetByID 使用GET通过ID获取指定文章.
 func (api *API) GetByID(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -40,13 +40,14 @@ func (api *API) GetByID(c echo.Context) error {
 			"message": "Internal Server Error",
 		})
 	}
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "OK",
 		"data":    a,
 	})
 }
 
-// Gets 使用GET获取多篇文章
+// Gets 使用GET获取多篇文章.
 func (api *API) Gets(c echo.Context) error {
 	articles, err := api.useCase.GetAll()
 	if err != nil {
@@ -61,7 +62,7 @@ func (api *API) Gets(c echo.Context) error {
 	})
 }
 
-// Post 使用POST通过添加文章
+// Post 使用POST通过添加文章.
 func (api *API) Post(c echo.Context) error {
 	a := new(article.Article)
 
@@ -84,13 +85,14 @@ func (api *API) Post(c echo.Context) error {
 			"message": "Internal Server Error",
 		})
 	}
+
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"message": "Created",
 		"data":    id,
 	})
 }
 
-// Put 使用PUT通过ID修改指定文章
+// Put 使用PUT通过ID修改指定文章.
 func (api *API) Put(c echo.Context) error {
 	a := new(article.Article)
 	if err := c.Bind(a); err != nil {
@@ -98,6 +100,7 @@ func (api *API) Put(c echo.Context) error {
 			"message": "Bad Request",
 		})
 	}
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -118,6 +121,7 @@ func (api *API) Put(c echo.Context) error {
 			"message": "Internal Server Error",
 		})
 	}
+
 	return c.JSON(http.StatusNoContent, map[string]string{
 		"message": "No Content",
 	})

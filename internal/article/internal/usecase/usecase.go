@@ -25,6 +25,7 @@ func (u *UseCase) Save(a *article.Article) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	return id, nil
 }
 
@@ -33,6 +34,7 @@ func (u *UseCase) Update(a *article.Article, id int) error {
 	if err != nil {
 		return err
 	}
+
 	return err
 }
 
@@ -41,6 +43,7 @@ func (u *UseCase) Delete(id int) error {
 	if err != nil {
 		return err
 	}
+
 	return err
 }
 
@@ -49,6 +52,7 @@ func (u *UseCase) GetByID(id int) (*article.Article, error) {
 	if err != nil {
 		return a, err
 	}
+
 	return a, err
 }
 

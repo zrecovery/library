@@ -26,6 +26,7 @@ func (u *UseCase) Save(a *author.Author) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	return id, nil
 }
 
@@ -34,6 +35,7 @@ func (u *UseCase) Update(a *author.Author, id int) error {
 	if err != nil {
 		return err
 	}
+
 	return err
 }
 
@@ -42,6 +44,7 @@ func (u *UseCase) Delete(id int) error {
 	if err != nil {
 		return err
 	}
+
 	return err
 }
 
@@ -50,6 +53,7 @@ func (u *UseCase) GetByID(id int) (*author.Author, error) {
 	if err != nil {
 		return a, err
 	}
+
 	return a, err
 }
 
@@ -58,6 +62,7 @@ func (u *UseCase) GetByName(name string) (*author.Author, error) {
 	if err != nil {
 		return a, err
 	}
+
 	return a, err
 }
 

@@ -65,7 +65,7 @@ linters-settings:
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
   # inverted configuration with `enable-all` and `disable` is not scalable during updates of golangci-lint
-  disable-all: true
+  disable-all: false
   enable:
     - bodyclose
     - deadcode
@@ -105,19 +105,17 @@ linters:
     - unused
     - varcheck
     - whitespace
-
-  # don't enable:
-  # - asciicheck
-  # - gochecknoglobals
-  # - gocognit
-  # - godot
-  # - godox
-  # - goerr113
-  # - maligned
-  # - nestif
-  # - prealloc
-  # - testpackage
-  # - wsl
+    - asciicheck
+    - gochecknoglobals
+    - gocognit
+    - godot
+    - godox
+    - goerr113
+    - maligned
+    - nestif
+    - prealloc
+    - testpackage
+    - wsl
 
 issues:
   # Excluding configuration per-path, per-linter, per-text and per-source

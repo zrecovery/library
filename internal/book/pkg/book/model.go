@@ -15,5 +15,6 @@ func (b Book) JSON() string {
 	if err != nil {
 		panic(err)
 	}
+
 	return string(jsons)
 }

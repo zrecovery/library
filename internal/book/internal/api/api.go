@@ -38,6 +38,7 @@ func (s *API) GetByID(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "OK",
 		"data":    b,
@@ -52,15 +53,18 @@ func (s *API) Gets(c echo.Context) error {
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 		}
+
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"message": "OK",
 			"data":    books,
 		})
 	}
+
 	books, err := s.useCase.GetByAuthor(author)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
+
 	return c.JSON(http.StatusOK, map[string]interface{}{
 		"message": "OK",
 		"data":    books,
@@ -85,6 +89,7 @@ func (s *API) Post(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
+
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"message": "Created",
 		"data":    id,
@@ -98,6 +103,7 @@ func (s *API) Put(c echo.Context) error {
 			"message": "Bad Request",
 		})
 	}
+
 	if err := c.Validate(b); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "Bad Request",
@@ -115,6 +121,7 @@ func (s *API) Put(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
+
 	return c.JSON(http.StatusNoContent, map[string]string{
 		"message": "No Content",
 	})

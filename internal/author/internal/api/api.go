@@ -68,6 +68,7 @@ func (api *API) Post(c echo.Context) error {
 			"message": "Bad Request",
 		})
 	}
+
 	if err := c.Validate(*a); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"message": "Bad Request",
@@ -94,6 +95,7 @@ func (api *API) Put(c echo.Context) error {
 			"message": "Bad Request",
 		})
 	}
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -107,6 +109,7 @@ func (api *API) Put(c echo.Context) error {
 			"message": "Internal Server Error",
 		})
 	}
+
 	return c.JSON(http.StatusNoContent, map[string]string{
 		"message": "No Content",
 	})

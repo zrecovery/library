@@ -2,12 +2,12 @@ package repository
 
 import (
 	"database/sql"
-	"errors"
 	"log"
 
-	// Postgres驱动
+	// Postgres驱动.
 	_ "github.com/lib/pq"
 	"github.com/zrecovery/library/internal/book/pkg/book"
+	errRow "github.com/zrecovery/library/pkg/error"
 )
 
 type PostgresRepository struct {
@@ -20,18 +20,22 @@ func NewRepository(connStr string) *PostgresRepository {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	return &PostgresRepository{db: db}
 }
 
 func (r *PostgresRepository) Save(b *book.Book) (int, error) {
 	e := new(Entity)
 	e.ModelToEntity(b)
+
 	var lastID int
+
 	// 开启事物并预编译进行参数化（查询）处理，在不使用ORM情况下防止SQL注入攻击。
 	tx, err := r.db.Begin()
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer func() {
 		if errRollback := tx.Rollback(); err != nil {
 			log.Fatal(errRollback)
@@ -55,6 +59,7 @@ func (r *PostgresRepository) Save(b *book.Book) (int, error) {
 		log.Print(txErr)
 		return lastID, txErr
 	}
+
 	return lastID, err
 }
 
@@ -91,14 +96,16 @@ func (r *PostgresRepository) Update(b *book.Book, id int) error {
 		log.Print(err)
 		return err
 	}
+
 	if num != 1 {
-		return errors.New("the number of rows affected is not 1")
+		return errRow.ErrRowsNumberNotOne
 	}
 
 	if txErr := tx.Commit(); txErr != nil {
 		log.Print(txErr)
 		return txErr
 	}
+
 	return err
 }
 
@@ -107,6 +114,7 @@ func (r *PostgresRepository) Delete(id int) error {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer func() {
 		if errRollback := tx.Rollback(); err != nil {
 			log.Fatal(errRollback)
@@ -131,24 +139,29 @@ func (r *PostgresRepository) Delete(id int) error {
 		log.Print(err)
 		return err
 	}
+
 	if num != 1 {
-		return errors.New("the number of rows affected is not 1")
+		return errRow.ErrRowsNumberNotOne
 	}
 
 	if txErr := tx.Commit(); txErr != nil {
 		log.Print(txErr)
 		return txErr
 	}
+
 	return err
 }
 
 func (r *PostgresRepository) FindByID(id int) (*book.Book, error) {
 	b := new(book.Book)
+
 	var e Entity
+
 	tx, err := r.db.Begin()
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer func() {
 		if errRollback := tx.Rollback(); err != nil {
 			log.Fatal(errRollback)
@@ -167,11 +180,14 @@ func (r *PostgresRepository) FindByID(id int) (*book.Book, error) {
 		log.Print(err)
 		return b, err
 	}
+
 	if txErr := tx.Commit(); txErr != nil {
 		log.Print(txErr)
 		return b, txErr
 	}
+
 	b = e.EntityToBook()
+
 	return b, err
 }
 
@@ -182,12 +198,14 @@ func (r *PostgresRepository) FindByAuthor(author string) ([]*book.Book, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	stmt, err := tx.Prepare("SELECT id, author, title FROM public.books WHERE author=$1")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer stmt.Close()
 	rows, err := stmt.Query(author)
+
 	if err != nil {
 		log.Print(err)
 		return books, err
@@ -204,6 +222,7 @@ func (r *PostgresRepository) FindByAuthor(author string) ([]*book.Book, error) {
 			log.Print(err)
 			return books, err
 		}
+
 		books = append(books, e.EntityToBook())
 	}
 
@@ -211,6 +230,7 @@ func (r *PostgresRepository) FindByAuthor(author string) ([]*book.Book, error) {
 		log.Print(err)
 		return books, err
 	}
+
 	return books, err
 }
 
@@ -221,6 +241,7 @@ func (r *PostgresRepository) FindAll() ([]*book.Book, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	defer func() {
 		if errRollback := tx.Rollback(); err != nil {
 			log.Fatal(errRollback)
@@ -235,10 +256,12 @@ func (r *PostgresRepository) FindAll() ([]*book.Book, error) {
 
 	defer stmt.Close()
 	rows, err := stmt.Query()
+
 	if err != nil {
 		log.Print(err)
 		return books, err
 	}
+
 	if err = rows.Err(); err != nil {
 		log.Print(err)
 		return books, err
@@ -250,6 +273,7 @@ func (r *PostgresRepository) FindAll() ([]*book.Book, error) {
 			log.Print(err)
 			return books, err
 		}
+
 		books = append(books, e.EntityToBook())
 	}
 
@@ -257,5 +281,6 @@ func (r *PostgresRepository) FindAll() ([]*book.Book, error) {
 		log.Print(err)
 		return books, err
 	}
+
 	return books, err
 }

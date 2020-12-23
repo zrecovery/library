@@ -37,6 +37,7 @@ func TestSave(t *testing.T) {
 		testcase := test
 		mockRepository.EXPECT().Save(gomock.Any()).Return(testcase.mockReturnID, testcase.mockReturnError)
 		testUseCase := usecase.NewUseCase(mockRepository)
+
 		t.Run(testcase.name, func(t *testing.T) {
 			result, err := testUseCase.Save(testcase.book)
 			assert.NoError(t, err)
@@ -93,6 +94,7 @@ func TestDelete(t *testing.T) {
 		},
 	}
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockRepository := mock_usecase.NewMockRepository(ctrl)
@@ -125,6 +127,7 @@ func TestGetByID(t *testing.T) {
 		},
 	}
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockRepository := mock_usecase.NewMockRepository(ctrl)
@@ -156,6 +159,7 @@ func TestGetAll(t *testing.T) {
 		},
 	}
 	ctrl := gomock.NewController(t)
+
 	defer ctrl.Finish()
 
 	mockRepository := mock_usecase.NewMockRepository(ctrl)
