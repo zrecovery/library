@@ -9,7 +9,7 @@ CREATE TABLE public.authors (
 
 CREATE TABLE public.books(
     id SERIAL, author text COLLATE pg_catalog."default" NOT NULL,
-    itle text COLLATE pg_catalog."default" NOT NULL,
+    title text COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT books_pkey PRIMARY KEY (id), 
     CONSTRAINT books_title_key UNIQUE (title), 
     CONSTRAINT books_author_fkey FOREIGN KEY (author) REFERENCES public.authors (name) MATCH SIMPLE ON UPDATE NO ACTION ON DELETE NO ACTION NOT VALID
