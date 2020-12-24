@@ -1,3 +1,4 @@
+// Package repository 存储仓库
 package repository
 
 import (
@@ -15,6 +16,7 @@ type PostgresRepository struct {
 	db *sql.DB
 }
 
+// NewRepository 创建一个存储仓库.
 func NewRepository(connStr string) *PostgresRepository {
 	// 硬编码，默认使用Postgres
 	db, err := sql.Open("postgres", connStr)
@@ -25,10 +27,11 @@ func NewRepository(connStr string) *PostgresRepository {
 	return &PostgresRepository{db: db}
 }
 
+// Insert 添加数据.
 func (r *PostgresRepository) Insert(a *article.Article) (int, error) {
-	var entity Entity
+	var e entity
 
-	entity.ModelToEntity(a)
+	e.modelToEntity(a)
 
 	// lib/pq不支持Result.LastInsertId()，通过SQL中RETURNING id处理
 	stmt, err := r.db.Prepare("INSERT INTO public.articles(book, title, serial_sections, article) VALUES ($1,$2,$3,$4) RETURNING id;")
@@ -38,15 +41,16 @@ func (r *PostgresRepository) Insert(a *article.Article) (int, error) {
 	defer stmt.Close()
 
 	var lastID int
-	err = stmt.QueryRow(entity.Book.String, entity.Title.String, entity.Serial.Float64, entity.Article.String).Scan(&lastID)
+	err = stmt.QueryRow(e.Book.String, e.Title.String, e.Serial.Float64, e.Article.String).Scan(&lastID)
 
 	return lastID, err
 }
 
+// Update 升级数据.
 func (r *PostgresRepository) Update(a *article.Article, id int) error {
-	var e Entity
+	var e entity
 
-	e.ModelToEntity(a)
+	e.modelToEntity(a)
 
 	stmt, err := r.db.Prepare("UPDATE articles SET book=$1,title=$2, serial_sections=$3, article=$4 WHERE id=$5;")
 	if err != nil {
@@ -71,6 +75,7 @@ func (r *PostgresRepository) Update(a *article.Article, id int) error {
 	return err
 }
 
+// Delete 删除数据.
 func (r *PostgresRepository) Delete(id int) error {
 	// Don't delete in articles_view
 	stmt, err := r.db.Prepare("DELETE FROM articles WHERE id=$1;")
@@ -96,8 +101,9 @@ func (r *PostgresRepository) Delete(id int) error {
 	return err
 }
 
+// FindByID 通过ID寻找数据.
 func (r *PostgresRepository) FindByID(id int) (*article.Article, error) {
-	var e *Entity
+	var e *entity
 
 	var a *article.Article
 
@@ -112,11 +118,12 @@ func (r *PostgresRepository) FindByID(id int) (*article.Article, error) {
 		return a, err
 	}
 
-	a = e.EntityToArticle()
+	a = e.entityToArticle()
 
 	return a, err
 }
 
+// FindAll 寻找全部数据.
 func (r *PostgresRepository) FindAll() ([]*article.Article, error) {
 	var articles []*article.Article
 
@@ -136,12 +143,12 @@ func (r *PostgresRepository) FindAll() ([]*article.Article, error) {
 	}
 
 	for rows.Next() {
-		var e Entity
+		var e entity
 		if rowsErr := rows.Scan(&e.ID, &e.Book, &e.Author, &e.Title); err != nil {
 			return articles, rowsErr
 		}
 
-		articles = append(articles, e.EntityToArticle())
+		articles = append(articles, e.entityToArticle())
 	}
 
 	return articles, err

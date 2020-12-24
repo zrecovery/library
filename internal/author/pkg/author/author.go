@@ -1,3 +1,4 @@
+// Package author 作者模块
 package author
 
 // Author 文章作者，包含ID和作者名字（Name）.

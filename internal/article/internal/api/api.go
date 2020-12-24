@@ -1,3 +1,4 @@
+// Package api 是web的处理单元.
 package api
 
 import (
@@ -9,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type UseCase interface {
+type useCase interface {
 	GetAll() ([]*article.Article, error)
 	GetByID(int) (*article.Article, error)
 	Save(a *article.Article) (int, error)
@@ -17,11 +18,13 @@ type UseCase interface {
 	Delete(id int) error
 }
 
+// API 处理RESTful请求单元.
 type API struct {
-	useCase UseCase
+	useCase useCase
 }
 
-func NewAPI(usecCase UseCase) *API {
+// NewAPI 创建API请求单元.
+func NewAPI(usecCase useCase) *API {
 	return &API{useCase: usecCase}
 }
 
@@ -127,6 +130,7 @@ func (api *API) Put(c echo.Context) error {
 	})
 }
 
+// Delete 删除指定文章.
 func (api *API) Delete(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

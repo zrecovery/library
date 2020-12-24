@@ -1,3 +1,4 @@
+// Package router 模块路由库
 package router
 
 import (
@@ -15,6 +16,7 @@ func NewRouter(root *echo.Group, connStr string) {
 
 	articles := root.Group("/articles")
 	articles.GET("", a.Gets)
+
 	articles.GET(":id", a.GetByID)
 	articles.POST("", a.Post)
 	articles.PUT(":id", a.Put)

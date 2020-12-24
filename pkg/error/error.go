@@ -1,3 +1,4 @@
+// Package error library自定义错误包
 package error
 
 import "errors"

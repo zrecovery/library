@@ -1,3 +1,4 @@
+// Package repository 存储仓库
 package repository
 
 import (
@@ -7,7 +8,7 @@ import (
 	"github.com/zrecovery/library/pkg/nulltype"
 )
 
-type Entity struct {
+type entity struct {
 	ID      sql.NullInt64
 	Author  sql.NullString
 	Book    sql.NullString
@@ -16,12 +17,12 @@ type Entity struct {
 	Serial  sql.NullFloat64
 }
 
-func (e *Entity) ModelToEntity(b *book.Book) {
+func (e *entity) modelToEntity(b *book.Book) {
 	e.ID = nulltype.ToNullInt64(b.ID)
 	e.Author = nulltype.ToNullString(b.Author)
 	e.Title = nulltype.ToNullString(b.Title)
 }
-func (e *Entity) EntityToBook() *book.Book {
+func (e *entity) entityToBook() *book.Book {
 	return &book.Book{
 		ID:     nulltype.NullToInt64(e.ID),
 		Author: nulltype.NullToString(e.Author),

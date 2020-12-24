@@ -1,3 +1,4 @@
+// Package repository 存储仓库
 package repository
 
 import (
@@ -10,10 +11,12 @@ import (
 	errRow "github.com/zrecovery/library/pkg/error"
 )
 
+// PostgresRepository Postgres存储仓库.
 type PostgresRepository struct {
 	db *sql.DB
 }
 
+// NewRepository 创建一个存储仓库.
 func NewRepository(connStr string) *PostgresRepository {
 	// 硬编码，默认使用Postgres
 	db, err := sql.Open("postgres", connStr)
@@ -24,9 +27,10 @@ func NewRepository(connStr string) *PostgresRepository {
 	return &PostgresRepository{db: db}
 }
 
+// Save 保存.
 func (r *PostgresRepository) Save(b *book.Book) (int, error) {
-	e := new(Entity)
-	e.ModelToEntity(b)
+	e := new(entity)
+	e.modelToEntity(b)
 
 	var lastID int
 
@@ -63,9 +67,10 @@ func (r *PostgresRepository) Save(b *book.Book) (int, error) {
 	return lastID, err
 }
 
+// Update 升级数据.
 func (r *PostgresRepository) Update(b *book.Book, id int) error {
-	e := new(Entity)
-	e.ModelToEntity(b)
+	e := new(entity)
+	e.modelToEntity(b)
 
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -109,6 +114,7 @@ func (r *PostgresRepository) Update(b *book.Book, id int) error {
 	return err
 }
 
+// Delete 删除数据.
 func (r *PostgresRepository) Delete(id int) error {
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -152,10 +158,11 @@ func (r *PostgresRepository) Delete(id int) error {
 	return err
 }
 
+// FindByID 通过ID寻找数据.
 func (r *PostgresRepository) FindByID(id int) (*book.Book, error) {
 	b := new(book.Book)
 
-	var e Entity
+	var e entity
 
 	tx, err := r.db.Begin()
 	if err != nil {
@@ -186,11 +193,12 @@ func (r *PostgresRepository) FindByID(id int) (*book.Book, error) {
 		return b, txErr
 	}
 
-	b = e.EntityToBook()
+	b = e.entityToBook()
 
 	return b, err
 }
 
+// FindByAuthor 通过作者查找.
 func (r *PostgresRepository) FindByAuthor(author string) ([]*book.Book, error) {
 	var books []*book.Book
 
@@ -217,13 +225,13 @@ func (r *PostgresRepository) FindByAuthor(author string) ([]*book.Book, error) {
 	}
 
 	for rows.Next() {
-		var e Entity
+		var e entity
 		if err = rows.Scan(&e.ID, &e.Author, &e.Title); err != nil {
 			log.Print(err)
 			return books, err
 		}
 
-		books = append(books, e.EntityToBook())
+		books = append(books, e.entityToBook())
 	}
 
 	if err = tx.Commit(); err != nil {
@@ -234,6 +242,7 @@ func (r *PostgresRepository) FindByAuthor(author string) ([]*book.Book, error) {
 	return books, err
 }
 
+// FindAll 寻找全部数据.
 func (r *PostgresRepository) FindAll() ([]*book.Book, error) {
 	var books []*book.Book
 
@@ -268,13 +277,13 @@ func (r *PostgresRepository) FindAll() ([]*book.Book, error) {
 	}
 
 	for rows.Next() {
-		var e Entity
+		var e entity
 		if err = rows.Scan(&e.ID, &e.Author, &e.Title); err != nil {
 			log.Print(err)
 			return books, err
 		}
 
-		books = append(books, e.EntityToBook())
+		books = append(books, e.entityToBook())
 	}
 
 	if err = tx.Commit(); err != nil {

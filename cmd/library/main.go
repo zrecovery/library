@@ -1,3 +1,4 @@
+// Package main 是library电子图书、文章管理系统启动入口.
 package main
 
 import (
