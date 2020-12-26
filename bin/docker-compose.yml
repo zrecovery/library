@@ -1,14 +1,5 @@
 version: "3"
 services:
-  dev:
-    build: ./
-    ports:
-      - "1323:1323"
-    links:
-      - "db"
-    volumes:
-      - $HOME/go:/go
-    tty: true
   db:
     image: postgres:latest
     restart: always
