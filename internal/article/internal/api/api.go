@@ -2,6 +2,7 @@
 package api
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 
@@ -11,11 +12,11 @@ import (
 )
 
 type useCase interface {
-	GetAll() ([]*article.Article, error)
-	GetByID(int) (*article.Article, error)
-	Save(a *article.Article) (int, error)
-	Update(a *article.Article, id int) error
-	Delete(id int) error
+	GetAll(context.Context) ([]*article.Article, error)
+	GetByID(context.Context, int) (*article.Article, error)
+	Save(ctx context.Context, a *article.Article) (int, error)
+	Update(ctx context.Context, a *article.Article, id int) error
+	Delete(ctx context.Context, id int) error
 }
 
 // API 处理RESTful请求单元.
@@ -30,6 +31,8 @@ func NewAPI(usecCase useCase) *API {
 
 // GetByID 使用GET通过ID获取指定文章.
 func (api *API) GetByID(c echo.Context) error {
+	ctx := c.Request().Context()
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -37,7 +40,7 @@ func (api *API) GetByID(c echo.Context) error {
 		})
 	}
 
-	a, err := api.useCase.GetByID(id)
+	a, err := api.useCase.GetByID(ctx, id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Internal Server Error",
@@ -52,7 +55,9 @@ func (api *API) GetByID(c echo.Context) error {
 
 // Gets 使用GET获取多篇文章.
 func (api *API) Gets(c echo.Context) error {
-	articles, err := api.useCase.GetAll()
+	ctx := c.Request().Context()
+
+	articles, err := api.useCase.GetAll(ctx)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Internal Server Error",
@@ -67,6 +72,8 @@ func (api *API) Gets(c echo.Context) error {
 
 // Post 使用POST通过添加文章.
 func (api *API) Post(c echo.Context) error {
+	ctx := c.Request().Context()
+
 	a := new(article.Article)
 
 	if err := c.Bind(a); err != nil {
@@ -82,7 +89,7 @@ func (api *API) Post(c echo.Context) error {
 		})
 	}
 
-	id, err := api.useCase.Save(a)
+	id, err := api.useCase.Save(ctx, a)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Internal Server Error",
@@ -97,6 +104,8 @@ func (api *API) Post(c echo.Context) error {
 
 // Put 使用PUT通过ID修改指定文章.
 func (api *API) Put(c echo.Context) error {
+	ctx := c.Request().Context()
+
 	a := new(article.Article)
 	if err := c.Bind(a); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -118,7 +127,7 @@ func (api *API) Put(c echo.Context) error {
 		})
 	}
 
-	err = api.useCase.Update(a, id)
+	err = api.useCase.Update(ctx, a, id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Internal Server Error",
@@ -132,6 +141,8 @@ func (api *API) Put(c echo.Context) error {
 
 // Delete 删除指定文章.
 func (api *API) Delete(c echo.Context) error {
+	ctx := c.Request().Context()
+
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -139,7 +150,7 @@ func (api *API) Delete(c echo.Context) error {
 		})
 	}
 
-	err = api.useCase.Delete(id)
+	err = api.useCase.Delete(ctx, id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
 			"message": "Internal Server Error",

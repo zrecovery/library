@@ -30,7 +30,7 @@ func TestAPI_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -64,7 +64,7 @@ func TestAPI_GetByID(t *testing.T) {
 			c.SetPath("/articles/:id")
 			c.SetParamNames("id")
 			c.SetParamValues(testcase.id)
-			mockUseCase.EXPECT().GetByID(gomock.Any()).Return(testcase.mock.Article, testcase.mock.Error)
+			mockUseCase.EXPECT().GetByID(gomock.Any(), gomock.Any()).Return(testcase.mock.Article, testcase.mock.Error)
 			s := api.NewAPI(mockUseCase)
 			err := s.GetByID(c)
 			if assert.NoError(t, err) {
@@ -90,7 +90,7 @@ func TestAPI_GetAll(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -121,7 +121,7 @@ func TestAPI_GetAll(t *testing.T) {
 		t.Run(testcase.name, func(t *testing.T) {
 			c.SetPath("/articles")
 
-			mockUseCase.EXPECT().GetAll().Return(testcase.mock.Articles, testcase.mock.Error)
+			mockUseCase.EXPECT().GetAll(gomock.Any()).Return(testcase.mock.Articles, testcase.mock.Error)
 			s := api.NewAPI(mockUseCase)
 
 			err := s.Gets(c)
@@ -148,7 +148,7 @@ func TestAPI_Post(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 
@@ -181,7 +181,7 @@ func TestAPI_Post(t *testing.T) {
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			c := e.NewContext(req, rec)
 			c.SetPath("/articles")
-			mockUseCase.EXPECT().Save(gomock.Any()).Return(testcase.mock.ID, testcase.mock.Error)
+			mockUseCase.EXPECT().Save(gomock.Any(), gomock.Any()).Return(testcase.mock.ID, testcase.mock.Error)
 			a := api.NewAPI(mockUseCase)
 			err := a.Post(c)
 			if assert.NoError(t, err) {
@@ -206,7 +206,7 @@ func TestAPI_Put(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 
@@ -244,7 +244,7 @@ func TestAPI_Put(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(testcase.id)
 
-			mockUseCase.EXPECT().Update(gomock.Any(), gomock.Any()).Return(testcase.mock.Error)
+			mockUseCase.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any()).Return(testcase.mock.Error)
 			s := api.NewAPI(mockUseCase)
 			err := s.Put(c)
 			if assert.NoError(t, err) {
@@ -269,7 +269,7 @@ func TestAPI_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodDelete, "/", nil)
@@ -302,7 +302,7 @@ func TestAPI_Delete(t *testing.T) {
 			c.SetPath("/articles/:id")
 			c.SetParamNames("id")
 			c.SetParamValues(testcase.id)
-			mockUseCase.EXPECT().Delete(gomock.Any()).Return(testcase.mock.Error)
+			mockUseCase.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(testcase.mock.Error)
 			s := api.NewAPI(mockUseCase)
 			err := s.Delete(c)
 			if assert.NoError(t, err) {

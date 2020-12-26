@@ -38,7 +38,7 @@ func TestAPI_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -98,7 +98,7 @@ func TestAPI_GetAll(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -204,7 +204,7 @@ func TestAPI_Post(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.SetPath("/api/books")
 
-			mockUseCase := mock_api.NewMockUseCase(ctrl)
+			mockUseCase := mock_api.NewMockuseCase(ctrl)
 			if testcase.useMock {
 				mockUseCase.EXPECT().Save(gomock.Any()).Return(testcase.mock.ID, testcase.mock.Error)
 			}
@@ -233,7 +233,7 @@ func TestAPI_Put(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	e.Validator = &CustomValidator{validator: validator.New()}
@@ -296,7 +296,7 @@ func TestAPI_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodDelete, "/", nil)

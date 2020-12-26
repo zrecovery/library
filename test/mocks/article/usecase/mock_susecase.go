@@ -5,6 +5,7 @@
 package mock_usecase
 
 import (
+	context "context"
 	gomock "github.com/golang/mock/gomock"
 	article "github.com/zrecovery/library/internal/article/pkg/article"
 	reflect "reflect"
@@ -34,74 +35,74 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // Insert mocks base method
-func (m *MockRepository) Insert(arg0 *article.Article) (int, error) {
+func (m *MockRepository) Insert(arg0 context.Context, arg1 *article.Article) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Insert", arg0)
+	ret := m.ctrl.Call(m, "Insert", arg0, arg1)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Insert indicates an expected call of Insert
-func (mr *MockRepositoryMockRecorder) Insert(arg0 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Insert(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepository)(nil).Insert), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockRepository)(nil).Insert), arg0, arg1)
 }
 
 // Update mocks base method
-func (m *MockRepository) Update(arg0 *article.Article, arg1 int) error {
+func (m *MockRepository) Update(arg0 context.Context, arg1 *article.Article, arg2 int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret := m.ctrl.Call(m, "Update", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update
-func (mr *MockRepositoryMockRecorder) Update(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Update(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockRepository)(nil).Update), arg0, arg1, arg2)
 }
 
 // Delete mocks base method
-func (m *MockRepository) Delete(id int) error {
+func (m *MockRepository) Delete(ctx context.Context, id int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", id)
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete
-func (mr *MockRepositoryMockRecorder) Delete(id interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockRepository)(nil).Delete), ctx, id)
 }
 
 // FindByID mocks base method
-func (m *MockRepository) FindByID(id int) (*article.Article, error) {
+func (m *MockRepository) FindByID(ctx context.Context, id int) (*article.Article, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByID", id)
+	ret := m.ctrl.Call(m, "FindByID", ctx, id)
 	ret0, _ := ret[0].(*article.Article)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindByID indicates an expected call of FindByID
-func (mr *MockRepositoryMockRecorder) FindByID(id interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) FindByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockRepository)(nil).FindByID), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockRepository)(nil).FindByID), ctx, id)
 }
 
 // FindAll mocks base method
-func (m *MockRepository) FindAll() ([]*article.Article, error) {
+func (m *MockRepository) FindAll(arg0 context.Context) ([]*article.Article, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindAll")
+	ret := m.ctrl.Call(m, "FindAll", arg0)
 	ret0, _ := ret[0].([]*article.Article)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindAll indicates an expected call of FindAll
-func (mr *MockRepositoryMockRecorder) FindAll() *gomock.Call {
+func (mr *MockRepositoryMockRecorder) FindAll(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockRepository)(nil).FindAll))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindAll", reflect.TypeOf((*MockRepository)(nil).FindAll), arg0)
 }

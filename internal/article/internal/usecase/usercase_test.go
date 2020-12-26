@@ -1,6 +1,7 @@
 package usecase_test
 
 import (
+	"context"
 	"testing"
 
 	"github.com/zrecovery/library/internal/article/internal/usecase"
@@ -34,12 +35,15 @@ func TestSave(t *testing.T) {
 	mockRepository := mock_usecase.NewMockRepository(ctrl)
 
 	for _, test := range tests {
+		var ctx context.Context
+
 		testcase := test
-		mockRepository.EXPECT().Insert(gomock.Any()).Return(testcase.mockReturnID, testcase.mockReturnError)
+
+		mockRepository.EXPECT().Insert(gomock.Any(), gomock.Any()).Return(testcase.mockReturnID, testcase.mockReturnError)
 		testUseCase := usecase.NewUseCase(mockRepository)
 
 		t.Run(test.name, func(t *testing.T) {
-			result, err := testUseCase.Save(&testcase.article)
+			result, err := testUseCase.Save(ctx, &testcase.article)
 			assert.NoError(t, err)
 			assert.Equal(t, testcase.expected, result)
 		})
@@ -69,11 +73,14 @@ func TestUpdate(t *testing.T) {
 	mockRepository := mock_usecase.NewMockRepository(ctrl)
 
 	for _, test := range tests {
+		var ctx context.Context
+
 		testcase := test
+
 		t.Run(testcase.name, func(t *testing.T) {
-			mockRepository.EXPECT().Update(gomock.Any(), gomock.Any()).Return(testcase.mockReturnError)
+			mockRepository.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any()).Return(testcase.mockReturnError)
 			testUseCase := usecase.NewUseCase(mockRepository)
-			err := testUseCase.Update(&testcase.article, testcase.id)
+			err := testUseCase.Update(ctx, &testcase.article, testcase.id)
 			assert.NoError(t, err)
 		})
 	}
@@ -100,11 +107,14 @@ func TestDelete(t *testing.T) {
 	mockRepository := mock_usecase.NewMockRepository(ctrl)
 
 	for _, test := range tests {
+		var ctx context.Context
+
 		testcase := test
+
 		t.Run(test.name, func(t *testing.T) {
-			mockRepository.EXPECT().Delete(gomock.Any()).Return(testcase.mockReturnError)
+			mockRepository.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(testcase.mockReturnError)
 			testUseCase := usecase.NewUseCase(mockRepository)
-			err := testUseCase.Delete(testcase.id)
+			err := testUseCase.Delete(ctx, testcase.id)
 			assert.NoError(t, err)
 		})
 	}
@@ -133,11 +143,14 @@ func TestGetByID(t *testing.T) {
 	mockRepository := mock_usecase.NewMockRepository(ctrl)
 
 	for _, test := range tests {
+		var ctx context.Context
+
 		testcase := test
+
 		t.Run(test.name, func(t *testing.T) {
-			mockRepository.EXPECT().FindByID(gomock.Any()).Return(testcase.mockReturnArticle, testcase.mockReturnError)
+			mockRepository.EXPECT().FindByID(gomock.Any(), gomock.Any()).Return(testcase.mockReturnArticle, testcase.mockReturnError)
 			testUseCase := usecase.NewUseCase(mockRepository)
-			result, err := testUseCase.GetByID(testcase.id)
+			result, err := testUseCase.GetByID(ctx, testcase.id)
 			assert.NoError(t, err)
 			assert.Equal(t, testcase.expected, result)
 		})
@@ -165,11 +178,14 @@ func TestGetAll(t *testing.T) {
 	mockRepository := mock_usecase.NewMockRepository(ctrl)
 
 	for _, test := range tests {
+		var ctx context.Context
+
 		testcase := test
+
 		t.Run(test.name, func(t *testing.T) {
-			mockRepository.EXPECT().FindAll().Return(testcase.mockReturnArticles, testcase.mockReturnError)
+			mockRepository.EXPECT().FindAll(gomock.Any()).Return(testcase.mockReturnArticles, testcase.mockReturnError)
 			testUseCase := usecase.NewUseCase(mockRepository)
-			result, err := testUseCase.GetAll()
+			result, err := testUseCase.GetAll(ctx)
 			assert.NoError(t, err)
 			assert.Equal(t, testcase.expected, result)
 		})

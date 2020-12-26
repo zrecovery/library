@@ -5,103 +5,104 @@
 package mock_api
 
 import (
+	context "context"
 	gomock "github.com/golang/mock/gomock"
 	article "github.com/zrecovery/library/internal/article/pkg/article"
 	reflect "reflect"
 )
 
-// MockUseCase is a mock of UseCase interface
-type MockUseCase struct {
+// MockuseCase is a mock of useCase interface
+type MockuseCase struct {
 	ctrl     *gomock.Controller
-	recorder *MockUseCaseMockRecorder
+	recorder *MockuseCaseMockRecorder
 }
 
-// MockUseCaseMockRecorder is the mock recorder for MockUseCase
-type MockUseCaseMockRecorder struct {
-	mock *MockUseCase
+// MockuseCaseMockRecorder is the mock recorder for MockuseCase
+type MockuseCaseMockRecorder struct {
+	mock *MockuseCase
 }
 
-// NewMockUseCase creates a new mock instance
-func NewMockUseCase(ctrl *gomock.Controller) *MockUseCase {
-	mock := &MockUseCase{ctrl: ctrl}
-	mock.recorder = &MockUseCaseMockRecorder{mock}
+// NewMockuseCase creates a new mock instance
+func NewMockuseCase(ctrl *gomock.Controller) *MockuseCase {
+	mock := &MockuseCase{ctrl: ctrl}
+	mock.recorder = &MockuseCaseMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockUseCase) EXPECT() *MockUseCaseMockRecorder {
+func (m *MockuseCase) EXPECT() *MockuseCaseMockRecorder {
 	return m.recorder
 }
 
 // GetAll mocks base method
-func (m *MockUseCase) GetAll() ([]*article.Article, error) {
+func (m *MockuseCase) GetAll(arg0 context.Context) ([]*article.Article, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAll")
+	ret := m.ctrl.Call(m, "GetAll", arg0)
 	ret0, _ := ret[0].([]*article.Article)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAll indicates an expected call of GetAll
-func (mr *MockUseCaseMockRecorder) GetAll() *gomock.Call {
+func (mr *MockuseCaseMockRecorder) GetAll(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockUseCase)(nil).GetAll))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockuseCase)(nil).GetAll), arg0)
 }
 
 // GetByID mocks base method
-func (m *MockUseCase) GetByID(arg0 int) (*article.Article, error) {
+func (m *MockuseCase) GetByID(arg0 context.Context, arg1 int) (*article.Article, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByID", arg0)
+	ret := m.ctrl.Call(m, "GetByID", arg0, arg1)
 	ret0, _ := ret[0].(*article.Article)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetByID indicates an expected call of GetByID
-func (mr *MockUseCaseMockRecorder) GetByID(arg0 interface{}) *gomock.Call {
+func (mr *MockuseCaseMockRecorder) GetByID(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockUseCase)(nil).GetByID), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockuseCase)(nil).GetByID), arg0, arg1)
 }
 
 // Save mocks base method
-func (m *MockUseCase) Save(a *article.Article) (int, error) {
+func (m *MockuseCase) Save(ctx context.Context, a *article.Article) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Save", a)
+	ret := m.ctrl.Call(m, "Save", ctx, a)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Save indicates an expected call of Save
-func (mr *MockUseCaseMockRecorder) Save(a interface{}) *gomock.Call {
+func (mr *MockuseCaseMockRecorder) Save(ctx, a interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockUseCase)(nil).Save), a)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockuseCase)(nil).Save), ctx, a)
 }
 
 // Update mocks base method
-func (m *MockUseCase) Update(a *article.Article, id int) error {
+func (m *MockuseCase) Update(ctx context.Context, a *article.Article, id int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", a, id)
+	ret := m.ctrl.Call(m, "Update", ctx, a, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update
-func (mr *MockUseCaseMockRecorder) Update(a, id interface{}) *gomock.Call {
+func (mr *MockuseCaseMockRecorder) Update(ctx, a, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUseCase)(nil).Update), a, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockuseCase)(nil).Update), ctx, a, id)
 }
 
 // Delete mocks base method
-func (m *MockUseCase) Delete(id int) error {
+func (m *MockuseCase) Delete(ctx context.Context, id int) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", id)
+	ret := m.ctrl.Call(m, "Delete", ctx, id)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete
-func (mr *MockUseCaseMockRecorder) Delete(id interface{}) *gomock.Call {
+func (mr *MockuseCaseMockRecorder) Delete(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUseCase)(nil).Delete), id)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockuseCase)(nil).Delete), ctx, id)
 }

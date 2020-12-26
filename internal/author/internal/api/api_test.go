@@ -38,7 +38,7 @@ func TestService_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -98,7 +98,7 @@ func TestService_GetAll(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -205,7 +205,7 @@ func TestService_Post(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.SetPath("/api/authors")
 
-			mockUseCase := mock_api.NewMockUseCase(ctrl)
+			mockUseCase := mock_api.NewMockuseCase(ctrl)
 			if testcase.useMock {
 				mockUseCase.EXPECT().Save(gomock.Any()).Return(testcase.mock.ID, testcase.mock.Error)
 			}
@@ -234,7 +234,7 @@ func TestService_Put(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 
@@ -297,7 +297,7 @@ func TestService_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockUseCase(ctrl)
+	mockUseCase := mock_api.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodDelete, "/", nil)
