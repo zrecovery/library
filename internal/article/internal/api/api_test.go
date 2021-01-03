@@ -53,7 +53,7 @@ func TestAPI_GetByID(t *testing.T) {
 			id: "0",
 			want: want{
 				Error:      nil,
-				JSON:       "{\"data\":{\"author\":\"\",\"book\":\"\",\"title\":\"\",\"article\":\"\",\"serial\":0},\"message\":\"OK\"}\n",
+				JSON:       "{\"data\":{\"author\":\"\",\"book\":\"\",\"title\":\"\",\"content\":\"\",\"serial\":0},\"message\":\"OK\"}\n",
 				StatusCode: http.StatusOK,
 			},
 		},
@@ -111,7 +111,7 @@ func TestAPI_GetAll(t *testing.T) {
 			},
 			want: want{
 				Error:      nil,
-				JSON:       "{\"data\":[{\"author\":\"\",\"book\":\"\",\"title\":\"\",\"article\":\"\",\"serial\":0}],\"message\":\"OK\"}\n",
+				JSON:       "{\"data\":[{\"author\":\"\",\"book\":\"\",\"title\":\"\",\"content\":\"\",\"serial\":0}],\"message\":\"OK\"}\n",
 				StatusCode: http.StatusOK,
 			},
 		},
@@ -162,7 +162,7 @@ func TestAPI_Post(t *testing.T) {
 	}{
 		{
 			name:     "正常提交文章",
-			postJSON: `{"book":"test book","author":"test author","serial":1.0,"title":"test title","article":"test article"}`,
+			postJSON: `{"book":"test book","author":"test author","serial":1.0,"title":"test title","content":"test article"}`,
 			mock: mockReturn{
 				ID:    0,
 				Error: nil,
@@ -222,7 +222,7 @@ func TestAPI_Put(t *testing.T) {
 	}{
 		{
 			name:     "正常修改文章",
-			postJSON: `{"id":0,"book":"test book","author":"test author","serial":1,"title":""test title","article":"test article"}`,
+			postJSON: `{"id":0,"book":"test book","author":"test author","serial":1,"title":""test title","content":"test article"}`,
 			mock: mockReturn{
 				Error: nil,
 			},

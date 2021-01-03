@@ -7,7 +7,7 @@ type Article struct {
 	Author  string `json:"author"`
 	Book    string `json:"book"`
 	Title   string `json:"title"`
-	Article string `json:"article"`
+	Content string `json:"content"`
 	// Serial章节排序序号.
 	Serial float64 `json:"serial"`
 }

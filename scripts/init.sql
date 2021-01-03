@@ -45,3 +45,25 @@ WHERE (articles.book = books.title)
 ORDER BY books.author,
          articles.book,
          articles.serial_sections;
+
+CREATE TABLE public.role
+(
+    id serial,
+    name text NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE (name)
+);
+
+CREATE TABLE public.library_users
+(
+    id integer NOT NULL DEFAULT nextval('library_users_id_seq'::regclass),
+    name text COLLATE pg_catalog."default" NOT NULL,
+    password text COLLATE pg_catalog."default" NOT NULL,
+    role text COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT library_users_pkey PRIMARY KEY (id),
+    CONSTRAINT library_users_name_key UNIQUE (name),
+    CONSTRAINT library_users_roles_fkey FOREIGN KEY (role)
+        REFERENCES public.roles (name) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+);

@@ -16,9 +16,8 @@ func NewRouter(root *echo.Group, connStr string) {
 
 	articles := root.Group("/articles")
 	articles.GET("", a.Gets)
-
-	articles.GET(":id", a.GetByID)
+	articles.GET("/:id", a.GetByID)
 	articles.POST("", a.Post)
-	articles.PUT(":id", a.Put)
-	articles.DELETE(":id", a.Delete)
+	articles.PUT("/:id", a.Put)
+	articles.DELETE("/:id", a.Delete)
 }

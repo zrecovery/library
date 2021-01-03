@@ -9,7 +9,7 @@ Get one
         "author":"author",
         "book":"book",
         "title":"title",
-        "article":"article"
+        "content":"content"
     },
     "message":"OK"
 }

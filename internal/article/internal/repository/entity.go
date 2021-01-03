@@ -22,7 +22,7 @@ func (e *entity) modelToEntity(a *article.Article) {
 	e.Author = nulltype.ToNullString(a.Author)
 	e.Book = nulltype.ToNullString(a.Book)
 	e.Title = nulltype.ToNullString(a.Title)
-	e.Article = nulltype.ToNullString(a.Article)
+	e.Article = nulltype.ToNullString(a.Content)
 	e.Serial = nulltype.ToNullFloat64(a.Serial)
 }
 
@@ -32,7 +32,7 @@ func (e *entity) entityToArticle() *article.Article {
 		Author:  nulltype.NullToString(e.Author),
 		Book:    nulltype.NullToString(e.Book),
 		Title:   nulltype.NullToString(e.Title),
-		Article: nulltype.NullToString(e.Article),
+		Content: nulltype.NullToString(e.Article),
 		Serial:  nulltype.NullToFloat64(e.Serial),
 	}
 }

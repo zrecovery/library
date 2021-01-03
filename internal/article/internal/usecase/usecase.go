@@ -3,6 +3,7 @@ package usecase
 
 import (
 	"context"
+	"log"
 
 	"github.com/zrecovery/library/internal/article/pkg/article"
 )
@@ -14,6 +15,7 @@ type Repository interface {
 	Delete(ctx context.Context, id int) error
 	FindByID(ctx context.Context, id int) (*article.Article, error)
 	FindAll(context.Context) ([]*article.Article, error)
+	Search(context.Context, string) ([]*article.Article, error)
 }
 
 // UseCase 业务逻辑.
@@ -30,6 +32,7 @@ func NewUseCase(repository Repository) *UseCase {
 func (u *UseCase) Save(ctx context.Context, a *article.Article) (int, error) {
 	id, err := u.repository.Insert(ctx, a)
 	if err != nil {
+		log.Print(err)
 		return 0, err
 	}
 
@@ -40,6 +43,7 @@ func (u *UseCase) Save(ctx context.Context, a *article.Article) (int, error) {
 func (u *UseCase) Update(ctx context.Context, a *article.Article, id int) error {
 	err := u.repository.Update(ctx, a, id)
 	if err != nil {
+		log.Print(err)
 		return err
 	}
 
@@ -50,6 +54,7 @@ func (u *UseCase) Update(ctx context.Context, a *article.Article, id int) error 
 func (u *UseCase) Delete(ctx context.Context, id int) error {
 	err := u.repository.Delete(ctx, id)
 	if err != nil {
+		log.Print(err)
 		return err
 	}
 
@@ -60,6 +65,7 @@ func (u *UseCase) Delete(ctx context.Context, id int) error {
 func (u *UseCase) GetByID(ctx context.Context, id int) (*article.Article, error) {
 	a, err := u.repository.FindByID(ctx, id)
 	if err != nil {
+		log.Print(err)
 		return a, err
 	}
 
@@ -71,6 +77,19 @@ func (u *UseCase) GetAll(ctx context.Context) ([]*article.Article, error) {
 	articles, err := u.repository.FindAll(ctx)
 
 	if err != nil {
+		log.Print(err)
+		return articles, err
+	}
+
+	return articles, err
+}
+
+// Search 搜索文章数据.
+func (u *UseCase) Search(ctx context.Context, keyword string) ([]*article.Article, error) {
+	articles, err := u.repository.Search(ctx, keyword)
+
+	if err != nil {
+		log.Print(err)
 		return articles, err
 	}
 

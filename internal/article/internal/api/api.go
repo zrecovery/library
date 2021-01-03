@@ -3,6 +3,7 @@ package api
 
 import (
 	"context"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -14,6 +15,7 @@ import (
 type useCase interface {
 	GetAll(context.Context) ([]*article.Article, error)
 	GetByID(context.Context, int) (*article.Article, error)
+	Search(context.Context, string) ([]*article.Article, error)
 	Save(ctx context.Context, a *article.Article) (int, error)
 	Update(ctx context.Context, a *article.Article, id int) error
 	Delete(ctx context.Context, id int) error
@@ -56,6 +58,21 @@ func (api *API) GetByID(c echo.Context) error {
 // Gets 使用GET获取多篇文章.
 func (api *API) Gets(c echo.Context) error {
 	ctx := c.Request().Context()
+
+	keyword := c.QueryParam("search")
+	if keyword != "" {
+		articles, err := api.useCase.Search(ctx, keyword)
+		if err != nil {
+			log.Print(err)
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"message": "Internal Server Error",
+			})
+		}
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "OK",
+			"data":    articles,
+		})
+	}
 
 	articles, err := api.useCase.GetAll(ctx)
 	if err != nil {

@@ -64,6 +64,21 @@ func (mr *MockuseCaseMockRecorder) GetByID(arg0, arg1 interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockuseCase)(nil).GetByID), arg0, arg1)
 }
 
+// Search mocks base method
+func (m *MockuseCase) Search(arg0 context.Context, arg1 string) ([]*article.Article, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Search", arg0, arg1)
+	ret0, _ := ret[0].([]*article.Article)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Search indicates an expected call of Search
+func (mr *MockuseCaseMockRecorder) Search(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Search", reflect.TypeOf((*MockuseCase)(nil).Search), arg0, arg1)
+}
+
 // Save mocks base method
 func (m *MockuseCase) Save(ctx context.Context, a *article.Article) (int, error) {
 	m.ctrl.T.Helper()

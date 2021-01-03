@@ -30,7 +30,7 @@ func NewAPI(usecCase useCase) *API {
 }
 
 // GetByID 通过ID获取数据.
-func (s *API) GetByID(c echo.Context) error {
+func (api *API) GetByID(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -38,7 +38,7 @@ func (s *API) GetByID(c echo.Context) error {
 		})
 	}
 
-	b, err := s.useCase.GetByID(id)
+	b, err := api.useCase.GetByID(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
@@ -50,11 +50,11 @@ func (s *API) GetByID(c echo.Context) error {
 }
 
 // Gets 获取全部数据.
-func (s *API) Gets(c echo.Context) error {
+func (api *API) Gets(c echo.Context) error {
 	author := c.QueryParam("author")
 
 	if author == "" {
-		books, err := s.useCase.GetAll()
+		books, err := api.useCase.GetAll()
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 		}
@@ -65,7 +65,7 @@ func (s *API) Gets(c echo.Context) error {
 		})
 	}
 
-	books, err := s.useCase.GetByAuthor(author)
+	books, err := api.useCase.GetByAuthor(author)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
@@ -77,7 +77,7 @@ func (s *API) Gets(c echo.Context) error {
 }
 
 // Post 上传数据.
-func (s *API) Post(c echo.Context) error {
+func (api *API) Post(c echo.Context) error {
 	b := new(book.Book)
 	if err := c.Bind(b); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -91,7 +91,7 @@ func (s *API) Post(c echo.Context) error {
 		})
 	}
 
-	id, err := s.useCase.Save(b)
+	id, err := api.useCase.Save(b)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
@@ -103,7 +103,7 @@ func (s *API) Post(c echo.Context) error {
 }
 
 // Put 修改数据.
-func (s *API) Put(c echo.Context) error {
+func (api *API) Put(c echo.Context) error {
 	b := new(book.Book)
 	if err := c.Bind(b); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -124,7 +124,7 @@ func (s *API) Put(c echo.Context) error {
 		})
 	}
 
-	err = s.useCase.Update(b, id)
+	err = api.useCase.Update(b, id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
@@ -135,7 +135,7 @@ func (s *API) Put(c echo.Context) error {
 }
 
 // Delete 删除数据.
-func (s *API) Delete(c echo.Context) error {
+func (api *API) Delete(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -143,7 +143,7 @@ func (s *API) Delete(c echo.Context) error {
 		})
 	}
 
-	err = s.useCase.Delete(id)
+	err = api.useCase.Delete(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
