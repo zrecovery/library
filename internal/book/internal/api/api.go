@@ -52,7 +52,6 @@ func (api *API) GetByID(c echo.Context) error {
 
 // Gets 获取全部数据.
 func (api *API) Gets(c echo.Context) error {
-
 	author := c.QueryParam("author")
 	keyword := c.QueryParam("search")
 

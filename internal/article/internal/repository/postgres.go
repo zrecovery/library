@@ -12,6 +12,13 @@ import (
 	"github.com/zrecovery/library/internal/article/pkg/article"
 )
 
+const (
+	ErrTxCommitedOrRolledBack     = "sql: transaction has already been committed or rolled back"
+	ErrTxRollback                 = "transaction_rollback"
+	ErrInvalidPreparedDefinition  = "invalid_prepared_statement_definition"
+	ErrDuplicatePreparedStatement = "duplicate_prepared_statement"
+)
+
 // PostgresRepository Postgres数据库.
 type PostgresRepository struct {
 	db *sql.DB
@@ -43,14 +50,11 @@ func (r *PostgresRepository) Insert(ctx context.Context, a *article.Article) (in
 	defer func() {
 		if errRollback := tx.Rollback(); errRollback != nil {
 			if e, ok := errRollback.(*pq.Error); ok {
-				switch e.Code.Name() {
-				case "transaction_rollback":
-					log.Print("transaction_rollback")
+				if e.Code.Name() == ErrTxRollback {
+					log.Print(ErrTxRollback)
 				}
-			} else {
-				if errRollback.Error() != "sql: transaction has already been committed or rolled back" {
-					log.Fatal(errRollback)
-				}
+			} else if errRollback.Error() != ErrTxCommitedOrRolledBack {
+				log.Fatal(errRollback)
 			}
 		}
 	}()
@@ -61,16 +65,20 @@ func (r *PostgresRepository) Insert(ctx context.Context, a *article.Article) (in
 	if err != nil {
 		if e, ok := err.(*pq.Error); ok {
 			switch e.Code.Name() {
-			case "duplicate_prepared_statement":
+			case ErrDuplicatePreparedStatement:
 				log.Print(e)
 				return lastID, e
-			case "invalid_prepared_statement_definition":
+			case ErrInvalidPreparedDefinition:
 				log.Print(e)
 				// 为了防止错误状态下信息泄露，强制设置无效信息，如-1
 				return -1, e
+			default:
+				log.Print(e)
+				return -1, e
 			}
 		} else {
-			log.Fatal(err)
+			log.Print(err)
+			return -1, err
 		}
 	}
 
@@ -79,17 +87,18 @@ func (r *PostgresRepository) Insert(ctx context.Context, a *article.Article) (in
 	err = stmt.QueryRowContext(ctx, e.Book.String, e.Author.String, e.Title.String, e.Serial.Float64, e.Article.String).Scan(&lastID)
 	if err != nil {
 		if e, ok := err.(*pq.Error); ok {
-			switch e.Code.Name() {
-			case "not_null_violation":
+			if e.Code.Name() == "not_null_violation" {
 				log.Print(e)
 				return -1, e
 			}
 		} else {
-			log.Fatal(err)
+			log.Print(err)
+			return -1, err
 		}
 	}
-	if err := tx.Commit(); err != nil {
-		log.Fatal(err)
+	if txCommitErr := tx.Commit(); txCommitErr != nil {
+		log.Print(txCommitErr)
+		return -1, txCommitErr
 	}
 	return lastID, err
 }
@@ -108,14 +117,11 @@ func (r *PostgresRepository) Update(ctx context.Context, a *article.Article, id 
 	defer func() {
 		if errRollback := tx.Rollback(); errRollback != nil {
 			if e, ok := errRollback.(*pq.Error); ok {
-				switch e.Code.Name() {
-				case "transaction_rollback":
-					log.Print("transaction_rollback")
+				if e.Code.Name() == ErrTxRollback {
+					log.Print(ErrTxRollback)
 				}
-			} else {
-				if errRollback.Error() != "sql: transaction has already been committed or rolled back" {
-					log.Fatal(errRollback)
-				}
+			} else if errRollback.Error() != ErrTxCommitedOrRolledBack {
+				log.Fatal(errRollback)
 			}
 		}
 	}()
@@ -124,15 +130,16 @@ func (r *PostgresRepository) Update(ctx context.Context, a *article.Article, id 
 	if err != nil {
 		if e, ok := err.(*pq.Error); ok {
 			switch e.Code.Name() {
-			case "duplicate_prepared_statement":
+			case ErrDuplicatePreparedStatement:
 				log.Print(e)
 				return e
-			case "invalid_prepared_statement_definition":
+			case ErrInvalidPreparedDefinition:
 				log.Print(e)
 				return e
 			}
 		} else {
-			log.Fatal(err)
+			log.Print(err)
+			return err
 		}
 	}
 	defer stmt.Close()
@@ -154,8 +161,9 @@ func (r *PostgresRepository) Update(ctx context.Context, a *article.Article, id 
 		return errors.New("expected 1 rows affected")
 	}
 
-	if err := tx.Commit(); err != nil {
-		log.Fatal(err)
+	if txCommitErr := tx.Commit(); txCommitErr != nil {
+		log.Print(txCommitErr)
+		return txCommitErr
 	}
 
 	return err
@@ -163,7 +171,6 @@ func (r *PostgresRepository) Update(ctx context.Context, a *article.Article, id 
 
 // Delete 删除数据.
 func (r *PostgresRepository) Delete(ctx context.Context, id int) error {
-
 	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		log.Fatal(err)
@@ -173,14 +180,11 @@ func (r *PostgresRepository) Delete(ctx context.Context, id int) error {
 	defer func() {
 		if errRollback := tx.Rollback(); errRollback != nil {
 			if e, ok := errRollback.(*pq.Error); ok {
-				switch e.Code.Name() {
-				case "transaction_rollback":
-					log.Print("transaction_rollback")
+				if e.Code.Name() == ErrTxRollback {
+					log.Print(ErrTxRollback)
 				}
-			} else {
-				if errRollback.Error() != "sql: transaction has already been committed or rolled back" {
-					log.Fatal(errRollback)
-				}
+			} else if errRollback.Error() != ErrTxCommitedOrRolledBack {
+				log.Fatal(errRollback)
 			}
 		}
 	}()
@@ -209,8 +213,9 @@ func (r *PostgresRepository) Delete(ctx context.Context, id int) error {
 		return errors.New("expected 1 rows affected")
 	}
 
-	if err := tx.Commit(); err != nil {
-		log.Fatal(err)
+	if txCommitErr := tx.Commit(); txCommitErr != nil {
+		log.Print(txCommitErr)
+		return txCommitErr
 	}
 	return err
 }
@@ -230,14 +235,11 @@ func (r *PostgresRepository) FindByID(ctx context.Context, id int) (*article.Art
 	defer func() {
 		if errRollback := tx.Rollback(); errRollback != nil {
 			if e, ok := errRollback.(*pq.Error); ok {
-				switch e.Code.Name() {
-				case "transaction_rollback":
-					log.Print("transaction_rollback")
+				if e.Code.Name() == ErrTxRollback {
+					log.Print(ErrTxRollback)
 				}
-			} else {
-				if errRollback.Error() != "sql: transaction has already been committed or rolled back" {
-					log.Fatal(errRollback)
-				}
+			} else if errRollback.Error() != ErrTxCommitedOrRolledBack {
+				log.Fatal(errRollback)
 			}
 		}
 	}()
@@ -257,8 +259,9 @@ func (r *PostgresRepository) FindByID(ctx context.Context, id int) (*article.Art
 
 	a = e.entityToArticle()
 
-	if err := tx.Commit(); err != nil {
-		log.Fatal(err)
+	if txCommitErr := tx.Commit(); txCommitErr != nil {
+		log.Print(txCommitErr)
+		return a, txCommitErr
 	}
 	return a, err
 }
@@ -278,21 +281,20 @@ func (r *PostgresRepository) FindAll(ctx context.Context) ([]*article.Article, e
 	defer func() {
 		if errRollback := tx.Rollback(); errRollback != nil {
 			if e, ok := errRollback.(*pq.Error); ok {
-				switch e.Code.Name() {
-				case "transaction_rollback":
-					log.Print("transaction_rollback")
+				if e.Code.Name() == ErrTxRollback {
+					log.Print(ErrTxRollback)
 				}
-			} else {
-				if errRollback.Error() != "sql: transaction has already been committed or rolled back" {
-					log.Fatal(errRollback)
-				}
+			} else if errRollback.Error() != ErrTxCommitedOrRolledBack {
+				log.Fatal(errRollback)
 			}
 		}
 	}()
 
-	stmt, err := r.db.PrepareContext(ctx, "SELECT id,book, author, title FROM articles ORDER BY author,book,section_serial  LIMIT ALL OFFSET $1")
+	stmt, err := r.db.PrepareContext(ctx,
+		"SELECT id,book, author, title FROM articles ORDER BY author,book,section_serial  LIMIT ALL OFFSET $1")
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return articles, err
 	}
 	defer stmt.Close()
 	rows, err := stmt.QueryContext(ctx, offset)
@@ -314,8 +316,9 @@ func (r *PostgresRepository) FindAll(ctx context.Context) ([]*article.Article, e
 		articles = append(articles, e.entityToArticle())
 	}
 
-	if err := tx.Commit(); err != nil {
-		log.Fatal(err)
+	if txCommitErr := tx.Commit(); txCommitErr != nil {
+		log.Print(txCommitErr)
+		return articles, txCommitErr
 	}
 
 	return articles, err
@@ -334,21 +337,19 @@ func (r *PostgresRepository) Search(ctx context.Context, keyword string) ([]*art
 	defer func() {
 		if errRollback := tx.Rollback(); errRollback != nil {
 			if e, ok := errRollback.(*pq.Error); ok {
-				switch e.Code.Name() {
-				case "transaction_rollback":
-					log.Print("transaction_rollback")
+				if e.Code.Name() == ErrTxRollback {
+					log.Print(ErrTxRollback)
 				}
-			} else {
-				if errRollback.Error() != "sql: transaction has already been committed or rolled back" {
-					log.Fatal(errRollback)
-				}
+			} else if errRollback.Error() != ErrTxCommitedOrRolledBack {
+				log.Fatal(errRollback)
 			}
 		}
 	}()
 
 	stmt, err := r.db.PrepareContext(ctx, "SELECT id,book, author, title FROM articles WHERE articles.content &@ $1")
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return articles, err
 	}
 	defer stmt.Close()
 	rows, err := stmt.QueryContext(ctx, keyword)
@@ -370,8 +371,9 @@ func (r *PostgresRepository) Search(ctx context.Context, keyword string) ([]*art
 		articles = append(articles, e.entityToArticle())
 	}
 
-	if err := tx.Commit(); err != nil {
-		log.Fatal(err)
+	if txCommitErr := tx.Commit(); txCommitErr != nil {
+		log.Print(txCommitErr)
+		return articles, txCommitErr
 	}
 	return articles, err
 }
