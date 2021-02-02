@@ -151,9 +151,7 @@ func (api *API) Put(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusNoContent, map[string]string{
-		"message": "No Content",
-	})
+	return c.NoContent(http.StatusNoContent)
 }
 
 // Delete 删除指定文章.
@@ -174,7 +172,5 @@ func (api *API) Delete(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusNoContent, map[string]string{
-		"message": "No Content",
-	})
+	return c.NoContent(http.StatusNoContent)
 }

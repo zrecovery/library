@@ -33,7 +33,7 @@ func (u *UseCase) Save(ctx context.Context, a *article.Article) (int, error) {
 	id, err := u.repository.Insert(ctx, a)
 	if err != nil {
 		log.Print(err)
-		return 0, err
+		return -1, err
 	}
 
 	return id, nil

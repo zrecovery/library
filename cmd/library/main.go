@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	articleRouter "github.com/zrecovery/library/internal/article/pkg/router"
-	authorRouter "github.com/zrecovery/library/internal/author/pkg/router"
 	bookRouter "github.com/zrecovery/library/internal/book/pkg/router"
 	"github.com/zrecovery/library/pkg/config"
 	echoValidator "github.com/zrecovery/library/pkg/validator"
@@ -13,7 +12,6 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -22,7 +20,7 @@ func main() {
 
 	e.Validator = echoValidator.New(validator.New())
 
-	configService := config.NewSerivice("config/config.json")
+	configService := config.NewSerivice("../../config/config.json")
 
 	// Middleware
 	e.Use(middleware.Logger())
@@ -35,7 +33,6 @@ func main() {
 	// Router
 	api := e.Group("/api")
 	articleRouter.NewRouter(api, configService.DataURI)
-	authorRouter.NewRouter(api, configService.DataURI)
 	bookRouter.NewRouter(api, configService.DataURI)
 
 	e.Logger.Fatal(e.Start("0.0.0.0:1323"))

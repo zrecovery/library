@@ -2,6 +2,8 @@
 package usecase
 
 import (
+	"log"
+
 	"github.com/zrecovery/library/internal/book/pkg/book"
 )
 
@@ -13,6 +15,7 @@ type Repository interface {
 	FindByID(id int) (*book.Book, error)
 	FindByAuthor(author string) ([]*book.Book, error)
 	FindAll() ([]*book.Book, error)
+	Search(string) ([]*book.Book, error)
 }
 
 // UseCase 业务逻辑.
@@ -79,6 +82,18 @@ func (u *UseCase) GetByAuthor(author string) ([]*book.Book, error) {
 func (u *UseCase) GetAll() ([]*book.Book, error) {
 	books, err := u.repository.FindAll()
 	if err != nil {
+		return books, err
+	}
+
+	return books, err
+}
+
+// Search 搜索包含关键词内容的书籍.
+func (u *UseCase) Search(keyword string) ([]*book.Book, error) {
+	books, err := u.repository.Search(keyword)
+
+	if err != nil {
+		log.Print(err)
 		return books, err
 	}
 

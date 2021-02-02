@@ -229,7 +229,7 @@ func TestAPI_Put(t *testing.T) {
 			id: "0",
 			want: want{
 				Error:      nil,
-				JSON:       "{\"message\":\"No Content\"}\n",
+				JSON:       "",
 				StatusCode: http.StatusNoContent,
 			},
 		},
@@ -284,14 +284,14 @@ func TestAPI_Delete(t *testing.T) {
 		want want
 	}{
 		{
-			name: "正常通过ID删除",
+			name: "通过合法ID删除文章",
 			mock: mockReturn{
 				Error: nil,
 			},
 			id: "0",
 			want: want{
 				Error:      nil,
-				JSON:       "{\"message\":\"No Content\"}\n",
+				JSON:       "",
 				StatusCode: http.StatusNoContent,
 			},
 		},

@@ -3,12 +3,12 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 
 	// Postgres驱动.
 	_ "github.com/lib/pq"
 	"github.com/zrecovery/library/internal/book/pkg/book"
-	errRow "github.com/zrecovery/library/pkg/error"
 )
 
 // PostgresRepository Postgres存储仓库.
@@ -103,7 +103,7 @@ func (r *PostgresRepository) Update(b *book.Book, id int) error {
 	}
 
 	if num != 1 {
-		return errRow.ErrRowsNumberNotOne
+		return errors.New("expected 1 rows affected")
 	}
 
 	if txErr := tx.Commit(); txErr != nil {
@@ -147,7 +147,7 @@ func (r *PostgresRepository) Delete(id int) error {
 	}
 
 	if num != 1 {
-		return errRow.ErrRowsNumberNotOne
+		return errors.New("expected 1 rows affected")
 	}
 
 	if txErr := tx.Commit(); txErr != nil {
@@ -175,17 +175,32 @@ func (r *PostgresRepository) FindByID(id int) (*book.Book, error) {
 		}
 	}()
 
-	stmt, err := tx.Prepare("SELECT id, author, title FROM public.books WHERE id=$1;")
+	stmt, err := tx.Prepare("SELECT book_id,book, author, title,article_id,section_serial FROM public.library_view WHERE book_id=$1;")
 	if err != nil {
 		log.Print(err)
 		return b, err
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRow(id).Scan(&e.ID, &e.Author, &e.Title)
+	rows, err := stmt.Query(id)
 	if err != nil {
 		log.Print(err)
 		return b, err
+	}
+	if rows.Err() != nil {
+		log.Print(err)
+		return b, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		var a articleDeclarationEntity
+		if err = rows.Scan(&e.ID, &e.Title, &e.Author, &a.Title, &a.ID, &a.Serial); err != nil {
+			log.Print(err)
+			return b, err
+		}
+
+		e.Articles = append(e.Articles, a)
 	}
 
 	if txErr := tx.Commit(); txErr != nil {
@@ -289,6 +304,37 @@ func (r *PostgresRepository) FindAll() ([]*book.Book, error) {
 	if err = tx.Commit(); err != nil {
 		log.Print(err)
 		return books, err
+	}
+
+	return books, err
+}
+
+// Search 通过关键词搜索有关书籍.
+func (r *PostgresRepository) Search(keyword string) ([]*book.Book, error) {
+	var books []*book.Book
+
+	stmt, err := r.db.Prepare("SELECT DISTINCT book_id,book, author FROM library_view WHERE library_view.content &@ $1 ORDER BY book,author")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
+	rows, err := stmt.Query(keyword)
+
+	if err != nil {
+		return books, err
+	}
+
+	if rows.Err() != nil {
+		return books, err
+	}
+
+	for rows.Next() {
+		var e entity
+		if rowsErr := rows.Scan(&e.ID, &e.Title, &e.Author); err != nil {
+			return books, rowsErr
+		}
+
+		books = append(books, e.entityToBook())
 	}
 
 	return books, err

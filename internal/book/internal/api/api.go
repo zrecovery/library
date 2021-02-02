@@ -17,6 +17,7 @@ type useCase interface {
 	Save(*book.Book) (int, error)
 	Update(*book.Book, int) error
 	Delete(id int) error
+	Search(keyword string) ([]*book.Book, error)
 }
 
 // API 处理RESTful请求单元.
@@ -51,9 +52,11 @@ func (api *API) GetByID(c echo.Context) error {
 
 // Gets 获取全部数据.
 func (api *API) Gets(c echo.Context) error {
-	author := c.QueryParam("author")
 
-	if author == "" {
+	author := c.QueryParam("author")
+	keyword := c.QueryParam("search")
+
+	if author == "" && keyword == "" {
 		books, err := api.useCase.GetAll()
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, "Internal Server Error")
@@ -62,6 +65,19 @@ func (api *API) Gets(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]interface{}{
 			"message": "OK",
 			"data":    books,
+		})
+	}
+
+	if keyword != "" {
+		articles, err := api.useCase.Search(keyword)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{
+				"message": "Internal Server Error",
+			})
+		}
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"message": "OK",
+			"data":    articles,
 		})
 	}
 
