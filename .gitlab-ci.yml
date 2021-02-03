@@ -42,14 +42,10 @@ compile:
     script:
       - go mod download
       - go build -o bin/$OUTPUT_NAME cmd/library/*.go 
+      - cp bin/$OUTPUT_NAME $CI_PROJECT_DIR/
     artifacts:
+      name: "Release"
       paths:
-        - bin/$OUTPUT_NAME
+        - $OUTPUT_NAME
 
-release:
-    stage: release
-    script:
-        - echo 'Release job'
-    release:
-        tag_name: $CI_COMMIT_TAG
-        description: 'Release description'
+              
