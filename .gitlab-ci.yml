@@ -1,6 +1,7 @@
 variables:
   # Please edit to your GitLab project
   REPO_NAME: gitlab.com/zrecovery/library
+  OUTPUT_NAME: library-app
 
 # The problem is that to be able to use go get, one needs to put
 # the repository in the $GOPATH. So for example if your gitlab domain
@@ -19,6 +20,8 @@ before_script:
 stages:
   - test
   - lint
+  - build
+  - release
 
 
 format:
@@ -33,3 +36,16 @@ golangci-lint:
     allow_failure: true
     script:
       - golangci-lint run -v
+
+compile:
+    stage: build
+    script:
+      - go mod download
+      - go build -o bin/$OUTPUT_NAME cmd/library/*.go 
+      - cp bin/$OUTPUT_NAME $CI_PROJECT_DIR/
+    artifacts:
+      name: "Release"
+      paths:
+        - $OUTPUT_NAME
+
+              
