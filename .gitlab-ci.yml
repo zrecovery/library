@@ -40,7 +40,7 @@ compile:
     stage: build
     script:
       - go mod download
-      - go build -o bin/library cmd/library/*.go -o $OUTPUT_NAME
+      - go build -o bin/$OUTPUT_NAME cmd/library/*.go 
     artifacts:
       paths:
         - $OUTPUT_NAME
