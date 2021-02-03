@@ -20,7 +20,7 @@ func main() {
 
 	e.Validator = echoValidator.New(validator.New())
 
-	configService := config.NewSerivice("../../config/config.json")
+	configService := config.NewSerivice("config/config.json")
 
 	// Middleware
 	e.Use(middleware.Logger())
