@@ -43,4 +43,4 @@ compile:
       - go build -o bin/$OUTPUT_NAME cmd/library/*.go 
     artifacts:
       paths:
-        - $OUTPUT_NAME
+        - bin/$OUTPUT_NAME
