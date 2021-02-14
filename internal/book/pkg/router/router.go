@@ -3,8 +3,8 @@ package router
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/zrecovery/library/internal/book/internal/api"
 	"github.com/zrecovery/library/internal/book/internal/repository"
+	restful "github.com/zrecovery/library/internal/book/internal/rest"
 	"github.com/zrecovery/library/internal/book/internal/usecase"
 )
 
@@ -12,12 +12,12 @@ import (
 func NewRouter(root *echo.Group, connStr string) {
 	repos := repository.NewRepository(connStr)
 	useCase := usecase.NewUseCase(repos)
-	a := api.NewAPI(useCase)
+	rest := restful.NewRESTful(useCase)
 
 	books := root.Group("/books")
-	books.GET("", a.Gets)
-	books.GET("/:id", a.GetByID)
-	books.POST("", a.Post)
-	books.PUT("/:id", a.Put)
-	books.DELETE("/:id", a.Delete)
+	books.GET("", rest.Gets)
+	books.GET("/:id", rest.GetByID)
+	books.POST("", rest.Post)
+	books.PUT("/:id", rest.Put)
+	books.DELETE("/:id", rest.Delete)
 }

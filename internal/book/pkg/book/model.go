@@ -3,8 +3,9 @@ package book
 
 // ArticleDeclaration 文章基本信息.
 type ArticleDeclaration struct {
-	ID     int64   `json:"id,omitempty"`
-	Title  string  `json:"title,omitempty"`
+	ID    int64  `json:"id,omitempty"`
+	Title string `json:"title,omitempty"`
+	// Serial 章节顺序序号
 	Serial float64 `json:"serial,omitempty"`
 }
 

@@ -2,7 +2,10 @@
 package main
 
 import (
+	"log"
 	"net/http"
+	"os"
+	"strconv"
 
 	articleRouter "github.com/zrecovery/library/internal/article/pkg/router"
 	bookRouter "github.com/zrecovery/library/internal/book/pkg/router"
@@ -15,19 +18,24 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.Llongfile | log.Ldate)
+
+	configService, err := config.NewSerivice(os.Getenv("LIBRARY_CONFIG"))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	e := echo.New()
 	e.File("/favicon.ico", "../../web/favicon.ico")
 
 	e.Validator = echoValidator.New(validator.New())
-
-	configService := config.NewSerivice("config/config.json")
 
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"http://127.0.0.1"},
-		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete},
+		AllowMethods: []string{http.MethodGet, http.MethodHead, http.MethodPut, http.MethodPatch, http.MethodPost, http.MethodDelete, http.MethodHead, http.MethodPatch},
 	}))
 
 	// Router
@@ -35,5 +43,5 @@ func main() {
 	articleRouter.NewRouter(api, configService.DataURI)
 	bookRouter.NewRouter(api, configService.DataURI)
 
-	e.Logger.Fatal(e.Start("0.0.0.0:1323"))
+	e.Logger.Fatal(e.Start(configService.Host + ":" + strconv.Itoa(configService.Port)))
 }

@@ -3,36 +3,40 @@ package config
 
 import (
 	"encoding/json"
+	// Note: ioutil将与Go1.16废弃
 	"io/ioutil"
-	"log"
 )
-
-// Casbin Casbin设置
-type Casbin struct {
-	Model     string `json:"model,omitempty"`
-	DataURI   string `json:"data_uri,omitempty"`
-	TableName string `json:"table_name,omitempty"`
-}
 
 // Config 总设置.
 type Config struct {
-	DataURI string `json:"data_uri,omitempty"`
-	Port    int    `json:"port,omitempty"`
-	Casbin  Casbin `json:"casbin,omitempty"`
+	// 数据库连接地址，例如"postgres://postgres:mysecretpassword@10.0.0.47/library?sslmode=disable"
+	DataURI string `json:"data_uri"`
+	// APP监听端口
+	Port int `json:"port"`
+	// 监听IP
+	Host string `json:"host"`
 }
 
 // NewSerivice 创建设置服务
-func NewSerivice(path string) *Config {
+func NewSerivice(path string) (*Config, error) {
+	c := new(Config)
+
+	if path == "" {
+		c.DataURI = "postgres://postgres:postgres@localhost/library?sslmode=disable"
+		c.Port = 1323
+		c.Host = "127.0.0.1"
+		return c, nil
+	}
+	// Note: ioutil将与Go1.16废弃
 	fileData, err := ioutil.ReadFile(path)
 	if err != nil {
-		log.Fatal(err)
+		return c, err
 	}
 
-	c := new(Config)
 	err = json.Unmarshal(fileData, c)
 
 	if err != nil {
-		log.Fatal(err)
+		return c, nil
 	}
-	return c
+	return c, nil
 }

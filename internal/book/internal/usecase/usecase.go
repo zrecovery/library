@@ -1,4 +1,4 @@
-// Package usecase 业务逻辑
+// Package usecase Book模块业务逻辑
 package usecase
 
 import (
@@ -23,13 +23,13 @@ type UseCase struct {
 	repository Repository
 }
 
-// NewUseCase 新建业务逻辑模块.
+// NewUseCase 新建Book业务逻辑模块.
 func NewUseCase(repository Repository) *UseCase {
 	return &UseCase{repository: repository}
 }
 
-// Save 保存.
-func (u *UseCase) Save(b *book.Book) (int, error) {
+// Save 新建数据.
+func (u *UseCase) Create(b *book.Book) (int, error) {
 	id, err := u.repository.Save(b)
 	if err != nil {
 		return 0, err
@@ -48,7 +48,7 @@ func (u *UseCase) Update(b *book.Book, id int) error {
 	return err
 }
 
-// Delete 删除.
+// Delete 通过ID删除指定book.
 func (u *UseCase) Delete(id int) error {
 	err := u.repository.Delete(id)
 	if err != nil {
@@ -58,7 +58,7 @@ func (u *UseCase) Delete(id int) error {
 	return err
 }
 
-// GetByID 通过ID获取数据.
+// GetByID 通过ID获取book数据.
 func (u *UseCase) GetByID(id int) (*book.Book, error) {
 	b, err := u.repository.FindByID(id)
 	if err != nil {
@@ -68,7 +68,7 @@ func (u *UseCase) GetByID(id int) (*book.Book, error) {
 	return b, err
 }
 
-// GetByAuthor 通过作者获取数据.
+// GetByAuthor 通过作者获取book数据.
 func (u *UseCase) GetByAuthor(author string) ([]*book.Book, error) {
 	books, err := u.repository.FindByAuthor(author)
 	if err != nil {
@@ -78,7 +78,7 @@ func (u *UseCase) GetByAuthor(author string) ([]*book.Book, error) {
 	return books, err
 }
 
-// GetAll 获取全部数据.
+// GetAll 获取全部book数据，提供书籍目录，不需要详细书籍章节信息.
 func (u *UseCase) GetAll() ([]*book.Book, error) {
 	books, err := u.repository.FindAll()
 	if err != nil {
@@ -88,7 +88,7 @@ func (u *UseCase) GetAll() ([]*book.Book, error) {
 	return books, err
 }
 
-// Search 搜索包含关键词内容的书籍.
+// Search 搜索包含关键词内容文章的所有书籍.
 func (u *UseCase) Search(keyword string) ([]*book.Book, error) {
 	books, err := u.repository.Search(keyword)
 

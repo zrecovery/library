@@ -39,7 +39,7 @@ func TestSave(t *testing.T) {
 		testUseCase := usecase.NewUseCase(mockRepository)
 
 		t.Run(testcase.name, func(t *testing.T) {
-			result, err := testUseCase.Save(testcase.book)
+			result, err := testUseCase.Create(testcase.book)
 			assert.NoError(t, err)
 			assert.Equal(t, testcase.expected, result)
 		})

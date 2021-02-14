@@ -21,7 +21,7 @@ const (
 
 // PostgresRepository Postgres数据库.
 type PostgresRepository struct {
-	db *sql.DB
+	DB *sql.DB
 }
 
 // NewRepository 创建一个存储仓库.
@@ -32,16 +32,21 @@ func NewRepository(connStr string) *PostgresRepository {
 		log.Fatal(err)
 	}
 
-	return &PostgresRepository{db: db}
+	return &PostgresRepository{DB: db}
 }
 
 // Insert 添加数据.
 func (r *PostgresRepository) Insert(ctx context.Context, a *article.Article) (int, error) {
-	var e entity
+	var entityBook entity
 	var lastID int
 
-	e.modelToEntity(a)
-	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	entityBook.modelToEntity(a)
+
+	bookErr := r.saveBook(ctx, entityBook.Book.String, entityBook.Author.String)
+	if bookErr != nil {
+		return -1, bookErr
+	}
+	tx, err := r.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -84,11 +89,18 @@ func (r *PostgresRepository) Insert(ctx context.Context, a *article.Article) (in
 
 	defer stmt.Close()
 
-	err = stmt.QueryRowContext(ctx, e.Book.String, e.Author.String, e.Title.String, e.Serial.Float64, e.Article.String).Scan(&lastID)
+	err = stmt.QueryRowContext(ctx, entityBook.Book.String, entityBook.Author.String, entityBook.Title.String, entityBook.Serial.Float64, entityBook.Article.String).Scan(&lastID)
 	if err != nil {
 		if e, ok := err.(*pq.Error); ok {
-			if e.Code.Name() == "not_null_violation" {
+			switch e.Code.Name() {
+			case "not_null_violation":
 				log.Print(e)
+				return -1, e
+			case "foreign_key_violation":
+				log.Print(e)
+				return -1, e
+			default:
+				log.Print(e.Code.Name())
 				return -1, e
 			}
 		} else {
@@ -108,7 +120,7 @@ func (r *PostgresRepository) Update(ctx context.Context, a *article.Article, id 
 	var e entity
 	e.modelToEntity(a)
 
-	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	tx, err := r.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -171,7 +183,7 @@ func (r *PostgresRepository) Update(ctx context.Context, a *article.Article, id 
 
 // Delete 删除数据.
 func (r *PostgresRepository) Delete(ctx context.Context, id int) error {
-	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	tx, err := r.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -226,7 +238,7 @@ func (r *PostgresRepository) FindByID(ctx context.Context, id int) (*article.Art
 
 	var a *article.Article
 
-	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	tx, err := r.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -244,7 +256,7 @@ func (r *PostgresRepository) FindByID(ctx context.Context, id int) (*article.Art
 		}
 	}()
 
-	stmt, err := r.db.PrepareContext(ctx, "SELECT id,book, author, title, section_serial, content FROM articles WHERE id=$1;")
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT id,book, author, title, section_serial, content FROM articles WHERE id=$1;")
 	if err != nil {
 		log.Print(err)
 		return a, err
@@ -272,7 +284,7 @@ func (r *PostgresRepository) FindAll(ctx context.Context) ([]*article.Article, e
 
 	const offset = 0
 
-	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	tx, err := r.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -290,7 +302,7 @@ func (r *PostgresRepository) FindAll(ctx context.Context) ([]*article.Article, e
 		}
 	}()
 
-	stmt, err := r.db.PrepareContext(ctx,
+	stmt, err := r.DB.PrepareContext(ctx,
 		"SELECT id,book, author, title FROM articles ORDER BY author,book,section_serial  LIMIT ALL OFFSET $1")
 	if err != nil {
 		log.Print(err)
@@ -328,7 +340,7 @@ func (r *PostgresRepository) FindAll(ctx context.Context) ([]*article.Article, e
 func (r *PostgresRepository) Search(ctx context.Context, keyword string) ([]*article.Article, error) {
 	var articles []*article.Article
 
-	tx, err := r.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	tx, err := r.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -346,7 +358,7 @@ func (r *PostgresRepository) Search(ctx context.Context, keyword string) ([]*art
 		}
 	}()
 
-	stmt, err := r.db.PrepareContext(ctx, "SELECT id,book, author, title FROM articles WHERE articles.content &@ $1")
+	stmt, err := r.DB.PrepareContext(ctx, "SELECT id,book, author, title FROM articles WHERE articles.content &@ $1")
 	if err != nil {
 		log.Print(err)
 		return articles, err
@@ -376,4 +388,59 @@ func (r *PostgresRepository) Search(ctx context.Context, keyword string) ([]*art
 		return articles, txCommitErr
 	}
 	return articles, err
+}
+
+func (r *PostgresRepository) saveBook(ctx context.Context, book string, author string) error {
+	tx, txErr := r.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	if txErr != nil {
+		log.Fatal(txErr)
+	}
+
+	// 创建Book
+	bookStmt, bookStmtErr := tx.PrepareContext(ctx, "INSERT INTO public.books( author, title ) VALUES ($1,$2);")
+	if bookStmtErr != nil {
+		if e, ok := bookStmtErr.(*pq.Error); ok {
+			switch e.Code.Name() {
+			case ErrDuplicatePreparedStatement:
+				log.Print(e)
+				return e
+			case ErrInvalidPreparedDefinition:
+				log.Print(e)
+				// 为了防止错误状态下信息泄露，强制设置无效信息，如-1
+				return e
+			default:
+				log.Print(e.Code.Name())
+				log.Print(e)
+				return e
+			}
+		} else {
+			log.Print(bookStmtErr)
+			return bookStmtErr
+		}
+	}
+	defer bookStmt.Close()
+
+	_, resultErr := bookStmt.ExecContext(ctx, author, book)
+	if resultErr != nil {
+		if e, ok := bookStmtErr.(*pq.Error); ok {
+			switch e.Code.Name() {
+			case "unique":
+				return e
+			case "u":
+				return e
+			default:
+				log.Print(e.Code.Name())
+				return e
+			}
+		}
+		log.Print(resultErr)
+		return resultErr
+	}
+
+	// 事物提交
+	if txCommitErr := tx.Commit(); txCommitErr != nil {
+		log.Print(txCommitErr)
+		return txCommitErr
+	}
+	return nil
 }

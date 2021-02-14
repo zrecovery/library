@@ -1,4 +1,4 @@
-package api_test
+package restful_test
 
 import (
 	"net/http"
@@ -8,9 +8,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	api "github.com/zrecovery/library/internal/article/internal/api"
+	rest "github.com/zrecovery/library/internal/article/internal/rest"
 	"github.com/zrecovery/library/internal/article/pkg/article"
-	mock_api "github.com/zrecovery/library/test/mocks/article/api"
+	mock_rest "github.com/zrecovery/library/test/mocks/article/rest"
 
 	"github.com/golang/mock/gomock"
 )
@@ -30,7 +30,7 @@ func TestAPI_GetByID(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockuseCase(ctrl)
+	mockUseCase := mock_rest.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -65,7 +65,7 @@ func TestAPI_GetByID(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(testcase.id)
 			mockUseCase.EXPECT().GetByID(gomock.Any(), gomock.Any()).Return(testcase.mock.Article, testcase.mock.Error)
-			s := api.NewAPI(mockUseCase)
+			s := rest.NewRESTful(mockUseCase)
 			err := s.GetByID(c)
 			if assert.NoError(t, err) {
 				assert.Equal(t, testcase.want.StatusCode, rec.Code)
@@ -90,7 +90,7 @@ func TestAPI_GetAll(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockuseCase(ctrl)
+	mockUseCase := mock_rest.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -122,7 +122,7 @@ func TestAPI_GetAll(t *testing.T) {
 			c.SetPath("/articles")
 
 			mockUseCase.EXPECT().GetAll(gomock.Any()).Return(testcase.mock.Articles, testcase.mock.Error)
-			s := api.NewAPI(mockUseCase)
+			s := rest.NewRESTful(mockUseCase)
 
 			err := s.Gets(c)
 			if assert.NoError(t, err) {
@@ -148,7 +148,7 @@ func TestAPI_Post(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockuseCase(ctrl)
+	mockUseCase := mock_rest.NewMockuseCase(ctrl)
 
 	e := echo.New()
 
@@ -182,7 +182,7 @@ func TestAPI_Post(t *testing.T) {
 			c := e.NewContext(req, rec)
 			c.SetPath("/articles")
 			mockUseCase.EXPECT().Save(gomock.Any(), gomock.Any()).Return(testcase.mock.ID, testcase.mock.Error)
-			a := api.NewAPI(mockUseCase)
+			a := rest.NewRESTful(mockUseCase)
 			err := a.Post(c)
 			if assert.NoError(t, err) {
 				assert.Equal(t, testcase.want.StatusCode, rec.Code)
@@ -206,7 +206,7 @@ func TestAPI_Put(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockuseCase(ctrl)
+	mockUseCase := mock_rest.NewMockuseCase(ctrl)
 
 	e := echo.New()
 
@@ -245,7 +245,7 @@ func TestAPI_Put(t *testing.T) {
 			c.SetParamValues(testcase.id)
 
 			mockUseCase.EXPECT().Update(gomock.Any(), gomock.Any(), gomock.Any()).Return(testcase.mock.Error)
-			s := api.NewAPI(mockUseCase)
+			s := rest.NewRESTful(mockUseCase)
 			err := s.Put(c)
 			if assert.NoError(t, err) {
 				assert.Equal(t, testcase.want.StatusCode, rec.Code)
@@ -269,7 +269,7 @@ func TestAPI_Delete(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockUseCase := mock_api.NewMockuseCase(ctrl)
+	mockUseCase := mock_rest.NewMockuseCase(ctrl)
 
 	e := echo.New()
 	req := httptest.NewRequest(http.MethodDelete, "/", nil)
@@ -303,7 +303,7 @@ func TestAPI_Delete(t *testing.T) {
 			c.SetParamNames("id")
 			c.SetParamValues(testcase.id)
 			mockUseCase.EXPECT().Delete(gomock.Any(), gomock.Any()).Return(testcase.mock.Error)
-			s := api.NewAPI(mockUseCase)
+			s := rest.NewRESTful(mockUseCase)
 			err := s.Delete(c)
 			if assert.NoError(t, err) {
 				assert.Equal(t, testcase.want.StatusCode, rec.Code)

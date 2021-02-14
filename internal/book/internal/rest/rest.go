@@ -1,5 +1,5 @@
 // Package api 是web的处理单元.
-package api
+package restful
 
 import (
 	"net/http"
@@ -14,24 +14,24 @@ type useCase interface {
 	GetAll() ([]*book.Book, error)
 	GetByID(int) (*book.Book, error)
 	GetByAuthor(string) ([]*book.Book, error)
-	Save(*book.Book) (int, error)
+	Create(*book.Book) (int, error)
 	Update(*book.Book, int) error
 	Delete(id int) error
 	Search(keyword string) ([]*book.Book, error)
 }
 
-// API 处理RESTful请求单元.
-type API struct {
+// RESTful 处理RESTful请求单元.
+type RESTful struct {
 	useCase useCase
 }
 
-// NewAPI 创建API请求单元.
-func NewAPI(usecCase useCase) *API {
-	return &API{useCase: usecCase}
+// NewRESTful 创建API请求单元.
+func NewRESTful(usecCase useCase) *RESTful {
+	return &RESTful{useCase: usecCase}
 }
 
 // GetByID 通过ID获取数据.
-func (api *API) GetByID(c echo.Context) error {
+func (rest *RESTful) GetByID(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -39,7 +39,7 @@ func (api *API) GetByID(c echo.Context) error {
 		})
 	}
 
-	b, err := api.useCase.GetByID(id)
+	b, err := rest.useCase.GetByID(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
@@ -51,12 +51,12 @@ func (api *API) GetByID(c echo.Context) error {
 }
 
 // Gets 获取全部数据.
-func (api *API) Gets(c echo.Context) error {
+func (rest *RESTful) Gets(c echo.Context) error {
 	author := c.QueryParam("author")
 	keyword := c.QueryParam("search")
 
 	if author == "" && keyword == "" {
-		books, err := api.useCase.GetAll()
+		books, err := rest.useCase.GetAll()
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 		}
@@ -68,7 +68,7 @@ func (api *API) Gets(c echo.Context) error {
 	}
 
 	if keyword != "" {
-		articles, err := api.useCase.Search(keyword)
+		articles, err := rest.useCase.Search(keyword)
 		if err != nil {
 			return c.JSON(http.StatusInternalServerError, map[string]string{
 				"message": "Internal Server Error",
@@ -80,7 +80,7 @@ func (api *API) Gets(c echo.Context) error {
 		})
 	}
 
-	books, err := api.useCase.GetByAuthor(author)
+	books, err := rest.useCase.GetByAuthor(author)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
@@ -92,7 +92,7 @@ func (api *API) Gets(c echo.Context) error {
 }
 
 // Post 上传数据.
-func (api *API) Post(c echo.Context) error {
+func (rest *RESTful) Post(c echo.Context) error {
 	b := new(book.Book)
 	if err := c.Bind(b); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -106,7 +106,7 @@ func (api *API) Post(c echo.Context) error {
 		})
 	}
 
-	id, err := api.useCase.Save(b)
+	id, err := rest.useCase.Create(b)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
@@ -118,7 +118,7 @@ func (api *API) Post(c echo.Context) error {
 }
 
 // Put 修改数据.
-func (api *API) Put(c echo.Context) error {
+func (rest *RESTful) Put(c echo.Context) error {
 	b := new(book.Book)
 	if err := c.Bind(b); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -139,7 +139,7 @@ func (api *API) Put(c echo.Context) error {
 		})
 	}
 
-	err = api.useCase.Update(b, id)
+	err = rest.useCase.Update(b, id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}
@@ -150,7 +150,7 @@ func (api *API) Put(c echo.Context) error {
 }
 
 // Delete 删除数据.
-func (api *API) Delete(c echo.Context) error {
+func (rest *RESTful) Delete(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
@@ -158,7 +158,7 @@ func (api *API) Delete(c echo.Context) error {
 		})
 	}
 
-	err = api.useCase.Delete(id)
+	err = rest.useCase.Delete(id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, "Internal Server Error")
 	}

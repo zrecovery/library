@@ -1,9 +1,5 @@
 {
-    "data_uri":"postgres://postgres:postgres@postgresql.local/library?sslmode=disable",
+    "data_uri":"postgres://postgres:mysecretpassword@10.0.0.47/library?sslmode=disable",
     "port":1323,
-    "casbin":{
-        "model":"config/rbac.conf",
-        "data_uri":"postgres://postgres:postgres@localhost/library?sslmode=disable",
-        "table_name":"casbin"
-    }
+    "host":"0.0.0.0"
 }
