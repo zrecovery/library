@@ -15,6 +15,9 @@
         {
             "name": "Debug",
             "type": "go",
+            "env": {
+                "LIBRARY_CONFIG":"../../config/config.json"
+            },
             "request": "launch",
             "mode": "debug",
             "cwd": "${fileDirname}",
