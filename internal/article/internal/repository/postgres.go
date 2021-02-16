@@ -422,12 +422,11 @@ func (r *PostgresRepository) saveBook(ctx context.Context, book string, author s
 
 	_, resultErr := bookStmt.ExecContext(ctx, author, book)
 	if resultErr != nil {
-		if e, ok := bookStmtErr.(*pq.Error); ok {
+		if e, ok := resultErr.(*pq.Error); ok {
 			switch e.Code.Name() {
-			case "unique":
-				return e
-			case "u":
-				return e
+			case "unique_violation":
+				log.Print("已提交")
+				return nil
 			default:
 				log.Print(e.Code.Name())
 				return e
