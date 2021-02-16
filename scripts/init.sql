@@ -1,3 +1,0 @@
-CREATE DATABASE library;
-CREATE EXTENSION pgroonga;
-
