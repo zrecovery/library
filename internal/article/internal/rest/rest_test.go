@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	rest "github.com/zrecovery/library/internal/article/internal/rest"
 	"github.com/zrecovery/library/internal/article/pkg/article"
-	mock_rest "github.com/zrecovery/library/test/mocks/article/rest"
+	mock_rest "github.com/zrecovery/library/test/testdata/mocks/article/rest"
 
 	"github.com/golang/mock/gomock"
 )

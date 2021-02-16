@@ -5,7 +5,7 @@ import (
 
 	"github.com/zrecovery/library/internal/book/internal/usecase"
 	"github.com/zrecovery/library/internal/book/pkg/book"
-	mock_usecase "github.com/zrecovery/library/test/mocks/book/usecase"
+	mock_usecase "github.com/zrecovery/library/test/testdata/mocks/book/usecase"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"

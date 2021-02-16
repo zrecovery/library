@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	rest "github.com/zrecovery/library/internal/book/internal/rest"
 	"github.com/zrecovery/library/internal/book/pkg/book"
-	mock_rest "github.com/zrecovery/library/test/mocks/book/rest"
+	mock_rest "github.com/zrecovery/library/test/testdata/mocks/book/rest"
 )
 
 type CustomValidator struct {

@@ -7,13 +7,13 @@ download:
 	go mod download
 
 build: download
-	go build -o bin/library cmd/library/*.go
+	go build -o build/library cmd/library/*.go
 
 run: build
-	./bin/library
+	./build/library
 
 mock:
-	rm -rf test/mocks
+	rm -rf test/testdata/mocks
 
 	sh ./scripts/mock.sh
 
