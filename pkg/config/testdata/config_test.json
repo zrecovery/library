@@ -1,5 +1,0 @@
-{
-    "data_uri":"postgres://postgres:mysecretpassword@127.0.0.1/library_test?sslmode=disable",
-    "port":1323,
-    "host":"127.0.0.1"
-}
