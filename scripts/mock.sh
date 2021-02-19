@@ -1,7 +1,6 @@
 mkdir test/testdata/mocks
 
 mkdir test/testdata/mocks/article
-mkdir test/testdata/mocks/author
 mkdir test/testdata/mocks/book
 
 mockgen -source=internal/article/internal/usecase/usecase.go -destination test/testdata/mocks/article/usecase/mock_usecase.go
