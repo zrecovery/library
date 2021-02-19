@@ -1,5 +1,5 @@
 {
-    "data_uri":"postgres://postgres:mysecretpassword@10.0.0.47/library?sslmode=disable",
+    "data_uri":"postgres://postgres:postgres@freebsd.local/library?sslmode=disable",
     "port":1323,
     "host":"0.0.0.0"
 }

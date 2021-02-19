@@ -6,13 +6,13 @@
 
 # 安装
 ## 数据库
-需要PostgreSQL 13
+需要PostgreSQL 13以及PGroonga插件。
 
 理论上PostgreSQL官方仍在维护的各版本亦可运行，其他数据库如MySQL等目前均未适配。
 
 ### 配置数据库
 ```
-psql -U postgres -f scripts/init.sql
+psql -U postgres -f scripts/library.sql
 ```
 命令中的postgres为数据库用户名，按实际情况替换。
 
@@ -21,7 +21,7 @@ psql -U postgres -f scripts/init.sql
 
 本项目构建工具可以使用Berkeley make或GNU make。
 
-修改数据库连接地址需要在config/config.json文件中修改data_uri变量
+修改数据库连接地址需要在configs/config.json文件中修改data_uri变量
 
 ## 编译
 ```
@@ -30,7 +30,7 @@ make build
 或
 ```
 go mod download
-go build cmd/library/*.go
+go build cmd/library/main.go
 ```
 # 使用说明
 ```
@@ -39,7 +39,7 @@ make run
 或
 ```
 go mod download
-go run cmd/library/*.go
+go run cmd/library/main.go
 ```
 
 # 使用依赖

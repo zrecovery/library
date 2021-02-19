@@ -8,7 +8,7 @@
             "name": "Debug",
             "type": "go",
             "env": {
-                "LIBRARY_CONFIG":"../../config/config.json"
+                "LIBRARY_CONFIG":"../../configs/config.json"
             },
             "request": "launch",
             "mode": "debug",
