@@ -3,13 +3,13 @@ package config
 
 import (
 	"encoding/json"
+	"os"
 	// Note: ioutil将与Go1.16废弃
-	"io/ioutil"
 )
 
 // Config 总设置.
 type Config struct {
-	// 数据库连接地址，例如"postgres://postgres:mysecretpassword@10.0.0.47/library?sslmode=disable"
+	// 数据库连接地址，例如"postgres://postgres:postgres@localhost/library?sslmode=disable"
 	DataURI string `json:"data_uri"`
 	// APP监听端口
 	Port int `json:"port"`
@@ -27,8 +27,8 @@ func NewSerivice(path string) (*Config, error) {
 		c.Host = "127.0.0.1"
 		return c, nil
 	}
-	// Note: ioutil将与Go1.16废弃
-	fileData, err := ioutil.ReadFile(path)
+
+	fileData, err := os.ReadFile(path)
 	if err != nil {
 		return c, err
 	}
