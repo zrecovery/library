@@ -18,7 +18,7 @@ mock:
 	sh ./scripts/mock.sh
 
 test: mock
-	go test ./...
+	go test -test.short ./...
 
 cover: mock
 	go test -coverprofile=cover.out -gcflags=-l ./... && go tool cover -html=cover.out && rm cover.out

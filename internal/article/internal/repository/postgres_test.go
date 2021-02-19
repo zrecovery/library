@@ -31,6 +31,11 @@ func TestMain(m *testing.M) {
 }
 
 func TestPostgresRepository_saveBook(t *testing.T) {
+	// 避免在单元测试中运行
+	if testing.Short() {
+		t.Skip("skipping test in short mode.")
+	}
+
 	type args struct {
 		ctx    context.Context
 		book   string
@@ -66,6 +71,11 @@ func TestPostgresRepository_saveBook(t *testing.T) {
 }
 
 func TestPostgresRepository_Insert(t *testing.T) {
+	// 避免在单元测试中运行
+	if testing.Short() {
+		t.Skip("skipping test in short mode.")
+	}
+
 	type args struct {
 		ctx context.Context
 		a   *article.Article
