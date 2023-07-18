@@ -3,7 +3,7 @@ import * as Router from "koa-router";
 import { koaBody } from "koa-body";
 import * as cors from "@koa/cors"
 
-import { getArticleByID, getArticles, createArticle } from "./model/articles";
+import { getArticleByID, getArticles, createArticle, deleteArticle } from "./model/articles";
 const app = new Koa();
 
 const articleRoute = new Router({ prefix: "/articles" });
@@ -13,7 +13,7 @@ app.use(koaBody());
 articleRoute.get("/", async ctx => {
     const query = ctx.request.query
     const limit = query.limit ? Number(query.limit) : 20
-    const offset = Number(query.page) * limit
+    const offset = Number(query.page ?? 0) * limit - limit
     const articles = await getArticles(limit, offset);
     ctx.body = articles;
 })
@@ -24,8 +24,14 @@ articleRoute.get("/:id", async ctx => {
     ctx.body = article;
 })
 
+articleRoute.delete("/:id", async ctx => {
+    const id = Number(ctx.params["id"]);
+    const article = await deleteArticle(id);
+})
+
+
 articleRoute.post("/", async ctx => {
-    const article = ctx.request.body
+    const article = ctx.request.body;
     const result = await createArticle(article);
     ctx.body = result;
 })
@@ -33,4 +39,4 @@ articleRoute.post("/", async ctx => {
 app.use(articleRoute.routes())
 
 
-app.listen(3000);
+app.listen(3001);

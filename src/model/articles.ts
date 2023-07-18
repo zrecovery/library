@@ -13,6 +13,13 @@ export const getArticleByID = async (id: number): Promise<Article> => {
 
 export const getArticles = async (limit: number = LIMIT, offset: number = 0): Promise<Article[]> => {
     return await client.article.findMany({
+        orderBy: [{
+            author: 'asc'
+        }, {
+            serial_name: 'asc'
+        }, {
+            serial_order: 'asc'
+        }],
         skip: offset,
         take: limit
     })
