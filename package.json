@@ -19,7 +19,7 @@
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
-    "@prisma/client": "4.15.0",
+    "@prisma/client": "4.16.2",
     "@types/koa": "^2.13.6",
     "@types/koa-router": "^7.4.4",
     "nodemon": "^2.0.22",
