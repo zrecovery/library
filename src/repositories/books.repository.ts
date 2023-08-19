@@ -1,14 +1,14 @@
 import type { Book } from "../models/book.model";
 import type { BooksRepositoryPort } from "../usecases/book.usecase";
-import { PrismaClient } from "@prisma/client";
+import type { PrismaClient } from "@prisma/client";
 
 const LIMIT = 20;
 
 export class BookRepository implements BooksRepositoryPort {
     #client: PrismaClient
 
-    constructor() {
-        this.#client = new PrismaClient();
+    constructor(client: PrismaClient) {
+        this.#client = client;
     }
 
     public getList = async (limit: number = LIMIT, offset = 0): Promise<Book[]> => {

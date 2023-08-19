@@ -1,12 +1,13 @@
-import { Article } from "@app/models/article.model";
+import { type ArticleCreateDto } from "./dtos/article.dto";
 import { ArticleRepository } from "@app/repositories/articles.repository";
 import { BookRepository } from "@app/repositories/books.repository";
-import * as cors from "@koa/cors"
-import * as Koa from "koa";
+import cors from "@koa/cors"
+import { PrismaClient } from "@prisma/client";
+import Application from 'koa';
 import { koaBody } from "koa-body";
-import * as Router from "koa-router";
+import Router from "koa-router";
 
-const app = new Koa();
+const app = new Application();
 
 const articleRoute = new Router({ prefix: `/articles` });
 const bookRoute = new Router({ prefix: `/books` })
@@ -14,8 +15,10 @@ const bookRoute = new Router({ prefix: `/books` })
 app.use(cors())
 app.use(koaBody());
 
-const articleRepository = new ArticleRepository();
-const bookRepository = new BookRepository();
+const client = new PrismaClient();
+
+const articleRepository = new ArticleRepository(client);
+const bookRepository = new BookRepository(client);
 
 bookRoute.get(`/`, async ctx => {
     const query = ctx.request.query
@@ -56,9 +59,9 @@ articleRoute.delete(`/:id`, async ctx => {
 
 
 articleRoute.post(`/`, async ctx => {
-    const article = ctx.request.body;
+    const articleCreated = ctx.request.body as unknown as ArticleCreateDto;
     try {
-        const result = await articleRepository.create(article);
+        const result = await articleRepository.create(articleCreated);
         ctx.body = result;
         ctx.status = 201;
         ctx.message = `添加成功`;

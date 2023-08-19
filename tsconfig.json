@@ -1,19 +1,28 @@
 {
-  "compilerOptions": {
-    "target": "ESNext",
-    "moduleResolution": "nodenext",
-    "strict": true,
-    "sourceMap": true,
-    "rootDirs":["./src"],
-    "baseUrl": "./",
-    "paths": {
-            "@app/*":["src/*"]
+    "compilerOptions": {
+        "target": "ESNext",
+        "moduleResolution": "nodenext",
+        "esModuleInterop": true,
+        "strict": true,
+        "sourceMap": true,
+        "rootDirs": [
+            "./src",
+            "./tests"
+        ],
+        "lib": [
+            "esnext"
+        ],
+        "baseUrl": "./",
+        "paths": {
+            "@app/*": [
+                "src/*"
+            ]
         }
-  },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }

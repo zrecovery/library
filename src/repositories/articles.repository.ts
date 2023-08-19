@@ -1,14 +1,15 @@
 import type { Article } from '../models/article.model';
 import type { ArticlesRepositoryPort } from '../usecases/article.usecase';
-import { PrismaClient } from '@prisma/client'
+import { type ArticleCreateDto } from '@app/dtos/article.dto';
+import { type PrismaClient } from '@prisma/client'
 
 const LIMIT = 20;
 
 export class ArticleRepository implements ArticlesRepositoryPort {
 
     #client: PrismaClient
-    constructor() {
-        this.#client = new PrismaClient();
+    constructor(client: PrismaClient) {
+        this.#client = client;
     }
 
     async getByID(id: number): Promise<Article> {
@@ -33,7 +34,7 @@ export class ArticleRepository implements ArticlesRepositoryPort {
         })
     }
 
-    public create = async (article: Article): Promise<Article> => {
+    public create = async (article: ArticleCreateDto): Promise<Article> => {
         return await this.#client.article.create({
             data: {
                 title: article.title,
