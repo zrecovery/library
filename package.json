@@ -21,7 +21,7 @@
     "typeorm": "^0.3.17"
   },
   "devDependencies": {
-    "@prisma/client": "5.1.1",
+    "@prisma/client": "latest",
     "@types/jest": "^29.5.3",
     "@types/koa": "^2.13.8",
     "@types/koa-router": "^7.4.4",
