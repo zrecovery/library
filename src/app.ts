@@ -1,7 +1,7 @@
-import { type ArticleCreateDto } from "./dtos/article.dto";
+import { type ArticleCreateDto } from "@app/dtos/article.dto";
 import { ArticleRepository } from "@app/repositories/articles.repository";
 import { BookRepository } from "@app/repositories/books.repository";
-import cors from "@koa/cors"
+import cors from "@koa/cors";
 import { PrismaClient } from "@prisma/client";
 import Application from 'koa';
 import { koaBody } from "koa-body";
@@ -12,10 +12,36 @@ const app = new Application();
 const articleRoute = new Router({ prefix: `/articles` });
 const bookRoute = new Router({ prefix: `/books` })
 
-app.use(cors())
+app.use(cors());
 app.use(koaBody());
 
-const client = new PrismaClient();
+const client = new PrismaClient({
+    log: [
+        {
+            emit: `event`,
+            level: `query`,
+        },
+        {
+            emit: `stdout`,
+            level: `error`,
+        },
+        {
+            emit: `stdout`,
+            level: `info`,
+        },
+        {
+            emit: `stdout`,
+            level: `warn`,
+        },
+    ],
+});
+
+
+client.$on(`query`, (e) => {
+    console.log(`Query: ` + e.query);
+    console.log(`Params: ` + e.params);
+    console.log(`Duration: ` + e.duration + `ms`);
+})
 
 const articleRepository = new ArticleRepository(client);
 const bookRepository = new BookRepository(client);
@@ -25,7 +51,7 @@ bookRoute.get(`/`, async ctx => {
     const limit = Number(query.limit ?? `20`)
     const offset = Number(query.page ?? 0) * limit - limit
     if (query.title !== `` && query.author !== `` && typeof query.title === `string` && typeof query.author === `string`) {
-        const articles = await articleRepository.getListByBookTitle(query.title, query.author);
+        const articles = await bookRepository.getListByBookAndAuthor(query.title, query.author);
         ctx.body = articles;
     } else {
         const books = await bookRepository.getList(limit, offset);
@@ -34,9 +60,9 @@ bookRoute.get(`/`, async ctx => {
 })
 
 articleRoute.get(`/`, async ctx => {
-    const query = ctx.request.query
-    const limit = Number(query.limit ?? `20`)
-    const offset = Number(query.page ?? 0) * limit - limit
+    const query = ctx.request.query;
+    const limit = Number(query.limit ?? `20`);
+    const offset = Number(query.page ?? 0) * limit - limit;
     const articles = await articleRepository.getList(limit, offset);
     ctx.body = articles;
 })
@@ -51,9 +77,10 @@ articleRoute.delete(`/:id`, async ctx => {
     try {
         const id = Number(ctx.params.id);
         await articleRepository.delete(id);
+        ctx.status = 204;
     } catch (error) {
         ctx.status = 500;
-        throw (error)
+        throw (error);
     }
 })
 
@@ -68,12 +95,12 @@ articleRoute.post(`/`, async ctx => {
     } catch (error) {
         console.error(error)
         ctx.status = 500;
-        ctx.message = `添加失败`
+        ctx.message = `添加失败`;
     }
 })
 
-app.use(bookRoute.routes())
-app.use(articleRoute.routes())
+app.use(bookRoute.routes());
+app.use(articleRoute.routes());
 
 
 app.listen(3001);

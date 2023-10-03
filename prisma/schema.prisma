@@ -1,9 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  previewFeatures = ["fullTextSearch", "views"]
   binaryTargets   = ["native", "debian-openssl-1.1.x"]
 }
 
@@ -13,10 +10,39 @@ datasource db {
 }
 
 model Article {
-  id              Int    @id @default(autoincrement())
+  id              Int     @id @default(autoincrement())
   title           String
-  author          String
-  serial_name     String
   serial_order    Float
   article_content String
+  author_id       Int
+  author          Author  @relation(fields: [author_id], references: [id])
+  book            Book    @relation(fields: [serial_id], references: [id])
+  serial_id       Int
+  love            Boolean @default(false)
+}
+
+model Author {
+  name    String    @unique
+  id      Int       @id @default(autoincrement())
+  Article Article[]
+  Book    Book[]
+}
+
+model Book {
+  id        Int       @id @default(autoincrement())
+  title     String
+  author    Author    @relation(fields: [author_id], references: [id])
+  author_id Int
+  Article   Article[]
+}
+
+view articles_view {
+  id           Int    @id
+  title        String
+  author       String
+  author_id    Int
+  book_id      Int
+  book         String
+  serial_order Float
+  body         String
 }

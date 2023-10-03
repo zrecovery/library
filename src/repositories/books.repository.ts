@@ -1,29 +1,50 @@
-import type { Book } from "../models/book.model";
-import type { BooksRepositoryPort } from "../usecases/book.usecase";
+import type { Article } from "@app/models/article.model";
+import type { Book } from "@app/models/book.model";
+import type { BooksRepositoryPort } from "@app/usecases/book.usecase";
 import type { PrismaClient } from "@prisma/client";
 
 const LIMIT = 20;
 
 export class BookRepository implements BooksRepositoryPort {
-    #client: PrismaClient
+    #client: PrismaClient;
 
     constructor(client: PrismaClient) {
         this.#client = client;
     }
 
     public getList = async (limit: number = LIMIT, offset = 0): Promise<Book[]> => {
-        return await this.#client.article.groupBy({
-            by: [`serial_name`, `author`],
-            orderBy: [{
-                "author": `desc`
+
+        const res = await this.#client.book.findMany({
+            select: {
+                id: true,
+                title: true,
+                author: {
+                    select: {
+                        name: true
+                    }
+                }
             },
-            {
-                "serial_name": `desc`
-            }],
             skip: offset,
             take: limit
-        }).then(res => { return res })
+        });
+        const books = res.flatMap(b => { return { id: b.id, title: b.title, author: b.author.name } })
+
+        return books;
     }
 
-
+    public getListByBookAndAuthor = async (book: string, author: string): Promise<Article[]> => {
+        return await this.#client.articles_view.findMany({
+            where: {
+                book: {
+                    search: book
+                },
+                author: {
+                    search: author
+                }
+            },
+            orderBy: {
+                'serial_order': `asc`
+            }
+        });
+    }
 }

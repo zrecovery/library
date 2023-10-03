@@ -1,8 +1,9 @@
 export interface ArticleCreateDto{
     title: string, 
     author: string, 
-    serial_name: string, 
+    book: string, 
     serial_order: number, 
-    article_content: string
-
+    body: string
 }
+
+

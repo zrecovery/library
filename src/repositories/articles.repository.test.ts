@@ -28,25 +28,27 @@ test(`创建`, async () => {
             mock: {
                 id: 1,
                 title: `测试标题`,
-                author: `测试作者`,
-                serial_name: `测试系列`,
+                author_id: 10,
+                serial_id: 20,
                 serial_order: 1.0,
-                article_content: `测试文章内容`
+                article_content: `测试文章内容`,
+                love: false
             },
             input: {
                 title: `测试标题`,
                 author: `测试作者`,
-                serial_name: `测试系列`,
+                book: `测试系列`,
                 serial_order: 1.0,
-                article_content: `测试文章内容`
+                body: `测试文章内容`
             },
             expected: {
                 id: 1,
                 title: `测试标题`,
-                author: `测试作者`,
-                serial_name: `测试系列`,
+                author_id: 10,
+                serial_id: 20,
                 serial_order: 1.0,
-                article_content: `测试文章内容`
+                article_content: `测试文章内容`,
+                love: false
             }
         }
     ]
@@ -65,19 +67,21 @@ test(`通过ID查询文章`, async () => {
             mock: {
                 id: 1,
                 title: `测试标题`,
-                author: `测试作者`,
-                serial_name: `测试系列`,
+                author_id: 10,
+                serial_id: 20,
                 serial_order: 1.0,
-                article_content: `测试文章内容`
+                article_content: `测试文章内容`,
+                love: false
             },
             input: 1,
             expected: {
                 id: 1,
                 title: `测试标题`,
-                author: `测试作者`,
-                serial_name: `测试系列`,
+                author_id: 10,
+                serial_id: 20,
                 serial_order: 1.0,
-                article_content: `测试文章内容`
+                article_content: `测试文章内容`,
+                love: false
             }
         }
     ]
