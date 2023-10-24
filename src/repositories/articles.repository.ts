@@ -1,9 +1,9 @@
 import { type ArticleCreateDto } from '@app/dtos/article.dto';
 import type { Article } from '@app/models/article.model';
-import type { ArticlesRepositoryPort } from '@app/usecases/article.usecase';
+import type { ArticlesRepositoryPort, Query } from '@app/usecases/article.usecase';
 import { type PrismaClient } from '@prisma/client';
 
-const LIMIT = 20;
+const LIMIT = 5;
 
 export class ArticleRepository implements ArticlesRepositoryPort {
 
@@ -20,7 +20,10 @@ export class ArticleRepository implements ArticlesRepositoryPort {
                 author: true,
                 book: true,
                 serial_order: true,
-                body: true
+                body: true,
+                love: true,
+                book_id: true,
+                author_id: true
             },
             where: {
                 id
@@ -28,15 +31,35 @@ export class ArticleRepository implements ArticlesRepositoryPort {
         });
     }
 
-    public getList = async (limit: number = LIMIT, offset = 0): Promise<Article[]> => {
+    public getList = async (query: Query, limit: number = LIMIT, offset = 0): Promise<Article[]> => {
+        // 性能优化，先筛选出关键词包含的文章id, 然后根据id筛选出相关视图。
+        const searchResult = await this.#client.article.findMany({
+            select: {
+                id: true
+            },
+            where: {
+                love: query.love,
+                article_content: {
+                    contains: query.keywords
+                }
+            }
+        })
         return await this.#client.articles_view.findMany({
             select: {
                 id: true,
                 title: true,
                 author: true,
+                author_id: true,
                 book: true,
+                book_id: true,
                 serial_order: true,
-                body: true
+                body: true,
+                love: true
+            },
+            where: {
+                id: {
+                    in: searchResult.map(article => article.id)
+                }
             },
             orderBy: [{
                 author: `asc`
@@ -75,12 +98,41 @@ export class ArticleRepository implements ArticlesRepositoryPort {
                 author_id: authorId.id,
                 serial_id: serialId.id,
                 serial_order: article.serial_order,
-                article_content: article.body
+                article_content: article.body,
+                love: false
             }
         });
 
         return articleCreated.id;
 
+    }
+
+    public update = async (id: number, article: Article): Promise<void> => {
+        const author = await this.#client.author.findFirst({
+            where: {
+                name: article.author
+            }
+        })
+        const book = await this.#client.book.findFirst({
+            where: {
+                title: article.book,
+                author_id: author?.id
+            }
+        })
+        await this.#client.article.update({
+            where: {
+                id
+            },
+            data: {
+                title: article.title,
+                author_id: author?.id,
+                serial_id: book?.id,
+                serial_order: article.serial_order,
+                article_content: article.body,
+                love: article.love,
+
+            }
+        })
     }
 
     public delete = async (id: number): Promise<void> => {
@@ -97,6 +149,15 @@ export class ArticleRepository implements ArticlesRepositoryPort {
         });
 
         return await this.#client.articles_view.findMany({
+            select: {
+                id: true,
+                title: true,
+                author: true,
+                book: true,
+                serial_order: true,
+                body: true,
+                love: true
+            },
             where: {
                 body: {
                     search: searchQuery,

@@ -4,7 +4,8 @@ export interface Article {
     author: string, 
     book: string, 
     serial_order: number, 
-    body: string
+    body: string;
+    love: boolean;
 };
 
 

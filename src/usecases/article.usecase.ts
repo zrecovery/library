@@ -1,7 +1,12 @@
 import type { Article } from "../models/article.model";
 
+export interface Query {
+    love?: boolean;
+    keywords?: string;
+}
+
 export abstract class ArticlesRepositoryPort {
-    abstract getList(limit?: number, offset?: number): Promise<Article[]>;
+    abstract getList(query: Query, limit?: number, offset?: number): Promise<Article[]>;
     abstract getByID(limit?: number, offset?: number): Promise<Article>;
     abstract create(article: Article): Promise<number>;
     abstract delete(id: number): Promise<void>;

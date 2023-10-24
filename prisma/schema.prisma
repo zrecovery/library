@@ -45,4 +45,5 @@ view articles_view {
   book         String
   serial_order Float
   body         String
+  love         Boolean
 }

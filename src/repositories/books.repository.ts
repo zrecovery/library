@@ -12,6 +12,20 @@ export class BookRepository implements BooksRepositoryPort {
         this.#client = client;
     }
 
+    public getById = async (id: number, limit?: number | undefined, offset?: number | undefined): Promise<Book[]> => {
+
+        return await this.#client.articles_view.findMany({
+            where: {
+                book_id: id
+            },
+            orderBy: {
+                serial_order: `asc`
+            },
+            skip: offset,
+            take: limit
+        });
+    }
+
     public getList = async (limit: number = LIMIT, offset = 0): Promise<Book[]> => {
 
         const res = await this.#client.book.findMany({
