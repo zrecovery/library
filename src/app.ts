@@ -1,3 +1,4 @@
+import { AuthorRepository } from "./repositories/author.repository";
 import { type ArticleCreateDto } from "@app/dtos/article.dto";
 import { ArticleRepository } from "@app/repositories/articles.repository";
 import { BookRepository } from "@app/repositories/books.repository";
@@ -6,7 +7,7 @@ import { PrismaClient } from "@prisma/client";
 import Application from 'koa';
 import { koaBody } from "koa-body";
 import Router from "koa-router";
-import { AuthorRepository } from "./repositories/author.repository";
+import { Article } from "./models/article.model";
 
 const app = new Application();
 
@@ -44,12 +45,13 @@ const client = new PrismaClient({
     ],
 });
 
-
-client.$on(`query`, (e) => {
-    console.log(`Query: ` + e.query);
-    console.log(`Params: ` + e.params);
-    console.log(`Duration: ` + e.duration + `ms`);
-})
+if (process.env.NODE_ENV !== `production`) {
+    client.$on(`query`, (e) => {
+        console.log(`Query: ` + e.query);
+        console.log(`Params: ` + e.params);
+        console.log(`Duration: ${e.duration} ms`);
+    })
+}
 
 const articleRepository = new ArticleRepository(client);
 const bookRepository = new BookRepository(client);
@@ -82,7 +84,7 @@ articleRoute.get(`/`, async ctx => {
     const limit = Number(query.limit ?? LIMIT);
     const offset = Number(query.page ?? 1) * limit - limit;
     const love = query.love !== undefined ? Boolean(query.love) : undefined;
-    function flatMapString(keywords: string | string[] | undefined): string | undefined {
+    const flatMapString = (keywords: string | string[] | undefined): string | undefined => {
         if (typeof keywords === `object`) {
             return keywords.reduce((a: string, b: string) => a + b);
         } else {
@@ -117,7 +119,7 @@ articleRoute.delete(`/:id`, async ctx => {
 
 
 articleRoute.post(`/`, async ctx => {
-    const articleCreated = ctx.request.body as unknown as ArticleCreateDto;
+    const articleCreated = ctx.request.body  as ArticleCreateDto;
     try {
         const result = await articleRepository.create(articleCreated);
         ctx.body = result;
@@ -133,7 +135,7 @@ articleRoute.post(`/`, async ctx => {
 articleRoute.put(`/:id`, async ctx => {
     try {
         const id = Number(ctx.params.id);
-        const updatedArticle = await ctx.request.body;
+        const updatedArticle = await ctx.request.body as Article;
         await articleRepository.update(id, updatedArticle)
         ctx.status = 204
     } catch (error) {

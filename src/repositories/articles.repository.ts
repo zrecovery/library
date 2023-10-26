@@ -1,5 +1,6 @@
 import { type ArticleCreateDto } from '@app/dtos/article.dto';
 import type { Article } from '@app/models/article.model';
+import type { Author } from '@app/models/author.model';
 import type { ArticlesRepositoryPort, Query } from '@app/usecases/article.usecase';
 import { type PrismaClient } from '@prisma/client';
 
@@ -14,17 +15,6 @@ export class ArticleRepository implements ArticlesRepositoryPort {
 
     async getByID(id: number): Promise<Article> {
         return await this.#client.articles_view.findFirstOrThrow({
-            select: {
-                id: true,
-                title: true,
-                author: true,
-                book: true,
-                serial_order: true,
-                body: true,
-                love: true,
-                book_id: true,
-                author_id: true
-            },
             where: {
                 id
             }
@@ -33,7 +23,8 @@ export class ArticleRepository implements ArticlesRepositoryPort {
 
     public getList = async (query: Query, limit: number = LIMIT, offset = 0): Promise<Article[]> => {
         // 性能优化，先筛选出关键词包含的文章id, 然后根据id筛选出相关视图。
-        const searchResult = await this.#client.article.findMany({
+        
+        const searchResult= await this.#client.article.findMany({
             select: {
                 id: true
             },
@@ -44,6 +35,7 @@ export class ArticleRepository implements ArticlesRepositoryPort {
                 }
             }
         })
+
         return await this.#client.articles_view.findMany({
             select: {
                 id: true,
@@ -74,16 +66,17 @@ export class ArticleRepository implements ArticlesRepositoryPort {
     };
 
     public create = async (article: ArticleCreateDto): Promise<number> => {
-        const authorId = await this.#client.author.findFirstOrThrow({
+        const authorQueried: Author = await this.#client.author.findFirstOrThrow({
             select: {
-                id: true
+                id: true,
+                name: true
             },
             where: {
                 name: article.author
             }
         });
 
-        const serialId = await this.#client.book.findFirstOrThrow({
+        const serialQueried = await this.#client.book.findFirstOrThrow({
             select: {
                 id: true
             },
@@ -95,8 +88,8 @@ export class ArticleRepository implements ArticlesRepositoryPort {
         const articleCreated = await this.#client.article.create({
             data: {
                 title: article.title,
-                author_id: authorId.id,
-                serial_id: serialId.id,
+                author_id: authorQueried.id!,
+                serial_id: serialQueried.id,
                 serial_order: article.serial_order,
                 article_content: article.body,
                 love: false
