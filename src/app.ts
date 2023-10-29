@@ -1,168 +1,52 @@
-import { AuthorRepository } from "./repositories/author.repository";
-import { type ArticleCreateDto } from "@app/dtos/article.dto";
-import { ArticleRepository } from "@app/repositories/articles.repository";
-import { BookRepository } from "@app/repositories/books.repository";
-import cors from "@koa/cors";
+import ArticleService from "./core/article/article.service";
+import { AuthorService } from "./core/author/author.service";
+import BookService from "./core/book/book.service";
+import { ArticleController } from "./infrastructure/controllers/article.controller";
+import { AuthorController } from "./infrastructure/controllers/author.controller";
+import { BookController } from "./infrastructure/controllers/book.contoller";
+import { ArticlePrismaRepository } from "./infrastructure/prisma/articles.repository";
+import { AuthorPrismaRepository } from "./infrastructure/prisma/author.repository";
+import { BookPrismaRepository } from "./infrastructure/prisma/books.repository";
+import { cors } from "@elysiajs/cors";
+import { swagger } from "@elysiajs/swagger";
 import { PrismaClient } from "@prisma/client";
-import Application from 'koa';
-import { koaBody } from "koa-body";
-import Router from "koa-router";
-import { Article } from "./models/article.model";
+import { Elysia } from "elysia";
 
-const app = new Application();
-
-const articleRoute = new Router({ prefix: `/articles` });
-const bookRoute = new Router({ prefix: `/books` });
-const authorRoute = new Router({ prefix: `/authors` });
-const LIMIT = 5;
-
-app.use(cors());
-app.use(koaBody());
-
-interface Query {
-    love?: boolean;
-    keywords?: string;
-}
-
-const client = new PrismaClient({
-    log: [
-        {
-            emit: `event`,
-            level: `query`,
-        },
-        {
-            emit: `stdout`,
-            level: `error`,
-        },
-        {
-            emit: `stdout`,
-            level: `info`,
-        },
-        {
-            emit: `stdout`,
-            level: `warn`,
-        },
-    ],
-});
-
-if (process.env.NODE_ENV !== `production`) {
-    client.$on(`query`, (e) => {
-        console.log(`Query: ` + e.query);
-        console.log(`Params: ` + e.params);
-        console.log(`Duration: ${e.duration} ms`);
-    })
-}
-
-const articleRepository = new ArticleRepository(client);
-const bookRepository = new BookRepository(client);
-const authorRepository = new AuthorRepository(client)
-
-bookRoute.get(`/`, async ctx => {
-    const query = ctx.request.query;
-    const limit = Number(query.limit ?? LIMIT);
-    const offset = Number(query.page ?? 0) * limit - limit;
-    if (query.title !== `` && query.author !== `` && typeof query.title === `string` && typeof query.author === `string`) {
-        const articles = await bookRepository.getListByBookAndAuthor(query.title, query.author);
-        ctx.body = articles;
-    } else {
-        const books = await bookRepository.getList(limit, offset);
-        ctx.body = books;
-    }
-})
-
-bookRoute.get(`/:id`, async ctx => {
-    const query = ctx.request.query;
-    const limit = Number(query.limit ?? LIMIT);
-    const offset = Number(query.page ?? 1) * limit - limit;
-    const id = Number(ctx.params.id);
-    const articles = await bookRepository.getById(id, limit, offset);
-    ctx.body = articles;
-})
-
-articleRoute.get(`/`, async ctx => {
-    const query = ctx.request.query;
-    const limit = Number(query.limit ?? LIMIT);
-    const offset = Number(query.page ?? 1) * limit - limit;
-    const love = query.love !== undefined ? Boolean(query.love) : undefined;
-    const flatMapString = (keywords: string | string[] | undefined): string | undefined => {
-        if (typeof keywords === `object`) {
-            return keywords.reduce((a: string, b: string) => a + b);
-        } else {
-            return keywords;
-        }
-    }
-    const keywords = query.keywords
-    const articleQuery: Query = {
-        love,
-        keywords: flatMapString(keywords)
-    }
-    const articles = await articleRepository.getList(articleQuery, limit, offset)
-    ctx.body = articles;
-})
-
-articleRoute.get(`/:id`, async ctx => {
-    const id = Number(ctx.params.id);
-    const article = await articleRepository.getByID(id);
-    ctx.body = article;
-})
-
-articleRoute.delete(`/:id`, async ctx => {
-    try {
-        const id = Number(ctx.params.id);
-        await articleRepository.delete(id);
-        ctx.status = 204;
-    } catch (error) {
-        ctx.status = 500;
-        throw (error);
-    }
-})
+const app = new Elysia();
+const client = new PrismaClient();
 
 
-articleRoute.post(`/`, async ctx => {
-    const articleCreated = ctx.request.body  as ArticleCreateDto;
-    try {
-        const result = await articleRepository.create(articleCreated);
-        ctx.body = result;
-        ctx.status = 201;
-        ctx.message = `添加成功`;
-    } catch (error) {
-        console.error(error)
-        ctx.status = 500;
-        ctx.message = `添加失败`;
-    }
-})
 
-articleRoute.put(`/:id`, async ctx => {
-    try {
-        const id = Number(ctx.params.id);
-        const updatedArticle = await ctx.request.body as Article;
-        await articleRepository.update(id, updatedArticle)
-        ctx.status = 204
-    } catch (error) {
-        console.error(error)
-        ctx.status = 400;
-    }
-})
+const articleRepository = new ArticlePrismaRepository(client);
+const articleService = new ArticleService(articleRepository);
+const articleController = new ArticleController(articleService);
 
-authorRoute.get(`/`, async ctx => {
-    const query = ctx.request.query;
-    const limit = Number(query.limit ?? LIMIT);
-    const offset = Number(query.page ?? 1) * limit - limit;
-    const authors = await authorRepository.getList(limit, offset);
-    ctx.body = authors;
-})
+app.group("/articles", app =>
+    app.get("/", articleController.list)
+        .get("/:id", articleController.getById)
+        .post("/", articleController.create)
+        .patch("/:id", articleController.update)
+        .delete("/:id", articleController.delete)
+);
 
-authorRoute.get(`/:id`, async ctx => {
-    const query = ctx.request.query;
-    const id = Number(ctx.params.id);
-    const limit = Number(query.limit ?? LIMIT);
-    const offset = Number(query.page ?? 1) * limit - limit;
-    const books = await authorRepository.getBooksById(id, limit, offset)
-    ctx.body = books;
-})
+const bookRepository = new BookPrismaRepository(client);
+const bookService = new BookService(bookRepository);
+const bookController = new BookController(bookService);
+app.group("/books", app =>
+    app.get("/", bookController.list)
+        .get("/:id", bookController.getById)
+);
 
-app.use(bookRoute.routes());
-app.use(articleRoute.routes());
-app.use(authorRoute.routes());
+const authorRepository = new AuthorPrismaRepository(client);
+const authorService = new AuthorService(authorRepository);
+const authorController = new AuthorController(authorService);
+app.group("/authors", app =>
+    app.get("/", authorController.list)
+        .get("/:id", bookController.getByAuthorId)
+);
+
+app.use(swagger());
+
+app.use(cors({ origin: true }));
 
 app.listen(3001);
