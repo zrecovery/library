@@ -1,4 +1,4 @@
-name: library backend dev 
+name: library backend dev
 on: push
 jobs:
   my-job:

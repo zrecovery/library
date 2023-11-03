@@ -69,7 +69,11 @@ test("获取所有文章", async () => {
     },
   ];
   const spyFn = spyOn(articleMockRepository, "searchArticles");
-  spyFn.mockReturnValue(mockArticles);
+  spyFn.mockReturnValue(
+    new Promise((resolve) => {
+      resolve(mockArticles);
+    }),
+  );
   const articles = await articleService.getList(query, 10, 0);
   expect(spyFn).toHaveBeenCalled();
   expect(articles).toStrictEqual([
