@@ -3,7 +3,7 @@ export interface Article {
   title: string;
   author: string;
   book: string;
-  serial_order: number;
+  chapter_order: number;
   body: string;
   love: boolean;
 }

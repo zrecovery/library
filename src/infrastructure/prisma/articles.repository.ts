@@ -11,11 +11,12 @@ export class ArticlePrismaRepository implements ArticleRepository {
   }
 
   async getArticleById(id: number): Promise<Article> {
-    return await this.#client.articles_view.findFirstOrThrow({
+    const article = await this.#client.articles_view_shadow.findFirstOrThrow({
       where: {
         id,
       },
     });
+    return article;
   }
 
   public getArticlesByAuthorId = async (
@@ -23,7 +24,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
     limit: number,
     offset = 0,
   ): Promise<Article[]> => {
-    return await this.#client.articles_view.findMany({
+    const articles = await this.#client.articles_view_shadow.findMany({
       select: {
         id: true,
         title: true,
@@ -31,7 +32,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
         author_id: true,
         book: true,
         book_id: true,
-        serial_order: true,
+        chapter_order: true,
         body: true,
         love: true,
       },
@@ -46,19 +47,20 @@ export class ArticlePrismaRepository implements ArticleRepository {
           book: "asc",
         },
         {
-          serial_order: "asc",
+          chapter_order: "asc",
         },
       ],
       skip: offset,
       take: limit,
     });
+    return articles;
   };
 
   public getArticles = async (
     limit: number,
     offset = 0,
   ): Promise<Article[]> => {
-    return await this.#client.articles_view.findMany({
+    const articles = await this.#client.articles_view_shadow.findMany({
       select: {
         id: true,
         title: true,
@@ -66,7 +68,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
         author_id: true,
         book: true,
         book_id: true,
-        serial_order: true,
+        chapter_order: true,
         body: true,
         love: true,
       },
@@ -78,12 +80,13 @@ export class ArticlePrismaRepository implements ArticleRepository {
           book: "asc",
         },
         {
-          serial_order: "asc",
+          chapter_order: "asc",
         },
       ],
       skip: offset,
       take: limit,
     });
+    return articles;
   };
 
   public createArticle = async (article: Article): Promise<void> => {
@@ -96,22 +99,11 @@ export class ArticlePrismaRepository implements ArticleRepository {
       },
     });
 
-    const serialByQuery = await this.#client.book.findFirstOrThrow({
-      select: {
-        id: true,
-      },
-      where: {
-        title: article.book,
-      },
-    });
-
     await this.#client.article.create({
       data: {
         title: article.title,
         author_id: authorByQuery.id,
-        serial_id: serialByQuery.id,
-        serial_order: article.serial_order,
-        article_content: article.body,
+        body: article.body,
         love: false,
       },
     });
@@ -123,12 +115,6 @@ export class ArticlePrismaRepository implements ArticleRepository {
         name: article.author,
       },
     });
-    const book = await this.#client.book.findFirst({
-      where: {
-        title: article.book,
-        author_id: author?.id,
-      },
-    });
     await this.#client.article.update({
       where: {
         id: article.id,
@@ -136,9 +122,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
       data: {
         title: article.title,
         author_id: author?.id,
-        serial_id: book?.id,
-        serial_order: article.serial_order,
-        article_content: article.body,
+        body: article.body,
         love: article.love,
       },
     });
@@ -165,7 +149,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
       },
       where: {
         love,
-        article_content: {
+        body: {
           contains: keyword,
         },
       },
@@ -173,13 +157,13 @@ export class ArticlePrismaRepository implements ArticleRepository {
       take: limit,
     });
 
-    return await this.#client.articles_view.findMany({
+    return await this.#client.articles_view_shadow.findMany({
       select: {
         id: true,
         title: true,
         author: true,
         book: true,
-        serial_order: true,
+        chapter_order: true,
         body: true,
         love: true,
         book_id: true,

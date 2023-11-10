@@ -51,7 +51,7 @@ app.group("/articles", (app) =>
     .get("/", articleController.list)
     .get("/:id", articleController.getById)
     .post("/", articleController.create)
-    .patch("/:id", articleController.update)
+    .put("/:id", articleController.update)
     .delete("/:id", articleController.delete),
 );
 
@@ -71,6 +71,6 @@ app.group("/authors", (app) =>
 
 app.use(swagger());
 
-app.use(cors({ origin: true }));
+app.use(cors());
 
 app.listen(3001);

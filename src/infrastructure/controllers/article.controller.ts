@@ -8,11 +8,13 @@ export class ArticleController {
   constructor(readonly articleService: ArticleService) {}
 
   public list = async ({ query }: Context): Promise<Article[]> => {
-    const { page, size, keyword, love } = query;
+    const { page, size, keywords, love } = query;
     const limit = size !== undefined ? Number(size) : LIMIT;
     const count = page !== undefined ? Number(page) : 1;
     const offset = count * limit;
-    const keywordQuery = keyword !== undefined ? String(keyword) : undefined;
+    const keywordQuery =
+      keywords !== null ? `${decodeURIComponent(keywords)}` : undefined;
+    console.log(keywordQuery);
     const loveStatus = love !== undefined ? Boolean(love) : undefined;
     const queryRequest: Query = {
       love: loveStatus,
@@ -26,7 +28,8 @@ export class ArticleController {
   }: {
     params: { id: string };
   }): Promise<Article> => {
-    return await this.articleService.getById(Number(id));
+    const article = await this.articleService.getById(Number(id));
+    return article;
   };
 
   public getByAuthorId = async (context: Context): Promise<Article[]> => {

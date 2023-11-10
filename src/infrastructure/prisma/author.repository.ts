@@ -13,9 +13,10 @@ export class AuthorPrismaRepository implements AuthorRepository {
     limit?: number | undefined,
     offset?: number | undefined,
   ): Promise<Author[]> => {
-    return await this.#client.author.findMany({
+    const authors = await this.#client.author.findMany({
       skip: offset,
       take: limit,
     });
+    return authors;
   };
 }

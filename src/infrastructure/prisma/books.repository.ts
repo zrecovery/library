@@ -45,12 +45,21 @@ export class BookPrismaRepository implements BookRepository {
     limit?: number | undefined,
     offset?: number | undefined,
   ): Promise<Article[]> => {
-    return await this.#client.articles_view.findMany({
+    return this.#client.articles_view_shadow.findMany({
+      select: {
+        id: true,
+        title: true,
+        book: true,
+        author: true,
+        chapter_order: true,
+        body: true,
+        love: true,
+      },
       where: {
         book_id: id,
       },
       orderBy: {
-        serial_order: "asc",
+        chapter_order: "asc",
       },
       skip: offset,
       take: limit,

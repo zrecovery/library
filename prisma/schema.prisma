@@ -1,24 +1,26 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch", "views"]
+  previewFeatures = ["fullTextSearch", "postgresqlExtensions", "views"]
   binaryTargets   = ["native"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgroonga]
 }
 
 model Article {
-  id              Int     @id @default(autoincrement())
-  title           String
-  serial_order    Float
-  article_content String
-  author_id       Int
-  author          Author  @relation(fields: [author_id], references: [id])
-  book            Book    @relation(fields: [serial_id], references: [id])
-  serial_id       Int
-  love            Boolean @default(false)
+  id        Int      @id @default(autoincrement())
+  title     String
+  body      String
+  author_id Int
+  love      Boolean  @default(false)
+  author    Author   @relation(fields: [author_id], references: [id])
+  Chapter   Chapter?
+
+  @@index([body], map: "pgroonga_content_index")
+  @@map("articles")
 }
 
 model Author {
@@ -26,24 +28,39 @@ model Author {
   id      Int       @id @default(autoincrement())
   Article Article[]
   Book    Book[]
+
+  @@map("authors")
 }
 
 model Book {
   id        Int       @id @default(autoincrement())
   title     String
-  author    Author    @relation(fields: [author_id], references: [id])
   author_id Int
-  Article   Article[]
+  author    Author    @relation(fields: [author_id], references: [id])
+  Chapter   Chapter[]
+
+  @@map("books")
 }
 
-view articles_view {
-  id           Int    @id
-  title        String
-  author       String
-  author_id    Int
-  book_id      Int
-  book         String
-  serial_order Float
-  body         String
-  love         Boolean
+model Chapter {
+  id            Int     @id @default(autoincrement())
+  book_id       Int
+  article_id    Int     @unique
+  chapter_order Float
+  article       Article @relation(fields: [article_id], references: [id])
+  book          Book    @relation(fields: [book_id], references: [id])
+
+  @@map("chapters")
+}
+
+view articles_view_shadow {
+  id            Int     @id
+  author        String
+  title         String
+  body          String
+  book          String
+  chapter_order Float
+  book_id       Int
+  author_id     Int
+  love          Boolean
 }

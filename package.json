@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@elysiajs/cors": "^0.7.1",
+    "@elysiajs/static": "^0.7.1",
     "@elysiajs/swagger": "^0.7.4",
     "@typescript-eslint/eslint-plugin": "^6.9.0",
     "@typescript-eslint/parser": "latest",
@@ -26,12 +27,12 @@
     "prettier": "^3.0.3"
   },
   "devDependencies": {
-    "@prisma/client": "latest",
+    "@prisma/client": "^5.5.2",
     "bun-types": "latest",
     "eslint": "^8.52.0",
     "eslint-config-prisma": "0.1.0",
     "install": "^0.13.0",
-    "prisma": "^5.1.1",
+    "prisma": "^5.5.2",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",

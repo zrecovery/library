@@ -9,4 +9,7 @@ plugins:
 parserOptions:
   ecmaVersion: latest
   sourceType: module
-rules: { "prettier/prettier": "error" }
+rules: { 
+  "prettier/prettier": "error",
+  "@typescript-eslint/return-await": "off"
+}
