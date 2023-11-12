@@ -1,5 +1,5 @@
 import type { AuthorService } from "@/core/author/author.service";
-import type { Author } from "@/core/author/model/author.model";
+import type { Author } from "@/core/author/author.model";
 import type { Context } from "elysia";
 
 export class AuthorController {

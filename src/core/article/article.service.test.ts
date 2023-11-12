@@ -1,8 +1,8 @@
 import { expect, test, spyOn } from "bun:test";
 import ArticleService from "./article.service";
-import type { Query } from "./repository/ArticleRepository";
+import type { Query } from "./article.repository";
 import { ArticleMockRepository } from "@/infrastructure/mock/article.mock.repository";
-import type { Article } from "./model/article.model";
+import type { Article } from "./article.model";
 
 const articleMockRepository = new ArticleMockRepository();
 const articleService = new ArticleService(articleMockRepository);

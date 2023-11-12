@@ -1,5 +1,5 @@
-import type { Author } from "@/core/author/model/author.model";
-import type AuthorRepository from "@/core/author/repository/AuthorRepository";
+import type { Author } from "@/core/author/author.model";
+import type AuthorRepository from "@/core/author/author.repository";
 import type { PrismaClient } from "@prisma/client";
 
 export class AuthorPrismaRepository implements AuthorRepository {

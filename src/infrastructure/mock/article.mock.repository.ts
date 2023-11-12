@@ -1,5 +1,5 @@
-import type { Article } from "@/core/article/model/article.model";
-import type { ArticleRepository } from "@/core/article/repository/ArticleRepository";
+import type { Article } from "@/core/article/article.model";
+import type { ArticleRepository } from "@/core/article/article.repository";
 
 export class ArticleMockRepository implements ArticleRepository {
   async getArticleById(id: number): Promise<Article> {

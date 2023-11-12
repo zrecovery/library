@@ -1,8 +1,8 @@
-import type { Article } from "@/core/article/model/article.model";
+import type { Article } from "@/core/article/article.model";
 import type {
   ArticleRepository,
   Query,
-} from "@/core/article/repository/ArticleRepository";
+} from "@/core/article/article.repository";
 import { type PrismaClient } from "@prisma/client";
 export class ArticlePrismaRepository implements ArticleRepository {
   readonly #client: PrismaClient;
@@ -10,21 +10,20 @@ export class ArticlePrismaRepository implements ArticleRepository {
     this.#client = client;
   }
 
-  async getArticleById(id: number): Promise<Article> {
-    const article = await this.#client.articles_view_shadow.findFirstOrThrow({
+  public getArticleById = async (id: number): Promise<Article> => {
+    return this.#client.articles_view_shadow.findFirstOrThrow({
       where: {
         id,
       },
     });
-    return article;
-  }
+  };
 
   public getArticlesByAuthorId = async (
     id: number,
     limit: number,
     offset = 0,
   ): Promise<Article[]> => {
-    const articles = await this.#client.articles_view_shadow.findMany({
+    return this.#client.articles_view_shadow.findMany({
       select: {
         id: true,
         title: true,
@@ -53,14 +52,13 @@ export class ArticlePrismaRepository implements ArticleRepository {
       skip: offset,
       take: limit,
     });
-    return articles;
   };
 
   public getArticles = async (
     limit: number,
     offset = 0,
   ): Promise<Article[]> => {
-    const articles = await this.#client.articles_view_shadow.findMany({
+    return this.#client.articles_view_shadow.findMany({
       select: {
         id: true,
         title: true,
@@ -86,7 +84,6 @@ export class ArticlePrismaRepository implements ArticleRepository {
       skip: offset,
       take: limit,
     });
-    return articles;
   };
 
   public createArticle = async (article: Article): Promise<void> => {
@@ -157,7 +154,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
       take: limit,
     });
 
-    return await this.#client.articles_view_shadow.findMany({
+    return this.#client.articles_view_shadow.findMany({
       select: {
         id: true,
         title: true,

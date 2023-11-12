@@ -1,6 +1,6 @@
-import type { Article } from "../article/model/article.model";
-import type { Book } from "./model/book.model";
-import type BookRepository from "./repostory/BookRepository";
+import type { Article } from "../article/article.model";
+import type { Book } from "./book.model";
+import type BookRepository from "./book.repository";
 
 export default class BookService {
   constructor(private readonly bookRepository: BookRepository) {}

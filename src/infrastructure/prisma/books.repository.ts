@@ -1,9 +1,9 @@
-import type { Article } from "@/core/article/model/article.model";
-import type { Book } from "@/core/book/model/book.model";
-import type BookRepository from "@/core/book/repostory/BookRepository";
+import { config } from "@/application/configure";
+import type { Article } from "@/core/article/article.model";
+import type { Book } from "@/core/book/book.model";
+import type BookRepository from "@/core/book/book.repository";
 import type { PrismaClient } from "@prisma/client";
 
-const LIMIT = 20;
 
 export class BookPrismaRepository implements BookRepository {
   readonly #client: PrismaClient;
@@ -14,7 +14,7 @@ export class BookPrismaRepository implements BookRepository {
 
   public getBooksByAuthorId = async (
     id: number,
-    limit: number = LIMIT,
+    limit: number = config.LIMIT,
     offset = 0,
   ): Promise<Book[]> => {
     const res = await this.#client.book.findMany({
@@ -67,7 +67,7 @@ export class BookPrismaRepository implements BookRepository {
   };
 
   public getList = async (
-    limit: number = LIMIT,
+    limit: number = config.LIMIT,
     offset = 0,
   ): Promise<Book[]> => {
     const res = await this.#client.book.findMany({

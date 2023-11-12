@@ -1,5 +1,5 @@
-import { type Author } from "./model/author.model";
-import type AuthorRepository from "./repository/AuthorRepository";
+import { type Author } from "./author.model";
+import type AuthorRepository from "./author.repository";
 
 export class AuthorService {
   constructor(readonly authorRepository: AuthorRepository) {}

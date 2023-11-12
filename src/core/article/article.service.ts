@@ -1,15 +1,15 @@
-import type { Article } from "./model/article.model";
-import type { ArticleRepository, Query } from "./repository/ArticleRepository";
+import type { Article } from "./article.model";
+import type { ArticleRepository, Query } from "./article.repository";
 
-export default class ArticleService {
+export class ArticleService {
   constructor(private readonly articleRepository: ArticleRepository) {}
 
   async create(article: Article): Promise<void> {
-    await this.articleRepository.createArticle(article);
+    return this.articleRepository.createArticle(article);
   }
 
   async getById(id: number): Promise<Article> {
-    return await this.articleRepository.getArticleById(id);
+    return this.articleRepository.getArticleById(id);
   }
 
   async getByAuthorId(
@@ -17,7 +17,7 @@ export default class ArticleService {
     limit: number,
     offset: number,
   ): Promise<Article[]> {
-    return await this.articleRepository.getArticlesByAuthorId(
+    return this.articleRepository.getArticlesByAuthorId(
       authorId,
       limit,
       offset,
@@ -29,14 +29,14 @@ export default class ArticleService {
     limit: number,
     offset: number,
   ): Promise<Article[]> {
-    return await this.articleRepository.searchArticles(query, limit, offset);
+    return this.articleRepository.searchArticles(query, limit, offset);
   }
 
   async update(article: Article): Promise<void> {
-    await this.articleRepository.updateArticle(article);
+    return this.articleRepository.updateArticle(article);
   }
 
   async delete(id: number): Promise<void> {
-    await this.articleRepository.deleteArticle(id);
+    return this.articleRepository.deleteArticle(id);
   }
 }

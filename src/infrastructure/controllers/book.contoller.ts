@@ -1,6 +1,6 @@
-import type { Article } from "@/core/article/model/article.model";
+import type { Article } from "@/core/article/article.model";
 import type BookService from "@/core/book/book.service";
-import type { Book } from "@/core/book/model/book.model";
+import type { Book } from "@/core/book/book.model";
 import type { Context } from "elysia";
 
 export class BookController {
@@ -17,7 +17,7 @@ export class BookController {
   public getById = async ({
     query,
     params: { id },
-  }: Context): Promise<Article[]> => {
+  }: Context<{ params: { id: string } }>): Promise<Article[]> => {
     const { page, size } = query;
     const limit = size !== undefined ? Number(size) : 10;
     const count = page !== undefined ? Number(page) : 1;
@@ -28,7 +28,7 @@ export class BookController {
   public getByAuthorId = async ({
     query,
     params: { id },
-  }: Context): Promise<Book[]> => {
+  }: Context<{ params: { id: string } }>): Promise<Book[]> => {
     const { page, size } = query;
     const limit = size !== undefined ? Number(size) : 10;
     const count = page !== undefined ? Number(page) : 1;

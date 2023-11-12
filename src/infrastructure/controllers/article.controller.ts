@@ -1,15 +1,15 @@
-import { LIMIT } from "@/config";
-import type ArticleService from "@/core/article/article.service";
-import type { Article } from "@/core/article/model/article.model";
-import type { Query } from "@/core/article/repository/ArticleRepository";
-import type { Context } from "elysia";
+import type {ArticleService} from "@/core/article/article.service";
+import type { Article } from "@/core/article/article.model";
+import type { Query } from "@/core/article/article.repository";
+import { type Context } from "elysia";
+import { config } from "@/application/configure";
 
 export class ArticleController {
-  constructor(readonly articleService: ArticleService) {}
+  constructor(readonly articleService: ArticleService) { }
 
   public list = async ({ query }: Context): Promise<Article[]> => {
     const { page, size, keywords, love } = query;
-    const limit = size !== undefined ? Number(size) : LIMIT;
+    const limit = size !== undefined ? Number(size) : config.LIMIT;
     const count = page !== undefined ? Number(page) : 1;
     const offset = count * limit;
     const keywordQuery =
@@ -20,7 +20,7 @@ export class ArticleController {
       love: loveStatus,
       keyword: keywordQuery,
     };
-    return await this.articleService.getList(queryRequest, limit, offset);
+    return this.articleService.getList(queryRequest, limit, offset);
   };
 
   public getById = async ({
@@ -28,8 +28,7 @@ export class ArticleController {
   }: {
     params: { id: string };
   }): Promise<Article> => {
-    const article = await this.articleService.getById(Number(id));
-    return article;
+    return this.articleService.getById(Number(id));
   };
 
   public getByAuthorId = async (context: Context): Promise<Article[]> => {
@@ -38,7 +37,7 @@ export class ArticleController {
     const limit = size !== undefined ? Number(size) : LIMIT;
     const count = page !== undefined ? Number(page) : 1;
     const offset = count * limit;
-    return await this.articleService.getByAuthorId(Number(id), limit, offset);
+    return this.articleService.getByAuthorId(Number(id), limit, offset);
   };
 
   public create = async ({ body, set }: Context): Promise<void> => {
@@ -46,10 +45,12 @@ export class ArticleController {
     set.status = "Created";
   };
 
-  public update = async (context: Context): Promise<void> => {
-    const { id } = context.params;
-    const { body } = context;
-    const set = context.set;
+  public update = async ({
+    params,
+    set,
+    body,
+  }: Context<{ params: { id: string } }>): Promise<void> => {
+    const { id } = params;
     const article = body as Article;
     if (id !== String(article.id)) {
       throw new Error("Invalid id");
@@ -58,9 +59,11 @@ export class ArticleController {
     set.status = "No Content";
   };
 
-  public delete = async (context: Context): Promise<void> => {
-    const { id } = context.params;
-    const set = context.set;
+  public delete = async ({
+    params,
+    set,
+  }: Context<{ params: { id: string } }>): Promise<void> => {
+    const { id } = params;
     await this.articleService.delete(Number(id));
     set.status = "No Content";
   };
