@@ -1,5 +1,5 @@
-import { expect, test, spyOn } from "bun:test";
-import ArticleService from "./article.service";
+import { expect, spyOn, test } from "bun:test";
+import { ArticleService } from "./article.service";
 import type { Query } from "./article.repository";
 import { ArticleMockRepository } from "@/infrastructure/mock/article.mock.repository";
 import type { Article } from "./article.model";
@@ -21,8 +21,8 @@ test("通过id获取文章", async () => {
 });
 
 test("通过作者id获取文章", async () => {
-  const article = await articleService.getByAuthorId(1, 10, 0);
-  expect(article).toStrictEqual([
+  const articles = await articleService.getByAuthorId(1, 10, 0);
+  expect(articles).toStrictEqual([
     {
       id: 1,
       title: "测试标题",
@@ -69,31 +69,8 @@ test("获取所有文章", async () => {
     },
   ];
   const spyFn = spyOn(articleMockRepository, "searchArticles");
-  spyFn.mockReturnValue(
-    new Promise((resolve) => {
-      resolve(mockArticles);
-    }),
-  );
+  spyFn.mockReturnValue(Promise.resolve(mockArticles));
   const articles = await articleService.getList(query, 10, 0);
   expect(spyFn).toHaveBeenCalled();
-  expect(articles).toStrictEqual([
-    {
-      id: 1,
-      title: "测试标题",
-      book: "测试系列",
-      author: "测试作者",
-      chapter_order: 1,
-      body: "测试内容",
-      love: false,
-    },
-    {
-      id: 2,
-      title: "测试标题",
-      book: "测试系列",
-      author: "测试作者",
-      chapter_order: 1,
-      body: "测试内容",
-      love: false,
-    },
-  ]);
+  expect(articles).toStrictEqual(mockArticles);
 });

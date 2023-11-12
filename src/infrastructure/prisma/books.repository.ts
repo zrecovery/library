@@ -4,7 +4,6 @@ import type { Book } from "@/core/book/book.model";
 import type BookRepository from "@/core/book/book.repository";
 import type { PrismaClient } from "@prisma/client";
 
-
 export class BookPrismaRepository implements BookRepository {
   readonly #client: PrismaClient;
 

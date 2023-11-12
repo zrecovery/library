@@ -4,7 +4,7 @@ import { BookPrismaRepository } from "@/infrastructure/prisma/books.repository";
 import { PrismaClient } from "@prisma/client";
 
 export const bookFactory = (client: PrismaClient) => {
-    const bookRepository = new BookPrismaRepository(client);
-    const bookService = new BookService(bookRepository);
-    return new BookController(bookService);
-}
+  const bookRepository = new BookPrismaRepository(client);
+  const bookService = new BookService(bookRepository);
+  return new BookController(bookService);
+};

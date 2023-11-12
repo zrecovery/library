@@ -2,6 +2,7 @@ import type { Article } from "@/core/article/article.model";
 import type BookService from "@/core/book/book.service";
 import type { Book } from "@/core/book/book.model";
 import type { Context } from "elysia";
+import { pagination } from "@/utils/pagination.util";
 
 export class BookController {
   constructor(readonly bookService: BookService) {}
@@ -19,9 +20,7 @@ export class BookController {
     params: { id },
   }: Context<{ params: { id: string } }>): Promise<Article[]> => {
     const { page, size } = query;
-    const limit = size !== undefined ? Number(size) : 10;
-    const count = page !== undefined ? Number(page) : 1;
-    const offset = (count - 1) * limit;
+    const { limit, offset } = pagination(Number(page), Number(size));
     return await this.bookService.getBookById(Number(id), limit, offset);
   };
 
@@ -30,9 +29,7 @@ export class BookController {
     params: { id },
   }: Context<{ params: { id: string } }>): Promise<Book[]> => {
     const { page, size } = query;
-    const limit = size !== undefined ? Number(size) : 10;
-    const count = page !== undefined ? Number(page) : 1;
-    const offset = (count - 1) * limit;
+    const { limit, offset } = pagination(Number(page), Number(size));
     return await this.bookService.getBooksByAuthorId(Number(id), limit, offset);
   };
 }

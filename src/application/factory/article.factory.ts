@@ -3,9 +3,7 @@ import { ArticleController } from "@/infrastructure/controllers/article.controll
 import { ArticlePrismaRepository } from "@/infrastructure/prisma/articles.repository";
 import { PrismaClient } from "@prisma/client";
 
-export const articleFactory = (client: PrismaClient) => {
-    const articleRepository = new ArticlePrismaRepository(client);
-    const articleService = new ArticleService(articleRepository);
-    return new ArticleController(articleService);
-  }
-  
+export const articleFactory = (client: PrismaClient) =>
+  new ArticleController(
+    new ArticleService(new ArticlePrismaRepository(client)),
+  );

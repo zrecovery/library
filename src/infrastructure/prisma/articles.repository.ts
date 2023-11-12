@@ -87,23 +87,55 @@ export class ArticlePrismaRepository implements ArticleRepository {
   };
 
   public createArticle = async (article: Article): Promise<void> => {
-    const authorByQuery = await this.#client.author.findFirstOrThrow({
-      select: {
-        id: true,
-      },
-      where: {
-        name: article.author,
-      },
-    });
+    try {
+      const transaction = await this.#client.$transaction(async (prisma) => {
+        const author = await prisma.author.findFirstOrThrow({
+          select: {
+            id: true,
+          },
+          where: {
+            name: article.author,
+          },
+        });
 
-    await this.#client.article.create({
-      data: {
-        title: article.title,
-        author_id: authorByQuery.id,
-        body: article.body,
-        love: false,
-      },
-    });
+        let book = await prisma.book.findFirst({
+          where: {
+            title: article.book,
+            author_id: author.id,
+          },
+        });
+
+        if (!book) {
+          book = await prisma.book.create({
+            data: {
+              title: article.book,
+              author_id: author.id,
+            },
+          });
+        }
+
+        const articleCreated = await prisma.article.create({
+          data: {
+            title: article.title,
+            author_id: author.id,
+            body: article.body,
+            love: false,
+          },
+        });
+
+        await prisma.chapter.create({
+          data: {
+            chapter_order: article.chapter_order,
+            book_id: book.id,
+            article_id: articleCreated.id,
+          },
+        });
+      });
+
+      console.log("Article created successfully");
+    } catch (error) {
+      console.error("Error creating article:", error);
+    }
   };
 
   public updateArticle = async (article: Article): Promise<void> => {
@@ -125,14 +157,53 @@ export class ArticlePrismaRepository implements ArticleRepository {
     });
   };
 
-  public deleteArticle = async (id: number): Promise<void> => {
-    await this.#client.article.delete({
+  public deleteArticle = async (articleId: number): Promise<void> => {
+    const article = await this.#client.articles_view_shadow.findFirst({
       where: {
-        id,
+        id: articleId,
       },
+    });
+
+    if (!article) {
+      throw new Error("Article not found");
+    }
+
+    await this.#client.$transaction(async (transaction) => {
+      await transaction.chapter.deleteMany({
+        where: {
+          article_id: articleId,
+        },
+      });
+
+      await transaction.article.delete({
+        where: {
+          id: articleId,
+        },
+      });
+
+      const chapter = await transaction.chapter.findFirst({
+        where: {
+          book_id: article.book_id,
+        },
+      });
+
+      if (!chapter) {
+        await transaction.book.delete({
+          where: {
+            id: article.book_id,
+          },
+        });
+      }
     });
   };
 
+  /**
+   * Search articles based on the given query.
+   * @param query - The search query object.
+   * @param limit - The maximum number of articles to return.
+   * @param offset - The offset to start fetching articles from (default: 0).
+   * @returns An array of articles that match the search criteria.
+   */
   public searchArticles = async (
     query: Query,
     limit: number,
@@ -140,21 +211,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
   ): Promise<Article[]> => {
     const { love, keyword } = query;
 
-    const articleByQuery = await this.#client.article.findMany({
-      select: {
-        id: true,
-      },
-      where: {
-        love,
-        body: {
-          contains: keyword,
-        },
-      },
-      skip: offset,
-      take: limit,
-    });
-
-    return this.#client.articles_view_shadow.findMany({
+    const articles = await this.#client.articles_view_shadow.findMany({
       select: {
         id: true,
         title: true,
@@ -167,10 +224,15 @@ export class ArticlePrismaRepository implements ArticleRepository {
         author_id: true,
       },
       where: {
-        id: {
-          in: articleByQuery.map((article) => article.id),
+        love,
+        body: {
+          contains: keyword,
         },
       },
+      skip: offset,
+      take: limit,
     });
+
+    return articles;
   };
 }

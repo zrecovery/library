@@ -17,7 +17,7 @@ app.group("/articles", (app) =>
     .get("/:id", articleController.getById)
     .post("/", articleController.create)
     .put("/:id", articleController.update)
-    .delete("/:id", articleController.delete)
+    .delete("/:id", articleController.delete),
 );
 
 const bookController = bookFactory(client);
