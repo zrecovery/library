@@ -6,11 +6,11 @@ Library电子书管理系统后端，基于Bun.js和Elysia.js.
 
 # 安装依赖
 
+需要安装Postgresql及pgroonga插件。
+
 ```bash
 bun install
 ```
-
-需要安装pgroonga用于中文检索。
 
 # 运行开发:
 

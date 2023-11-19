@@ -3,7 +3,7 @@ import type {
   ArticleRepository,
   Query,
 } from "@/core/article/article.repository";
-import { type PrismaClient } from "@prisma/client";
+import { Prisma, type PrismaClient } from "@prisma/client";
 export class ArticlePrismaRepository implements ArticleRepository {
   readonly #client: PrismaClient;
   constructor(client: PrismaClient) {
@@ -11,11 +11,24 @@ export class ArticlePrismaRepository implements ArticleRepository {
   }
 
   public getArticleById = async (id: number): Promise<Article> => {
-    return this.#client.articles_view_shadow.findFirstOrThrow({
-      where: {
-        id,
-      },
-    });
+    try {
+      const articles = await this.#client.articles_view_shadow.findFirstOrThrow(
+        {
+          where: {
+            id,
+          },
+        },
+      );
+      return articles;
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        // The .code property can be accessed in a type-safe manner
+        if (e.code === "P2001") {
+          console.warn("未找到文章");
+        }
+      }
+      throw e;
+    }
   };
 
   public getArticlesByAuthorId = async (
@@ -88,7 +101,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
 
   public createArticle = async (article: Article): Promise<void> => {
     try {
-      const transaction = await this.#client.$transaction(async (prisma) => {
+      await this.#client.$transaction(async (prisma) => {
         const author = await prisma.author.findFirstOrThrow({
           select: {
             id: true,
@@ -131,30 +144,48 @@ export class ArticlePrismaRepository implements ArticleRepository {
           },
         });
       });
-
-      console.log("Article created successfully");
-    } catch (error) {
-      console.error("Error creating article:", error);
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        switch (e.code) {
+          case "P2002":
+            if (e.code === "P2002") {
+              console.warn(e.message);
+            }
+            break;
+        }    
+      }
+      throw e;
     }
   };
 
   public updateArticle = async (article: Article): Promise<void> => {
-    const author = await this.#client.author.findFirst({
-      where: {
-        name: article.author,
-      },
-    });
-    await this.#client.article.update({
-      where: {
-        id: article.id,
-      },
-      data: {
-        title: article.title,
-        author_id: author?.id,
-        body: article.body,
-        love: article.love,
-      },
-    });
+    try {
+      const author = await this.#client.author.findFirstOrThrow({
+        where: {
+          name: article.author,
+        },
+      });
+      await this.#client.article.update({
+        where: {
+          id: article.id,
+        },
+        data: {
+          title: article.title,
+          author_id: author?.id,
+          body: article.body,
+          love: article.love,
+        },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        switch (e.code) {
+          case "P2001":
+            console.warn(e.message);
+            break;
+        }
+      }
+      throw e;
+    }
   };
 
   public deleteArticle = async (articleId: number): Promise<void> => {
