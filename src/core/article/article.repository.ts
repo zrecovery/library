@@ -1,3 +1,4 @@
+import { QueryResult } from "../query-result.model";
 import type { Article } from "./article.model";
 
 export interface Query {
@@ -7,12 +8,6 @@ export interface Query {
 
 export abstract class ArticleRepository {
   abstract getArticleById(id: number): Promise<Article>;
-  abstract getArticlesByAuthorId(
-    authorId: number,
-    limit: number,
-    offset: number,
-  ): Promise<Article[]>;
-  abstract getArticles(limit: number, offset: number): Promise<Article[]>;
   abstract createArticle(article: Article): Promise<void>;
   abstract updateArticle(article: Article): Promise<void>;
   abstract deleteArticle(id: number): Promise<void>;
@@ -20,5 +15,5 @@ export abstract class ArticleRepository {
     query: Query,
     limit: number,
     offset: number,
-  ): Promise<Article[]>;
+  ): Promise<QueryResult<Article[]>>;
 }

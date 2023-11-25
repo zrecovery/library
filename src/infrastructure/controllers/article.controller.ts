@@ -2,8 +2,8 @@ import type { ArticleService } from "@/core/article/article.service";
 import type { Article } from "@/core/article/article.model";
 import type { Query } from "@/core/article/article.repository";
 import { type Context } from "elysia";
-import { config } from "@/application/configure";
 import { pagination } from "@/utils/pagination.util";
+import { QueryResult } from "@/core/query-result.model";
 
 export class ArticleController {
   constructor(readonly articleService: ArticleService) {}
@@ -13,10 +13,10 @@ export class ArticleController {
    * @param context - The request context containing the query parameters.
    * @returns A promise that resolves to an array of articles.
    */
-  public list = async ({ query }: Context): Promise<Article[]> => {
-    const { page = 1, size = config.LIMIT, keywords, love } = query;
+  public list = async ({ query }: Context): Promise<QueryResult<Article[]>> => {
+    const { page, size, keywords, love } = query;
 
-    const { limit, offset } = pagination(Number(page), Number(size));
+    const { limit, offset } = pagination(page, size);
 
     const keywordQuery = keywords ? decodeURIComponent(keywords) : undefined;
     const loveStatus = love !== undefined ? Boolean(love) : undefined;
@@ -28,6 +28,7 @@ export class ArticleController {
 
     return this.articleService.getList(queryRequest, limit, offset);
   };
+
   /**
    * Retrieves an article by its ID.
    * @param params - The request params containing the article ID.
@@ -49,7 +50,7 @@ export class ArticleController {
   public getByAuthorId = async (context: Context): Promise<Article[]> => {
     const { page, size } = context.query;
     const { id } = context.params;
-    const { limit, offset } = pagination(Number(page), Number(size));
+    const { limit, offset } = pagination(page, size);
     return this.articleService.getByAuthorId(Number(id), limit, offset);
   };
 

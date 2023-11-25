@@ -1,3 +1,4 @@
+import { QueryResult } from "../query-result.model";
 import type { Article } from "./article.model";
 import type { ArticleRepository, Query } from "./article.repository";
 
@@ -28,7 +29,7 @@ export class ArticleService {
     query: Query,
     limit: number,
     offset: number,
-  ): Promise<Article[]> {
+  ): Promise<QueryResult<Article[]>> {
     return this.articleRepository.searchArticles(query, limit, offset);
   }
 

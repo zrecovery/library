@@ -7,7 +7,7 @@ export class AuthorController {
   constructor(readonly authorService: AuthorService) {}
   public list = async ({ query }: Context): Promise<Author[]> => {
     const { page, size } = query;
-    const { limit, offset } = pagination(Number(page), Number(size));
+    const { limit, offset } = pagination(page, size);
     return await this.authorService.list(limit, offset);
   };
 }

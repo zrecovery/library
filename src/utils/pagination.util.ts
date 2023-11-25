@@ -8,9 +8,14 @@ import { config } from "@/application/configure";
  * @returns An object with the limit and offset values for pagination.
  */
 export const pagination = (
-  page: number = 1,
-  size: number = config.LIMIT,
-): { limit: number; offset: number } => ({
-  limit: size,
-  offset: Math.max(page - 1, 0) * size,
-});
+  page: string | null,
+  size: string | null,
+): { limit: number; offset: number } => {
+  const limit: number = size !== null ? Number(size) : config.LIMIT;
+  const pageNumber: number = page !== null ? Number(page) : 1;
+  const offset: number = Math.max(pageNumber - 1, 0) * limit;
+  return {
+    limit,
+    offset,
+  };
+};

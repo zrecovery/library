@@ -9,9 +9,7 @@ export class BookController {
 
   public list = async ({ query }: Context): Promise<Book[]> => {
     const { page, size } = query;
-    const limit = size !== undefined ? Number(size) : 10;
-    const count = page !== undefined ? Number(page) : 1;
-    const offset = (count - 1) * limit;
+    const { limit, offset } = pagination(page, size);
     return await this.bookService.getList(limit, offset);
   };
 
@@ -20,7 +18,7 @@ export class BookController {
     params: { id },
   }: Context<{ params: { id: string } }>): Promise<Article[]> => {
     const { page, size } = query;
-    const { limit, offset } = pagination(Number(page), Number(size));
+    const { limit, offset } = pagination(page, size);
     return await this.bookService.getBookById(Number(id), limit, offset);
   };
 
@@ -29,7 +27,7 @@ export class BookController {
     params: { id },
   }: Context<{ params: { id: string } }>): Promise<Book[]> => {
     const { page, size } = query;
-    const { limit, offset } = pagination(Number(page), Number(size));
+    const { limit, offset } = pagination(page, size);
     return await this.bookService.getBooksByAuthorId(Number(id), limit, offset);
   };
 }

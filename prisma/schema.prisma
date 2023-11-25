@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch", "postgresqlExtensions", "views"]
+  previewFeatures = ["fullTextSearch", "postgresqlExtensions"]
   binaryTargets   = ["native"]
 }
 
@@ -20,6 +20,10 @@ model Article {
   Chapter   Chapter?
 
   @@index([body], map: "pgroonga_content_index")
+  @@index([author_id], map: "articles_author_id_index")
+  @@index([id], map: "articles_id_index")
+  @@index([love], map: "articles_love_index")
+  @@index([title], map: "articles_title_index")
   @@map("articles")
 }
 
@@ -51,16 +55,4 @@ model Chapter {
   book          Book    @relation(fields: [book_id], references: [id])
 
   @@map("chapters")
-}
-
-view articles_view_shadow {
-  id            Int     @id
-  author        String
-  title         String
-  body          String
-  book          String
-  chapter_order Float
-  book_id       Int
-  author_id     Int
-  love          Boolean
 }
