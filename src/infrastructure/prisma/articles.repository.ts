@@ -246,7 +246,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
 
       case Mode.love:
         count = await this.#client
-          .$queryRaw`SELECT COUNT(*) FROM (SELECT "public"."articles"."id" FROM "public"."articles" WHERE love %% ${love}  ) AS "sub"`;
+          .$queryRaw`SELECT COUNT(*) FROM (SELECT "public"."articles"."id" FROM "public"."articles" WHERE love = ${love}  ) AS "sub"`;
         break;
       case Mode.no:
         count = await this.#client

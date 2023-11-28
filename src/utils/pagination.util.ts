@@ -11,8 +11,8 @@ export const pagination = (
   page: string | null,
   size: string | null,
 ): { limit: number; offset: number } => {
-  const limit: number = size !== null ? Number(size) : config.LIMIT;
-  const pageNumber: number = page !== null ? Number(page) : 1;
+  const limit: number = size !== null && size !== undefined ? Number(size) : config.LIMIT;
+  const pageNumber: number = page !== null && size !== undefined  ? Number(page) : 1;
   const offset: number = Math.max(pageNumber - 1, 0) * limit;
   return {
     limit,
