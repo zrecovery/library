@@ -1,22 +1,32 @@
-import type { ArticleService } from "@/core/article/article.service";
-import type { Article } from "@/core/article/article.model";
-import type { Query } from "@/core/article/article.repository";
-import { type Context } from "elysia";
-import { pagination } from "@/utils/pagination.util";
-import { QueryResult } from "@/core/query-result.model";
+import type { ArticleService } from "@src/core/article/article.service";
+import type { Article } from "@src/core/article/article.model";
+import type { Query } from "@src/core/article/article.repository";
+import { t, type Context } from "elysia";
+import { Get, Post, Put, Delete } from "@src/utils/route.util";
+import BaseController, { type Route } from "@src/utils/BaseController";
+import { ArticleCreatedDto, ArticleDto, ArticleEditDto, ResponseResult } from "./dto";
 
-export class ArticleController {
-  constructor(readonly articleService: ArticleService) {}
+const listQuery = t.Object({
+  page: t.Optional(t.Numeric()),
+  size: t.Optional(t.Numeric()),
+  keyword: t.Optional(t.String())
+});
 
-  /**
-   * Retrieves a list of articles based on the provided query parameters.
-   * @param context - The request context containing the query parameters.
-   * @returns A promise that resolves to an array of articles.
-   */
-  public list = async ({ query }: Context): Promise<QueryResult<Article[]>> => {
+const params = t.Object({ id: t.Numeric() });
+
+const listResponse = ResponseResult(t.Array(ArticleDto));
+const singleResponse = ResponseResult(t.Object({ detail: ArticleDto }));
+
+export class ArticleController extends BaseController {
+  routes: Route[] = []
+  constructor(readonly articleService: ArticleService) {
+    super("/articles");
+  }
+
+  @Get("/", { query: listQuery, response: listResponse })
+  list = async ({ query }: Context) => {
+
     const { page, size, keywords, love } = query;
-
-    const { limit, offset } = pagination(page, size);
 
     const keywordQuery = keywords ? decodeURIComponent(keywords) : undefined;
     const loveStatus = love !== undefined ? Boolean(love) : undefined;
@@ -26,50 +36,37 @@ export class ArticleController {
       keyword: keywordQuery,
     };
 
-    return this.articleService.getList(queryRequest, limit, offset);
+    const result = await this.articleService.findList(queryRequest, { page: Number(page), size: Number(size) });
+    return {
+      title: "Article List",
+      type: "success",
+      data: {
+        detail: result
+      }
+    }
   };
 
-  /**
-   * Retrieves an article by its ID.
-   * @param params - The request params containing the article ID.
-   * @returns A promise that resolves to the requested article.
-   */
+  @Get("/:id", { params: params,  response: singleResponse })
   public getById = async ({
     params: { id },
   }: {
-    params: { id: string };
-  }): Promise<Article> => {
-    return this.articleService.getById(Number(id));
-  };
+    params: { id: number };
+  }) => {
+    const result = await this.articleService.findById(id);
+    return {
+      title: "Article Find By ID",
+      type: "success",
+      data: result
+    };
+  }
 
-  /**
-   * Retrieves a list of articles based on the provided author ID.
-   * @param context - The request context containing the author ID and query parameters.
-   * @returns A promise that resolves to an array of articles.
-   */
-  public getByAuthorId = async (context: Context): Promise<Article[]> => {
-    const { page, size } = context.query;
-    const { id } = context.params;
-    const { limit, offset } = pagination(page, size);
-    return this.articleService.getByAuthorId(Number(id), limit, offset);
-  };
-
-  /**
-   * Creates a new article.
-   * @param context - The request context containing the article data.
-   * @returns A promise that resolves when the article is created.
-   */
+  @Post("/", { body: ArticleCreatedDto, response: { 201: t.Void() } })
   public create = async ({ body, set }: Context): Promise<void> => {
     await this.articleService.create(body as Article);
     set.status = "Created";
   };
 
-  /**
-   * Updates an existing article.
-   * @param context - The request context containing the article ID, update data, and response set object.
-   * @returns A promise that resolves when the article is updated.
-   * @throws An error if the provided article ID is invalid.
-   */
+  @Put("/:id", { params: params, body: ArticleEditDto, response: { 204: t.Void() } })
   public update = async ({
     params,
     set,
@@ -84,11 +81,7 @@ export class ArticleController {
     set.status = "No Content";
   };
 
-  /**
-   * Deletes an article.
-   * @param context - The request context containing the article ID and response set object.
-   * @returns A promise that resolves when the article is deleted.
-   */
+  @Delete("/:id", { params: params, response: { 204: t.Void() } })
   public delete = async ({
     params,
     set,

@@ -4,32 +4,23 @@ import { bookFactory } from "./application/factory/book.factory";
 
 import { Elysia } from "elysia";
 import { clientFactory } from "./application/factory/client.factory";
+import { cors } from "@elysiajs/cors";
+import { swagger } from "@elysiajs/swagger";
 
 const app = new Elysia();
+
+app.use(swagger());
+app.use(
+  cors({
+    origin: /.*\/localhost:5173$/,
+  }),
+);
+
 
 const client = clientFactory();
 
 const articleController = articleFactory(client);
 
-app.group("/articles", (app) =>
-  app
-    .get("/", articleController.list)
-    .get("/:id", articleController.getById)
-    .post("/", articleController.create)
-    .put("/:id", articleController.update)
-    .delete("/:id", articleController.delete),
-);
-
-const bookController = bookFactory(client);
-
-app.group("/books", (app) =>
-  app.get("/", bookController.list).get("/:id", bookController.getById),
-);
-
-const authorController = AuthorFactory(client);
-
-app.group("/authors", (app) =>
-  app.get("/", authorController.list).get("/:id", bookController.getByAuthorId),
-);
+app.use(articleController.start());
 
 app.listen(3001);

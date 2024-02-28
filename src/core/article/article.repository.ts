@@ -1,4 +1,5 @@
-import { QueryResult } from "../query-result.model";
+import { Pagination } from "../schema/pagination.schema";
+import { QueryResult } from "../schema/query-result.schema";
 import type { Article } from "./article.model";
 
 export interface Query {
@@ -7,13 +8,12 @@ export interface Query {
 }
 
 export abstract class ArticleRepository {
-  abstract getArticleById(id: number): Promise<Article>;
-  abstract createArticle(article: Article): Promise<void>;
-  abstract updateArticle(article: Article): Promise<void>;
-  abstract deleteArticle(id: number): Promise<void>;
-  abstract searchArticles(
+  abstract getById(id: number): Promise<QueryResult<Article>>;
+  abstract create(article: Article): Promise<void>;
+  abstract update(article: Article): Promise<void>;
+  abstract delete(id: number): Promise<void>;
+  abstract search(
     query: Query,
-    limit: number,
-    offset: number,
+    pagination: Pagination
   ): Promise<QueryResult<Article[]>>;
 }

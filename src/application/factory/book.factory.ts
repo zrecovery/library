@@ -1,6 +1,6 @@
-import BookService from "@/core/book/book.service";
-import { BookController } from "@/infrastructure/controllers/book.contoller";
-import { BookPrismaRepository } from "@/infrastructure/prisma/books.repository";
+import BookService from "@src/core/book/book.service";
+import { BookController } from "@src/infrastructure/controllers/book.contoller";
+import { BookPrismaRepository } from "@src/infrastructure/prisma/books.repository";
 import { PrismaClient } from "@prisma/client";
 
 export const bookFactory = (client: PrismaClient) => {

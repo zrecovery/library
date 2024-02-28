@@ -1,6 +1,6 @@
-import { ArticleService } from "@/core/article/article.service";
-import { ArticleController } from "@/infrastructure/controllers/article.controller";
-import { ArticlePrismaRepository } from "@/infrastructure/prisma/articles.repository";
+import { ArticleService } from "@src/core/article/article.service";
+import { ArticleController } from "@src/infrastructure/controllers/article.controller";
+import { ArticlePrismaRepository } from "@src/infrastructure/prisma/articles.repository";
 import { PrismaClient } from "@prisma/client";
 
 export const articleFactory = (client: PrismaClient) =>

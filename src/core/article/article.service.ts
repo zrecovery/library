@@ -1,43 +1,31 @@
-import { QueryResult } from "../query-result.model";
+import { Pagination } from "../schema/pagination.schema";
+import { QueryResult } from "../schema/query-result.schema";
 import type { Article } from "./article.model";
 import type { ArticleRepository, Query } from "./article.repository";
 
 export class ArticleService {
-  constructor(private readonly articleRepository: ArticleRepository) {}
+  constructor(private readonly articleRepository: ArticleRepository) { }
 
   async create(article: Article): Promise<void> {
-    return this.articleRepository.createArticle(article);
+    return this.articleRepository.create(article);
   }
 
-  async getById(id: number): Promise<Article> {
-    return this.articleRepository.getArticleById(id);
+  async findById(id: number): Promise<QueryResult<Article>> {
+    return this.articleRepository.getById(id);
   }
 
-  async getByAuthorId(
-    authorId: number,
-    limit: number,
-    offset: number,
-  ): Promise<Article[]> {
-    return this.articleRepository.getArticlesByAuthorId(
-      authorId,
-      limit,
-      offset,
-    );
-  }
-
-  async getList(
+  async findList(
     query: Query,
-    limit: number,
-    offset: number,
+    pagination: Pagination
   ): Promise<QueryResult<Article[]>> {
-    return this.articleRepository.searchArticles(query, limit, offset);
+    return this.articleRepository.search(query, pagination);
   }
 
   async update(article: Article): Promise<void> {
-    return this.articleRepository.updateArticle(article);
+    return this.articleRepository.update(article);
   }
 
   async delete(id: number): Promise<void> {
-    return this.articleRepository.deleteArticle(id);
+    return this.articleRepository.delete(id);
   }
 }

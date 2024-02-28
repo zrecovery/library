@@ -1,106 +1,63 @@
 import type { Article } from "@/core/article/article.model";
-import type { ArticleRepository } from "@/core/article/article.repository";
+import type { ArticleRepository, Query } from "@/core/article/article.repository";
+import { Pagination } from "@/core/schema/pagination.schema";
+import { QueryResult } from "@/core/schema/query-result.schema";
+
+export const articlesMock: Article[] = [
+  {
+    id: 1,
+    title: "测试标题",
+    book: "测试系列",
+    author: "测试作者",
+    order: 1,
+    body: "测试内容",
+    love: false,
+    author_id: 1,
+    book_id: 1
+  },
+  {
+    id: 2,
+    title: "测试标题",
+    book: "测试系列",
+    author: "测试作者",
+    order: 1,
+    body: "测试内容",
+    love: false,
+    author_id: 1,
+    book_id: 2
+  },
+];
+
 
 export class ArticleMockRepository implements ArticleRepository {
-  async getArticleById(id: number): Promise<Article> {
-    const article: Article = {
-      id,
-      title: "测试标题",
-      book: "测试系列",
-      author: "测试作者",
-      chapter_order: 1,
-      body: "测试内容",
-      love: false,
-    };
-    return article;
+  async getById(id: number): Promise<QueryResult<Article>> {
+    const article = articlesMock.find(item => item.id === id);
+    return { detail: article };
   }
 
-  async getArticlesByAuthorId(
-    authorId: number,
-    limit: number,
-    offset: number,
-  ): Promise<Article[]> {
-    return [
-      {
-        id: 1,
-        title: "测试标题",
-        book: "测试系列",
-        author: `测试作者${authorId}`,
-        chapter_order: 1,
-        body: "测试内容",
-        love: false,
-      },
-      {
-        id: 2,
-        title: "测试标题",
-        book: "测试系列",
-        author: `测试作者${authorId}`,
-        chapter_order: 1,
-        body: "测试内容",
-        love: false,
-      },
-    ];
-  }
-
-  async getArticles(limit: number, offset: number): Promise<Article[]> {
-    return [
-      {
-        id: 1,
-        title: "测试标题",
-        book: "测试系列",
-        author: "测试作者",
-        chapter_order: 1,
-        body: "测试内容",
-        love: false,
-      },
-      {
-        id: 2,
-        title: "测试标题",
-        book: "测试系列",
-        author: "测试作者",
-        chapter_order: 1,
-        body: "测试内容",
-        love: false,
-      },
-    ];
-  }
-
-  async createArticle(article: Article): Promise<void> {
+  async create(article: Article): Promise<void> {
     throw new Error("Method not implemented.");
   }
 
-  async updateArticle(article: Article): Promise<void> {
+  async update(article: Article): Promise<void> {
     throw new Error("Method not implemented.");
   }
 
-  async deleteArticle(id: number): Promise<void> {
+  async delete(id: number): Promise<void> {
     throw new Error("Method not implemented.");
   }
 
-  async searchArticles(
+  async search(
     query: Query,
-    limit: number,
-    offset: number,
-  ): Promise<Article[]> {
-    return [
-      {
-        id: 1,
-        title: "测试标题",
-        book: "测试系列",
-        author: "测试作者",
-        chapter_order: 1,
-        body: "测试内容",
-        love: false,
+    pagination: Pagination
+  ): Promise<QueryResult<Article[]>> {
+    return {
+      paging: {
+        total: 1,
+        size: 10,
+        page: 1
       },
-      {
-        id: 2,
-        title: "测试标题",
-        book: "测试系列",
-        author: "测试作者",
-        chapter_order: 1,
-        body: "测试内容",
-        love: false,
-      },
-    ];
+      detail: articlesMock
+    }
   }
 }

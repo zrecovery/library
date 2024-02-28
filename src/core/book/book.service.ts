@@ -6,7 +6,7 @@ export default class BookService {
   constructor(private readonly bookRepository: BookRepository) {}
 
   async getList(limit: number, offset: number): Promise<Book[]> {
-    return await this.bookRepository.getList(limit, offset);
+    return await this.bookRepository.list(limit, offset);
   }
 
   async getBookById(
@@ -14,7 +14,7 @@ export default class BookService {
     limit: number,
     offset: number,
   ): Promise<Article[]> {
-    return await this.bookRepository.getBookById(id, limit, offset);
+    return await this.bookRepository.getById(id, limit, offset);
   }
 
   async getBooksByAuthorId(

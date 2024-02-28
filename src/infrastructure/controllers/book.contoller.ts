@@ -1,8 +1,8 @@
-import type { Article } from "@/core/article/article.model";
-import type BookService from "@/core/book/book.service";
-import type { Book } from "@/core/book/book.model";
+import type { Article } from "@src/core/article/article.model";
+import type BookService from "@src/core/book/book.service";
+import type { Book } from "@src/core/book/book.model";
 import type { Context } from "elysia";
-import { pagination } from "@/utils/pagination.util";
+import { pagination } from "@src/utils/pagination.util";
 
 export class BookController {
   constructor(readonly bookService: BookService) {}

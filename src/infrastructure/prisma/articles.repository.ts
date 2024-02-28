@@ -1,20 +1,22 @@
-import type { Article } from "@/core/article/article.model";
+import type { Article } from "@src/core/article/article.model";
 import type {
   ArticleRepository,
   Query,
-} from "@/core/article/article.repository";
-import { QueryResult } from "@/core/query-result.model";
+} from "@src/core/article/article.repository";
+import { Pagination } from "@src/core/schema/pagination.schema";
+import { QueryResult } from "@src/core/schema/query-result.schema";
+import { paginationToEntity } from "@src/utils/pagination.util";
 import { Prisma, type PrismaClient } from "@prisma/client";
-import { moveCursor } from "readline";
+
 export class ArticlePrismaRepository implements ArticleRepository {
   readonly #client: PrismaClient;
   constructor(client: PrismaClient) {
     this.#client = client;
   }
 
-  public getArticleById = async (id: number): Promise<Article> => {
+  public getById = async (id: number): Promise<QueryResult<Article>> => {
     try {
-      const articles = await this.#client.article
+      const article = await this.#client.article
         .findFirstOrThrow({
           select: {
             id: true,
@@ -23,14 +25,16 @@ export class ArticlePrismaRepository implements ArticleRepository {
             love: true,
             author: {
               select: {
+                id: true,
                 name: true,
               },
             },
-            Chapter: {
+            chapters: {
               select: {
                 chapter_order: true,
                 book: {
                   select: {
+                    id: true,
                     title: true,
                   },
                 },
@@ -46,13 +50,17 @@ export class ArticlePrismaRepository implements ArticleRepository {
             id: article.id,
             title: article.title,
             body: article.body,
-            love: article.love,
             author: article.author.name,
-            chapter_order: article.Chapter!.chapter_order,
-            book: article.Chapter!.book.title,
+            author_id: article.author.id,
+            order: article.chapters[0].chapter_order,
+            book: article.chapters[0].book.title,
+            book_id: article.chapters[0].book.id,
+            love: article.love
           };
         });
-      return articles;
+      return {
+        detail: article
+      };
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         // The .code property can be accessed in a type-safe manner
@@ -64,10 +72,10 @@ export class ArticlePrismaRepository implements ArticleRepository {
     }
   };
 
-  public createArticle = async (article: Article): Promise<void> => {
+  public create = async (article: Article): Promise<void> => {
     try {
       await this.#client.$transaction(async (prisma) => {
-        const author = await prisma.author.findFirstOrThrow({
+        let author = await prisma.author.findFirst({
           select: {
             id: true,
           },
@@ -75,6 +83,14 @@ export class ArticlePrismaRepository implements ArticleRepository {
             name: article.author,
           },
         });
+
+        if (!author) {
+          author = await prisma.author.create({
+            data: {
+              name: article.author,
+            },
+          });
+        }
 
         let book = await prisma.book.findFirst({
           where: {
@@ -103,7 +119,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
 
         await prisma.chapter.create({
           data: {
-            chapter_order: article.chapter_order,
+            chapter_order: Number(article.order),
             book_id: book.id,
             article_id: articleCreated.id,
           },
@@ -123,7 +139,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
     }
   };
 
-  public updateArticle = async (article: Article): Promise<void> => {
+  public update = async (article: Article): Promise<void> => {
     try {
       const author = await this.#client.author.findFirstOrThrow({
         where: {
@@ -153,11 +169,11 @@ export class ArticlePrismaRepository implements ArticleRepository {
     }
   };
 
-  public deleteArticle = async (articleId: number): Promise<void> => {
+  public delete = async (articleId: number): Promise<void> => {
     const article = await this.#client.article.findFirst({
       select: {
         id: true,
-        Chapter: {
+        chapters: {
           select: {
             id: true,
             book_id: true,
@@ -188,73 +204,49 @@ export class ArticlePrismaRepository implements ArticleRepository {
 
       const chapter = await transaction.chapter.findFirst({
         where: {
-          book_id: article.Chapter?.book_id,
+          book_id: article.chapters[0].book_id,
         },
       });
 
       if (!chapter) {
         await transaction.book.delete({
           where: {
-            id: article.Chapter?.book_id,
+            id: article.chapters[0].book_id,
           },
         });
       }
     });
   };
 
-  /**
-   * Search articles based on the given query.
-   * @param query - The search query object.
-   * @param limit - The maximum number of articles to return.
-   * @param offset - The offset to start fetching articles from (default: 0).
-   * @returns An array of articles that match the search criteria.
-   */
-  public searchArticles = async (
+  public search = async (
     query: Query,
-    limit: number,
-    offset = 0,
+    pagination: Pagination
   ): Promise<QueryResult<Article[]>> => {
+    const { limit, offset } = paginationToEntity(pagination);
     const { love, keyword } = query;
-    let count: [{ count: bigint }];
-    enum Mode {
-      keywordAndLove,
-      keyword,
-      love,
-      no,
-    }
-    let mode: Mode = Mode.no;
-    if (keyword !== undefined && love !== undefined) {
-      mode = Mode.keywordAndLove;
-    }
-    if (keyword === undefined && love !== undefined) {
-      mode = Mode.love;
-    }
-    if (keyword !== undefined && love === undefined) {
-      mode = Mode.keyword;
-    }
 
-    switch (mode) {
-      case Mode.keywordAndLove:
-        count = await this.#client
-          .$queryRaw`SELECT COUNT(*) FROM (SELECT "public"."articles"."id" FROM "public"."articles" WHERE body %% ${keyword}  WHERE love = ${love} )AS "sub"`;
-        break;
+    const c = await this.#client.search.count({
+      where: {
+        body: {
+          contains: keyword,
+        },
+      },
+    });
 
-      case Mode.keyword:
-        count = await this.#client
-          .$queryRaw`SELECT COUNT(*) FROM (SELECT "public"."articles"."id" FROM "public"."articles" WHERE body %% ${keyword}  ) AS "sub"`;
-        break;
+    const ids = await this.#client.search.findMany({
+      select: {
+        rowid: true,
+      },
+      where: {
+        body: {
+          contains: keyword,
+        },
+      },
+      take: limit,
+      skip: offset,
+    });
 
-      case Mode.love:
-        count = await this.#client
-          .$queryRaw`SELECT COUNT(*) FROM (SELECT "public"."articles"."id" FROM "public"."articles" WHERE love = ${love}  ) AS "sub"`;
-        break;
-      case Mode.no:
-        count = await this.#client
-          .$queryRaw`SELECT COUNT(*) FROM (SELECT "public"."articles"."id" FROM "public"."articles") AS "sub"`;
-        break;
-    }
-
-    const total = Number(count[0].count);
+    const total = Number(c);
 
     const articles = await this.#client.article
       .findMany({
@@ -269,7 +261,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
           title: true,
           body: true,
           love: true,
-          Chapter: {
+          chapters: {
             select: {
               chapter_order: true,
               book_id: true,
@@ -283,13 +275,10 @@ export class ArticlePrismaRepository implements ArticleRepository {
           },
         },
         where: {
-          love,
-          body: {
-            contains: keyword,
+          id: {
+            in: ids.map((id) => id.rowid),
           },
         },
-        skip: offset,
-        take: limit,
       })
       .then((articles) => {
         return articles.map((article) => {
@@ -297,19 +286,22 @@ export class ArticlePrismaRepository implements ArticleRepository {
             id: article.id,
             title: article.title,
             author: article.author.name,
-            book: article.Chapter!.book.title,
-            chapter_order: article.Chapter!.chapter_order,
+            book: article.chapters[0].book.title,
+            order: article.chapters[0].chapter_order,
             body: article.body,
             love: article.love,
             author_id: article.author.id,
-            book_id: article.Chapter!.book_id,
+            book_id: article.chapters[0].book_id,
           };
         });
       });
+
     const result: QueryResult<Article[]> = {
-      page: Math.ceil(total / limit),
-      size: limit,
-      current_page: offset / limit,
+      paging: {
+        total: Math.ceil(total / limit),
+        size: limit,
+        page: offset / limit,
+      },
       detail: articles,
     };
     return result;

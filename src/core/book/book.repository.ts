@@ -1,17 +1,27 @@
-import { QueryResult } from "../query-result.model";
+import { QueryResult } from "../schema/query-result.schema";
+import { Pagination } from "../schema/pagination.schema";
 import type { Book } from "./book.model";
-import type { Article } from "@/core/article/article.model";
+
+interface ArticleEntity {
+  id: number;
+  title: string;
+  order: number;
+  body: string;
+  author: string;
+  author_id: number;
+}
+
+interface BookEntity {
+  id: number;
+  title: string;
+  articles: ArticleEntity[];
+}
+
 
 export default abstract class BookRepository {
-  abstract getList(limit: number, offset: number): Promise<QueryResult<Book[]>>;
-  abstract getBookById(
+  abstract list(pagination: Pagination): Promise<QueryResult<Book[]>>;
+  abstract getById(
     id: number,
-    limit: number,
-    offset: number,
-  ): Promise<QueryResult<Article[]>>;
-  abstract getBooksByAuthorId(
-    authorId: number,
-    limit: number,
-    offset: number,
-  ): Promise<QueryResult<Book[]>>;
+    pagination: Pagination
+  ): Promise<QueryResult<BookEntity>>;
 }

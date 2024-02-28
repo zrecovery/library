@@ -1,8 +1,8 @@
-import { config } from "@/application/configure";
-import type { Article } from "@/core/article/article.model";
-import type { Book } from "@/core/book/book.model";
-import type BookRepository from "@/core/book/book.repository";
-import { QueryResult } from "@/core/query-result.model";
+import { config } from "@src/application/configure";
+import type { Article } from "@src/core/article/article.model";
+import type { Book } from "@src/core/book/book.model";
+import type BookRepository from "@src/core/book/book.repository";
+import { QueryResult } from "@src/core/query-result.model";
 import type { PrismaClient } from "@prisma/client";
 
 export class BookPrismaRepository implements BookRepository {
@@ -30,6 +30,7 @@ export class BookPrismaRepository implements BookRepository {
           author: {
             select: {
               name: true,
+              id: true,
             },
           },
         },
@@ -57,7 +58,7 @@ export class BookPrismaRepository implements BookRepository {
     return result;
   };
 
-  public getBookById = async (
+  public getById = async (
     id: number,
     limit: number,
     offset: number,
@@ -108,7 +109,7 @@ export class BookPrismaRepository implements BookRepository {
             title: chapter.article.title,
             book: chapter.book.title,
             author: chapter.article.author.name,
-            chapter_order: chapter.chapter_order,
+            order: chapter.chapter_order,
             body: chapter.article.body,
             love: chapter.article.love,
           };
@@ -123,7 +124,7 @@ export class BookPrismaRepository implements BookRepository {
     return result;
   };
 
-  public getList = async (
+  public list = async (
     limit: number = config.LIMIT,
     offset = 0,
   ): Promise<QueryResult<Book[]>> => {
