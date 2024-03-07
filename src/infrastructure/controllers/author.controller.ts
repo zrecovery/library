@@ -1,9 +1,9 @@
-import type { AuthorService } from "@src/core/author/author.service";
+import { AuthorService } from "@src/core/author/author.service";
 import type { Author } from "@src/core/author/author.model";
-import { t, type Context } from "elysia";
+import { t, type Context, Elysia } from "elysia";
 import { paginationToEntity } from "@src/utils/pagination.util";
-import { Get } from "@src/utils/route.util";
-import BaseController, { Route } from "@src/utils/BaseController";
+import AuthorRepository from "@src/core/author/author.repository";
+import { QueryResult } from "@src/core/schema/query-result.schema";
 
 const listQuery = t.Object({
   page: t.Optional(t.Numeric()),
@@ -11,17 +11,24 @@ const listQuery = t.Object({
 });
 
 
-export class AuthorController extends BaseController {
-  routes: Route[];
+export class AuthorController {
 
-  constructor(readonly authorService: AuthorService) {
-    super("/authors");
-  }
+  constructor(readonly authorService: AuthorService) {}
 
-  @Get("/", { query: listQuery })
-  public list = async ({ query }: Context): Promise<Author[]> => {
+  public list = async ({ query }: Context): Promise<QueryResult<Author[]>> => {
     const { page, size } = query;
     const { limit, offset } = paginationToEntity(page, size);
     return await this.authorService.list({ limit, offset });
   };
+}
+
+export const AuthorModule = (repository: AuthorRepository)=>{
+  const authorService = new AuthorService(repository);
+  const authorController = new AuthorController(authorService);
+
+  const app = new Elysia();
+
+  app.get("/authors", authorController.list, {query: listQuery})
+
+  return app
 }

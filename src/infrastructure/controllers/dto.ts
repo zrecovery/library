@@ -43,3 +43,17 @@ export const ResponseResult = <M extends TSchema>(M: M) =>
     title: t.String(),
     data: M,
   });
+
+export const ResponseArrayResult = <M extends TSchema>(M: M) =>
+  t.Object({
+    type: t.String(),
+    title: t.String(),
+    data: t.Object({
+      paging: t.Optional(t.Object({
+        total: t.Number(),
+        size: t.Number(),
+        page: t.Number(),
+      })),
+      detail: M
+    }),
+  });

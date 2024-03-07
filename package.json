@@ -37,7 +37,7 @@
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.2.2"
+    "typescript": "next"
   },
   "module": "src/app.js",
   "type": "module"

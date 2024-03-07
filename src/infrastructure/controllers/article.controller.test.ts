@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { ArticleController } from './article.controller'
+import { ArticleController, articleModule } from './article.controller'
 import { ArticleMockRepository, articlesMock } from '../mock/article.mock.repository'
 import { ArticleService } from '@src/core/article/article.service'
 import { Elysia } from 'elysia'
@@ -8,11 +8,10 @@ describe('Articles', () => {
   it('返回单个', async () => {
 
     const articleMockRepository = new ArticleMockRepository();
-    const articleService = new ArticleService(articleMockRepository);
-    const articleController = new ArticleController(articleService);
+    const articleM = articleModule(articleMockRepository)
 
     const app = new Elysia();
-    app.use(articleController.start());
+    app.use(articleM);
 
     const mockResponse = {
       type: "success",
@@ -30,6 +29,6 @@ describe('Articles', () => {
       .then(async (res) => await res.json());
 
     expect(response)
-      .toBe(mockResponse);
+      .toEqual(mockResponse);
   })
 })

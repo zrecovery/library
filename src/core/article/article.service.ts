@@ -1,6 +1,6 @@
 import { Pagination } from "../schema/pagination.schema";
 import { QueryResult } from "../schema/query-result.schema";
-import type { Article } from "./article.model";
+import type { Article, ArticleEntity } from "./article.model";
 import type { ArticleRepository, Query } from "./article.repository";
 
 export class ArticleService {
@@ -10,14 +10,14 @@ export class ArticleService {
     return this.articleRepository.create(article);
   }
 
-  async findById(id: number): Promise<QueryResult<Article>> {
+  async findById(id: number): Promise<QueryResult<ArticleEntity>> {
     return this.articleRepository.getById(id);
   }
 
   async findList(
     query: Query,
     pagination: Pagination
-  ): Promise<QueryResult<Article[]>> {
+  ): Promise<QueryResult<ArticleEntity[]>> {
     return this.articleRepository.search(query, pagination);
   }
 

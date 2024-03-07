@@ -1,10 +1,9 @@
-import type { ArticleService } from "@src/core/article/article.service";
-import type { Article } from "@src/core/article/article.model";
-import type { Query } from "@src/core/article/article.repository";
-import { t, type Context } from "elysia";
-import { Get, Post, Put, Delete } from "@src/utils/route.util";
-import BaseController, { type Route } from "@src/utils/BaseController";
-import { ArticleCreatedDto, ArticleDto, ArticleEditDto, ResponseResult } from "./dto";
+import { ArticleService } from "@src/core/article/article.service";
+import type { Article, ArticleEntity } from "@src/core/article/article.model";
+import type { ArticleRepository, Query } from "@src/core/article/article.repository";
+import { t, type Context, Elysia } from "elysia";
+import { ArticleCreatedDto, ArticleDto, ArticleEditDto, ResponseArrayResult, ResponseResult } from "./dto";
+import { QueryResult } from "@src/core/schema/query-result.schema";
 
 const listQuery = t.Object({
   page: t.Optional(t.Numeric()),
@@ -14,18 +13,18 @@ const listQuery = t.Object({
 
 const params = t.Object({ id: t.Numeric() });
 
-const listResponse = ResponseResult(t.Array(ArticleDto));
+const listResponse = ResponseArrayResult(t.Array(ArticleDto));
 const singleResponse = ResponseResult(t.Object({ detail: ArticleDto }));
 
-export class ArticleController extends BaseController {
-  routes: Route[] = []
+export class ArticleController {
   constructor(readonly articleService: ArticleService) {
-    super("/articles");
   }
 
-  @Get("/", { query: listQuery, response: listResponse })
-  list = async ({ query }: Context) => {
-
+  list = async ({ query }: Context<{ query: { page?: number, size?: number, keywords?: string, love?: boolean } }>): Promise<{
+    title: string;
+    type: string;
+    data: QueryResult<ArticleEntity[]>;
+  }> => {
     const { page, size, keywords, love } = query;
 
     const keywordQuery = keywords ? decodeURIComponent(keywords) : undefined;
@@ -40,18 +39,17 @@ export class ArticleController extends BaseController {
     return {
       title: "Article List",
       type: "success",
-      data: {
-        detail: result
-      }
+      data:  result
     }
   };
 
-  @Get("/:id", { params: params,  response: singleResponse })
   public getById = async ({
     params: { id },
-  }: {
-    params: { id: number };
-  }) => {
+  }: Context<{ params: { id: number } }>): Promise<{
+    title: string;
+    type: string;
+    data: QueryResult<ArticleEntity>;
+  }> => {
     const result = await this.articleService.findById(id);
     return {
       title: "Article Find By ID",
@@ -60,34 +58,43 @@ export class ArticleController extends BaseController {
     };
   }
 
-  @Post("/", { body: ArticleCreatedDto, response: { 201: t.Void() } })
   public create = async ({ body, set }: Context): Promise<void> => {
     await this.articleService.create(body as Article);
     set.status = "Created";
   };
 
-  @Put("/:id", { params: params, body: ArticleEditDto, response: { 204: t.Void() } })
   public update = async ({
     params,
     set,
     body,
-  }: Context<{ params: { id: string } }>): Promise<void> => {
+  }: Context<{ params: { id: number } }>): Promise<void> => {
     const { id } = params;
     const article = body as Article;
-    if (id !== String(article.id)) {
+    if (id !== article.id) {
       throw new Error("Invalid id");
     }
     await this.articleService.update(article);
     set.status = "No Content";
   };
 
-  @Delete("/:id", { params: params, response: { 204: t.Void() } })
   public delete = async ({
     params,
     set,
-  }: Context<{ params: { id: string } }>): Promise<void> => {
+  }: Context<{ params: { id: number } }>): Promise<void> => {
     const { id } = params;
-    await this.articleService.delete(Number(id));
+    await this.articleService.delete(id);
     set.status = "No Content";
   };
+}
+
+
+export const articleModule = (repository: ArticleRepository): Elysia => {
+  const articleService = new ArticleService(repository);
+  const articleController = new ArticleController(articleService);
+  return new Elysia()
+    .get("/articles", articleController.list, { query: listQuery, response: listResponse })
+    .get("/articles/:id", articleController.getById, { params, response: singleResponse })
+    .post("/articles", articleController.create, { body: ArticleCreatedDto, response: { 201: t.Void() } })
+    .put("/articles/:id", articleController.update, { params: params, body: ArticleEditDto, response: { 204: t.Void() } })
+    .delete("/articles/:id", articleController.delete, { params: params })
 }

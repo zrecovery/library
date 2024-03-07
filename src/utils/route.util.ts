@@ -9,26 +9,24 @@ interface ResponseOptions {
   beforeHandle?: (ctx: any) => 'unauthorized' | string | undefined; // before handling the request
 }
 
-function useBefore(handler: unknown) {
-  return function(value: BaseController, context: ClassMethodDecoratorContext) {
-    value.middlewares.push(handler);
-  };
-}
-
 function Get(path: string, responseOptions: ResponseOptions = {}) {
   return function(
     value: BaseController,
     context: ClassMethodDecoratorContext
   ) {
+    console.log(context);
+    console.log(value);
     if (!value["routes"]) {
       value["routes"] = [];
     }
+    
     value.routes.push({
       method: "get",
       path,
-      handler: value[context.name],
+      handler: value[context],
       responseOptions,
     });
+
   };
 }
 
@@ -83,4 +81,4 @@ function Delete(path: string, responseOptions: ResponseOptions = {}) {
   };
 }
 
-export { Get, Post, Put, Delete, useBefore };
+export { Get, Post, Put, Delete };
