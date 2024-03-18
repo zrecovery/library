@@ -1,58 +1,58 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "sqlite"
-    url      = env("DATABASE_URL")
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model article {
-    id        Int       @id @default(autoincrement())
-    title     String
-    body      String
-    author_id Int
-    love      Boolean   @default(false)
-    author    author    @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-    chapters  chapter[]
+  id        Int      @id @default(autoincrement())
+  title     String
+  body      String
+  author    author   @relation(fields: [author_id], references: [id])
+  author_id Int
+  love      Boolean  @default(false)
+  chapter   chapter?
 
-    @@map("articles")
+  @@map("articles")
 }
 
 model author {
-    name     String    @unique
-    id       Int       @id @default(autoincrement())
-    articles article[]
-    books    book[]
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  articles article[]
+  books    book[]
 
-    @@map("authors")
+  @@map("authors")
 }
 
 model book {
-    id        Int       @id @default(autoincrement())
-    title     String
-    author_id Int
-    author    author    @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-    chapters  chapter[]
+  id        Int       @id @default(autoincrement())
+  title     String
+  author_id Int
+  author    author    @relation(fields: [author_id], references: [id])
+  chapters  chapter[]
 
-    @@map("books")
+  @@map("books")
 }
 
 model chapter {
-    id            Int     @id @default(autoincrement())
-    book_id       Int
-    article_id    Int
-    chapter_order Float
-    book          book    @relation(fields: [book_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-    article       article @relation(fields: [article_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  id            Int     @id @default(autoincrement())
+  book_id       Int
+  book          book    @relation(fields: [book_id], references: [id])
+  article_id    Int     @unique
+  article       article @relation(fields: [article_id], references: [id])
+  chapter_order Float
 
-    @@map("chapters")
+  @@map("chapters")
 }
 
 model search {
-    rowid Int    @id
-    title String
-    body  String
+  rowid Int    @id
+  title String
+  body  String
 
-    @@map("articles_fts")
+  @@map("articles_fts")
 }

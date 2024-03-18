@@ -9,5 +9,4 @@ plugins:
 parserOptions:
   ecmaVersion: latest
   sourceType: module
-rules:
-  {  "@typescript-eslint/return-await": "off" }
+rules: { "@typescript-eslint/return-await": "off" }

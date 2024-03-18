@@ -1,12 +1,17 @@
 import { Pagination } from "../schema/pagination.schema";
 import { QueryResult } from "../schema/query-result.schema";
-import type { Article, ArticleEntity } from "./article.model";
+import type { Article } from "./article.model";
 import type { ArticleRepository, Query } from "./article.repository";
+import {
+  ArticleCreated,
+  ArticleEntity,
+  ArticleUpdated,
+} from "./article.schema";
 
 export class ArticleService {
-  constructor(private readonly articleRepository: ArticleRepository) { }
+  constructor(private readonly articleRepository: ArticleRepository) {}
 
-  async create(article: Article): Promise<void> {
+  async create(article: ArticleCreated): Promise<void> {
     return this.articleRepository.create(article);
   }
 
@@ -16,12 +21,12 @@ export class ArticleService {
 
   async findList(
     query: Query,
-    pagination: Pagination
+    pagination: Pagination,
   ): Promise<QueryResult<ArticleEntity[]>> {
     return this.articleRepository.search(query, pagination);
   }
 
-  async update(article: Article): Promise<void> {
+  async update(article: ArticleUpdated): Promise<void> {
     return this.articleRepository.update(article);
   }
 

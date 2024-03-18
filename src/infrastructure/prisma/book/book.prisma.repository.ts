@@ -1,9 +1,10 @@
-import { config } from "@src/application/configure";
-import type { Article } from "@src/core/article/article.model";
 import type { Book } from "@src/core/book/book.model";
 import type BookRepository from "@src/core/book/book.repository";
-import { QueryResult } from "@src/core/query-result.model";
 import type { PrismaClient } from "@prisma/client";
+import { QueryResult } from "@src/core/schema/query-result.schema";
+import { Pagination } from "@src/core/schema/pagination.schema";
+import { ArticleEntity, BookEntity } from "@src/core/book/book.repository";
+import { paginationToOffsetLimit } from "@src/utils/pagination.util";
 
 export class BookPrismaRepository implements BookRepository {
   readonly #client: PrismaClient;
@@ -11,61 +12,20 @@ export class BookPrismaRepository implements BookRepository {
   constructor(client: PrismaClient) {
     this.#client = client;
   }
-
-  public getBooksByAuthorId = async (
-    id: number,
-    limit: number = config.LIMIT,
-    offset = 0,
-  ): Promise<QueryResult<Book[]>> => {
-    const total = await this.#client.book.count({
-      where: {
-        author_id: id,
-      },
-    });
-    const books = await this.#client.book
-      .findMany({
-        select: {
-          id: true,
-          title: true,
-          author: {
-            select: {
-              name: true,
-              id: true,
-            },
-          },
-        },
-        where: {
-          author_id: id,
-        },
-        skip: offset,
-        take: limit,
-      })
-      .then((books) =>
-        books.map((book): Book => {
-          return {
-            id: book.id,
-            title: book.title,
-            author: book.author.name,
-          };
-        }),
-      );
-    const result: QueryResult<Book[]> = {
-      page: Math.ceil(total / limit),
-      size: limit,
-      current_page: Math.ceil(offset / limit),
-      detail: books,
-    };
-    return result;
-  };
-
   public getById = async (
     id: number,
-    limit: number,
-    offset: number,
-  ): Promise<QueryResult<Article[]>> => {
+    pagination: Pagination,
+  ): Promise<QueryResult<BookEntity>> => {
+    const { limit, offset } = paginationToOffsetLimit(pagination);
+
     const total = await this.#client.chapter.count({
       where: {
         book_id: id,
+      },
+    });
+    const book = await this.#client.book.findFirst({
+      where: {
+        id,
       },
     });
     const articles = await this.#client.chapter
@@ -77,7 +37,6 @@ export class BookPrismaRepository implements BookRepository {
               id: true,
               title: true,
               body: true,
-              love: true,
               author: {
                 select: {
                   id: true,
@@ -103,31 +62,37 @@ export class BookPrismaRepository implements BookRepository {
         take: limit,
       })
       .then((chapters) =>
-        chapters.map((chapter): Article => {
+        chapters.map((chapter): ArticleEntity => {
           return {
             id: chapter.article.id,
             title: chapter.article.title,
-            book: chapter.book.title,
             author: chapter.article.author.name,
+            author_id: chapter.article.author.id,
             order: chapter.chapter_order,
             body: chapter.article.body,
-            love: chapter.article.love,
           };
         }),
       );
-    const result: QueryResult<Article[]> = {
-      page: Math.ceil(total / limit),
-      size: limit,
-      current_page: Math.ceil(offset / limit),
-      detail: articles,
+
+    const result: QueryResult<BookEntity> = {
+      paging: {
+        total: Math.ceil(total / limit),
+        size: limit,
+        page: Math.ceil(offset / limit) + 1,
+      },
+      detail: {
+        id: book!.id,
+        title: book!.title,
+        articles: articles,
+      },
     };
     return result;
   };
 
   public list = async (
-    limit: number = config.LIMIT,
-    offset = 0,
+    pagination: Pagination,
   ): Promise<QueryResult<Book[]>> => {
+    const { limit, offset } = paginationToOffsetLimit(pagination);
     const total = await this.#client.book.count();
     const res = await this.#client.book.findMany({
       select: {
@@ -146,9 +111,11 @@ export class BookPrismaRepository implements BookRepository {
       return { id: b.id, title: b.title, author: b.author.name };
     });
     const result: QueryResult<Book[]> = {
-      page: Math.ceil(total / limit),
-      size: limit,
-      current_page: Math.ceil(offset / limit),
+      paging: {
+        total: Math.ceil(total / limit),
+        size: limit,
+        page: Math.ceil(offset / limit) + 1,
+      },
       detail: books,
     };
     return result;

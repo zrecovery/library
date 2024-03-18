@@ -1,4 +1,4 @@
-import type BaseController from './BaseController';
+import type BaseController from "./BaseController";
 
 interface ResponseOptions {
   body?: {}; //  validate incoming body.
@@ -6,34 +6,33 @@ interface ResponseOptions {
   params?: {}; // validate path parameters.
   header?: {}; // validate request's headers.
   response?: {}; // validate response type.
-  beforeHandle?: (ctx: any) => 'unauthorized' | string | undefined; // before handling the request
+  beforeHandle?: (ctx: any) => "unauthorized" | string | undefined; // before handling the request
 }
 
 function Get(path: string, responseOptions: ResponseOptions = {}) {
-  return function(
+  return function (
     value: BaseController,
-    context: ClassMethodDecoratorContext
+    context: ClassMethodDecoratorContext,
   ) {
     console.log(context);
     console.log(value);
     if (!value["routes"]) {
       value["routes"] = [];
     }
-    
+
     value.routes.push({
       method: "get",
       path,
       handler: value[context],
       responseOptions,
     });
-
   };
 }
 
 function Post(path: string, responseOptions: ResponseOptions = {}) {
-  return function(
+  return function (
     value: BaseController,
-    context: ClassMethodDecoratorContext
+    context: ClassMethodDecoratorContext,
   ) {
     if (!value["routes"]) {
       value["routes"] = [];
@@ -48,9 +47,9 @@ function Post(path: string, responseOptions: ResponseOptions = {}) {
 }
 
 function Put(path: string, responseOptions: ResponseOptions = {}) {
-  return function(
+  return function (
     value: BaseController,
-    context: ClassMethodDecoratorContext
+    context: ClassMethodDecoratorContext,
   ) {
     if (!value["routes"]) {
       value["routes"] = [];
@@ -65,9 +64,9 @@ function Put(path: string, responseOptions: ResponseOptions = {}) {
 }
 
 function Delete(path: string, responseOptions: ResponseOptions = {}) {
-  return function(
+  return function (
     value: BaseController,
-    context: ClassMethodDecoratorContext
+    context: ClassMethodDecoratorContext,
   ) {
     if (!value["routes"]) {
       value["routes"] = [];

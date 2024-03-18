@@ -5,5 +5,8 @@ import { Pagination } from "../schema/pagination.schema";
 
 export default interface AuthorRepository {
   list: (pagination: Pagination) => Promise<QueryResult<Author[]>>;
-  getById: (id: number, pagination: Pagination) => Promise<QueryResult<AuthorEntity>>;
+  getById: (
+    id: number,
+    pagination: Pagination,
+  ) => Promise<QueryResult<AuthorEntity>>;
 }

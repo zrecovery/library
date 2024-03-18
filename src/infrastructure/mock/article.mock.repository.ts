@@ -1,5 +1,8 @@
 import type { Article } from "@/core/article/article.model";
-import type { ArticleRepository, Query } from "@/core/article/article.repository";
+import type {
+  ArticleRepository,
+  Query,
+} from "@/core/article/article.repository";
 import { Pagination } from "@/core/schema/pagination.schema";
 import { QueryResult } from "@/core/schema/query-result.schema";
 
@@ -13,7 +16,7 @@ export const articlesMock: Article[] = [
     body: "测试内容",
     love: false,
     author_id: 1,
-    book_id: 1
+    book_id: 1,
   },
   {
     id: 2,
@@ -24,14 +27,19 @@ export const articlesMock: Article[] = [
     body: "测试内容",
     love: false,
     author_id: 1,
-    book_id: 2
+    book_id: 2,
   },
 ];
 
+export const articlePageMock = {
+  page: 1,
+  size: 10,
+  total: 1,
+};
 
 export class ArticleMockRepository implements ArticleRepository {
   async getById(id: number): Promise<QueryResult<Article>> {
-    const article = articlesMock.find(item => item.id === id);
+    const article = articlesMock.find((item) => item.id === id);
     return { detail: article };
   }
 
@@ -49,15 +57,15 @@ export class ArticleMockRepository implements ArticleRepository {
 
   async search(
     query: Query,
-    pagination: Pagination
+    pagination: Pagination,
   ): Promise<QueryResult<Article[]>> {
     return {
       paging: {
         total: 1,
         size: 10,
-        page: 1
+        page: 1,
       },
-      detail: articlesMock
-    }
+      detail: articlesMock,
+    };
   }
 }

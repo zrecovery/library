@@ -7,7 +7,6 @@ export const ArticleCreatedDto = t.Object({
   book: t.String(),
 });
 
-
 export const ArticleEditDto = t.Object({
   id: t.Number(),
   title: t.String(),
@@ -24,7 +23,7 @@ export const ArticleDto = t.Object({
   author_id: t.Number(),
   book: t.String(),
   book_id: t.Number(),
-  love: t.Boolean()
+  love: t.Boolean(),
 });
 
 export const BookDto = t.Object({
@@ -49,11 +48,13 @@ export const ResponseArrayResult = <M extends TSchema>(M: M) =>
     type: t.String(),
     title: t.String(),
     data: t.Object({
-      paging: t.Optional(t.Object({
-        total: t.Number(),
-        size: t.Number(),
-        page: t.Number(),
-      })),
-      detail: M
+      paging: t.Optional(
+        t.Object({
+          total: t.Number(),
+          size: t.Number(),
+          page: t.Number(),
+        }),
+      ),
+      detail: M,
     }),
   });

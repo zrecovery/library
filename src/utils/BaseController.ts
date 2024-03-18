@@ -1,4 +1,4 @@
-import { Elysia } from 'elysia';
+import { Elysia } from "elysia";
 
 export interface Route {
   method: string;
@@ -30,11 +30,11 @@ abstract class BaseController {
 
   convertEmptyPath(path: string): string {
     switch (true) {
-      case path.length === 1 && path === '/':
-        return '';
-      case path.startsWith(':'):
-        return '/' + path;
-      case path.startsWith('/') && path.length > 1:
+      case path.length === 1 && path === "/":
+        return "";
+      case path.startsWith(":"):
+        return "/" + path;
+      case path.startsWith("/") && path.length > 1:
         return path;
       default:
         return path;
@@ -51,10 +51,10 @@ abstract class BaseController {
           ...route.responseOptions,
           // ...this.middlewares,
           detail: {
-            tags: [this.basePath.replace('/', '')], // for swagger
+            tags: [this.basePath.replace("/", "")], // for swagger
           },
-        }
-      )
+        },
+      ),
     );
   }
 }

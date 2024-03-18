@@ -1,34 +1,50 @@
-import { describe, expect, it } from 'bun:test'
-import { ArticleController, articleModule } from './article.controller'
-import { ArticleMockRepository, articlesMock } from '../mock/article.mock.repository'
-import { ArticleService } from '@src/core/article/article.service'
-import { Elysia } from 'elysia'
+import { describe, expect, it } from "bun:test";
+import { articleModule } from "./article.controller";
+import {
+  ArticleMockRepository,
+  articlePageMock,
+  articlesMock,
+} from "../mock/article.mock.repository";
+import { Elysia } from "elysia";
 
-describe('Articles', () => {
-  it('返回单个', async () => {
+describe("Articles", () => {
+  const articleMockRepository = new ArticleMockRepository();
+  const articleM = articleModule(articleMockRepository);
 
-    const articleMockRepository = new ArticleMockRepository();
-    const articleM = articleModule(articleMockRepository)
+  const app = new Elysia();
+  app.use(articleM);
+  app.listen(3001);
 
-    const app = new Elysia();
-    app.use(articleM);
-
+  it("返回单个", async () => {
     const mockResponse = {
       type: "success",
       title: "Article Find By ID",
       data: {
-        detail: articlesMock[0]
-      }
-    }
-
-    app.listen(3001)
-
+        detail: articlesMock[0],
+      },
+    };
 
     const response = await app
-      .handle(new Request('http://localhost:3001/articles/1'))
+      .handle(new Request("http://localhost:3001/articles/1"))
       .then(async (res) => await res.json());
 
-    expect(response)
-      .toEqual(mockResponse);
-  })
-})
+    expect(response).toEqual(mockResponse);
+  });
+
+  it("返回列表", async () => {
+    const mockResponse = {
+      type: "success",
+      title: "Article List",
+      data: {
+        detail: articlesMock,
+        paging: articlePageMock,
+      },
+    };
+
+    const response = await app
+      .handle(new Request("http://localhost:3001/articles"))
+      .then(async (res) => await res.json());
+
+    expect(response).toEqual(mockResponse);
+  });
+});
