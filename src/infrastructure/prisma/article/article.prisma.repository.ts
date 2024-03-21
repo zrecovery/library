@@ -70,6 +70,14 @@ export class ArticlePrismaRepository implements ArticleRepository {
         order: article.order,
         book_id: book.id,
       });
+
+      await this.#client.search.create({
+        data: {
+          rowid: articleCreated.id,
+          title: articleCreated.title,
+          body: articleCreated.body
+        }
+      })
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         switch (e.code) {
