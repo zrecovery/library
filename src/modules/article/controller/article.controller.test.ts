@@ -1,11 +1,3 @@
-import { describe, expect, it } from "bun:test";
-import { articleModule } from "./article.controller";
-import {
-  ArticleMockRepository,
-  articlePageMock,
-  articlesMock,
-} from "../mock/article.mock.repository";
-import { Elysia } from "elysia";
 
 describe("Articles", () => {
   const articleMockRepository = new ArticleMockRepository();

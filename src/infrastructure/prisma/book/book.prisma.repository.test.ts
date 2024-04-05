@@ -7,7 +7,7 @@ import { Book } from "@src/core/book/book.model";
 import { BookPrismaRepository } from "./book.prisma.repository";
 import { BookEntity } from "@src/core/book/book.repository";
 
-const books: Book[] = [
+const books = [
   {
     author: "赵六",
     title: "晨光下的诺言",

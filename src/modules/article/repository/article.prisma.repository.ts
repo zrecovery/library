@@ -1,36 +1,33 @@
-import type {
-  ArticleRepository,
-  Query,
-} from "@src/core/article/article.repository";
-import { Pagination } from "@src/core/schema/pagination.schema";
-import { QueryResult } from "@src/core/schema/query-result.schema";
 import { paginationToOffsetLimit } from "@src/utils/pagination.util";
 import { Prisma, type PrismaClient } from "@prisma/client";
-import {
-  ArticleCreated,
-  ArticleEntity,
-  ArticleUpdated,
-} from "@src/core/article/article.schema";
-import { BasePrismaRepository } from "../prisma.repository";
-import { StoreError } from "../StoreError";
-import {
-  articleEntitySelect,
-  queryToArticleEntity,
-} from "../article.repository.util";
 import { totalPaginationToPaging } from "@src/utils/totalPaginationToPaging";
+import { ArticleRepository } from "./article.repository";
+import { articleEntitySelect, queryArticle, queryToArticleEntity } from "./article.query";
+import { StoreError } from "@src/infrastructure/prisma/StoreError";
+import { ResponseDto } from "@src/modules/schema/query.response.schema";
+
+export interface ChapterRepository {
+  create(chapter: { articleId: number, bookId: number, order: number }): Promise<void>
+}
 
 export class ArticlePrismaRepository implements ArticleRepository {
   readonly #client: PrismaClient;
-  readonly #basePrismaRepository: BasePrismaRepository;
 
   constructor(client: PrismaClient) {
     this.#client = client;
-    this.#basePrismaRepository = new BasePrismaRepository(client);
   }
 
-  public getById = async (id: number): Promise<QueryResult<ArticleEntity>> => {
+  #getArticleById = async (id: number): Promise<queryArticle | null> => {
+    return this.#client.article.findFirstOrThrow({
+      select: articleEntitySelect,
+      where: { id },
+    });
+  };
+
+
+  public getById = async (id: number): Promise<ResponseDto<ArticleEntity>> => {
     try {
-      const query = await this.#basePrismaRepository.getArticleById(id);
+      const query = await this.#getArticleById(id);
       const article = queryToArticleEntity(query!);
       return {
         detail: article,
@@ -38,8 +35,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === "P2001") {
-          console.warn("未找到文章");
-          throw new StoreError("未找到文章");
+          throw new StoreError(`未找到文章：article id: ${id}`);
         }
       }
       throw e;
@@ -75,9 +71,9 @@ export class ArticlePrismaRepository implements ArticleRepository {
         data: {
           rowid: articleCreated.id,
           title: articleCreated.title,
-          body: articleCreated.body
-        }
-      })
+          body: articleCreated.body,
+        },
+      });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         switch (e.code) {

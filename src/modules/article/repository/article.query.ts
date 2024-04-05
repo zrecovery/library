@@ -1,4 +1,3 @@
-
 export const articleEntitySelect = {
   id: true,
   title: true,

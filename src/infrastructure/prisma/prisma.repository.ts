@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { AuthorCreated, AuthorEntity } from "@src/core/author/author.schema";
 import { BookCreated, BookEntity } from "@src/core/book/book.schema";
-import { articleEntitySelect, queryArticle } from "./article.repository.util";
+import { articleEntitySelect, queryArticle } from "./article.repository.util;
 
 // BasePrismaRepository 提供基本的CRUD操作封装。
 export class BasePrismaRepository {

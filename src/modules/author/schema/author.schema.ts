@@ -1,4 +1,4 @@
-import { Author } from "./author.model";
+import { Author } from "../domain/author.model";
 
 export interface BookEntity {
   id: number;
@@ -6,7 +6,5 @@ export interface BookEntity {
 }
 
 export interface AuthorEntity extends Author {
-  id: number;
+  books: BookEntity[];
 }
-
-export interface AuthorCreated extends Author {}
