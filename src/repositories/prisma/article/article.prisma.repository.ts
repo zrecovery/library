@@ -33,7 +33,7 @@ export class ArticlePrismaRepository implements ArticleRepository {
     }
   };
 
-  public create = async (created: IArticleCreateInput): Promise<Article> => {
+  public create = async (created: IArticleCreateInput): Promise<Required<Article>> => {
     return this.#client.article.create({
       data: {
         ...created,
@@ -109,3 +109,5 @@ export class ArticlePrismaRepository implements ArticleRepository {
     return result;
   };
 }
+
+

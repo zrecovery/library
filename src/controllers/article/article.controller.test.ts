@@ -2,6 +2,13 @@ import { describe, expect, it } from "bun:test";
 import Elysia from "elysia";
 import { articlesMock } from "./article.test.data";
 
+const articlePageMock = {
+  items: 10,
+  pages: 1,
+  current: 1,
+  size: 10
+};
+
 describe("Articles", () => {
   const app = new Elysia();
   app.listen(3001);

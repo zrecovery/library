@@ -3,6 +3,8 @@ import { AuthorRepository } from "@src/repositories/author.repository.port";
 import { Author } from "@src/model";
 import { Creatable, Updatable } from "@src/interfaces/common.interface";
 import { PaginatedResponse } from "@src/interfaces/response.interface";
+import { Query } from "@src/interfaces/query";
+import { paginationToOffsetLimit } from "@src/utils/pagination.util";
 
 export class AuthorPrismaRepository implements AuthorRepository {
   readonly #client: PrismaClient;
@@ -16,7 +18,7 @@ export class AuthorPrismaRepository implements AuthorRepository {
     });
   }
 
-  async create(created: Creatable<Author>): Promise<Author> {
+  async create(created: Creatable<Author>): Promise<Required<Author>> {
     return this.#client.author.create({
       data: { ...created },
     });
@@ -36,25 +38,33 @@ export class AuthorPrismaRepository implements AuthorRepository {
   }
 
   async list(
-    query?: Record<string, any>,
+    query: Query,
   ): Promise<PaginatedResponse<Required<Author>[]>> {
-    const [items, total] = await this.#client.author.findMany({
-      select: { ...query?.select },
-      skip: query?.pagination?.page * query?.pagination?.limit,
-      take: query?.pagination?.limit,
-      orderBy: { created_at: "desc" },
-    });
+    const { page, size } = query;
+    const { limit, offset } = paginationToOffsetLimit({ page, size });
+    const canQueryKey = ["name"];
+    const where = canQueryKey.reduce((prev, key) => query[key] ? { ...prev, [key]: query[key] } : prev, {});
 
-    const result:PaginatedResponse<Required<Author>[]> = {
-    
-      detail: items,
+    const [authors, total] = await this.#client.$transaction([
+      this.#client.author.findMany({
+        where,
+        take: limit,
+        skip: offset,
+        orderBy: {
+          id: "asc",
+        },
+      }),
+      this.#client.author.count(),
+    ]);
+    return {
+      detail: authors,
       pagination: {
-        page: query?.pagination?.page,
-        limit: query?.pagination?.limit,
-        total: total.length,
+        pages: Math.ceil(total / (size ?? 10)),
+        items: total,
+        current: page ?? 1,
+        size: size ?? 10,
       },
     };
-
-    
   }
+
 }

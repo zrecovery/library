@@ -1,4 +1,7 @@
+
+
 export interface PageQuery {
+  [property: string]: string| string[] | number | undefined;
   // page: current page.
   page?: number;
   size?: number;
