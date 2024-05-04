@@ -8,51 +8,61 @@ datasource db {
 }
 
 model article {
-  id        Int      @id @default(autoincrement())
-  title     String
-  body      String
-  author    author   @relation(fields: [author_id], references: [id])
-  author_id Int
-  love      Boolean  @default(false)
-  chapter   chapter?
+  id               Int                @id @default(autoincrement())
+  title            String
+  body             String
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @default(now())
+  articles_authors articles_authors[]
+  articles_series  articles_series[]
 
   @@map("articles")
 }
 
 model author {
-  id       Int       @id @default(autoincrement())
-  name     String    @unique
-  articles article[]
-  books    book[]
+  id               Int                @id @default(autoincrement())
+  name             String
+  created_at       DateTime           @default(now())
+  updated_at       DateTime           @default(now())
+  articles_authors articles_authors[]
 
   @@map("authors")
 }
 
-model book {
-  id        Int       @id @default(autoincrement())
-  title     String
-  author_id Int
-  author    author    @relation(fields: [author_id], references: [id])
-  chapters  chapter[]
-
-  @@map("books")
+model articles_authors {
+  id         Int      @id @default(autoincrement())
+  article_id Int?
+  author_id  Int?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  authors    author?  @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  articles   article? @relation(fields: [article_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model chapter {
-  id            Int     @id @default(autoincrement())
-  book_id       Int
-  book          book    @relation(fields: [book_id], references: [id])
-  article_id    Int     @unique
-  article       article @relation(fields: [article_id], references: [id])
-  chapter_order Float
+model articles_series {
+  id         Int      @id @default(autoincrement())
+  article_id Int?
+  series_id  Int?
+  order      Float?
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  series     series?  @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  articles   article? @relation(fields: [article_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
 
-  @@map("chapters")
+model series {
+  id              Int               @id @default(autoincrement())
+  title           String
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @default(now())
+  articles_series articles_series[]
 }
 
 model search {
-  rowid Int    @id
+  id    Int    @id @default(autoincrement())
   title String
   body  String
+  rowid Int
 
-  @@map("articles_fts")
+  @@map("search")
 }

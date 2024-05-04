@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
-import { articleModule } from "./modules/article/article.module";
+import { articleModule } from "./controllers/article/article.module";
 
 const app = new Elysia();
 

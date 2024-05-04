@@ -4,7 +4,7 @@ import { Pagination } from "@src/core/schema/pagination.schema";
 
 describe("pagination", () => {
   it("应该能正常分页", () => {
-    const input: Pagination = {
+    const input: { size: number; page: number } = {
       page: 1,
       size: 10,
     };

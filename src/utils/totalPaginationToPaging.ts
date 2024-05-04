@@ -1,11 +1,14 @@
-import { Pagination } from "@src/core/schema/pagination.schema";
+import { PageQuery } from "@src/interfaces/query";
 
 export const totalPaginationToPaging = (
-  total: number,
-  pagination: Pagination,
+  items: number,
+  pagination: PageQuery,
 ) => {
+  const { page, size } = pagination;
   return {
-    ...pagination,
-    total: Math.ceil(total / pagination.size),
+    current: page ?? 1,
+    size: size ?? 10,
+    items,
+    pages: Math.ceil(items / (pagination.size ?? 10)),
   };
 };
