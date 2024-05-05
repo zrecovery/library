@@ -8,7 +8,7 @@ export class ArticleAuthorRelationshipMockRepository implements ArticleAuthorRel
     getById(id: number, query?: Record<string, string | number | string[] | undefined> | undefined): Promise<Required<ArticleAuthorRelationship>> {
         throw new Error("Method not implemented.");
     }
-    create(created: Creatable<ArticleAuthorRelationship>): Promise<ArticleAuthorRelationship> {
+    create(created: Creatable<ArticleAuthorRelationship>): Promise<Required<ArticleAuthorRelationship>> {
         throw new Error("Method not implemented.");
     }
     update(id: number, updated: Partial<ArticleAuthorRelationship>): Promise<Required<ArticleAuthorRelationship>> {

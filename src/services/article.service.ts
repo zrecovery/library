@@ -102,7 +102,7 @@ export class ArticleService {
 
       // 3、创建并关联章节
       if (chapter) {
-        let series = await this.#seriesRepository.getByTitle(chapter.series);
+        let series = (await this.#seriesRepository.list({title:chapter.series.title})).detail[0];
         if (!series) {
           series = await this.#seriesRepository.create(chapter.series);
         }
@@ -137,9 +137,9 @@ export class ArticleService {
 
       // 更新系列
       if (changes.chapter?.series.title) {
-        const series = await this.#seriesRepository.getByTitle({
+        const series = (await this.#seriesRepository.list({
           title: changes.chapter?.series.title,
-        });
+        })).detail[0];
         if (!series) {
           // 如果系列不存在，则创建新系列
           const newSeries = await this.#seriesRepository.create({

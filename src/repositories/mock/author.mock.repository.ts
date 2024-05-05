@@ -11,7 +11,7 @@ export class AuthorMockRepository implements AuthorRepository {
     getById(id: number, query?: Record<string, string | number | string[] | undefined> | undefined): Promise<Required<Author>> {
         throw new Error("Method not implemented.");
     }
-    create(created: Creatable<Author>): Promise<Author> {
+    create(created: Creatable<Author>): Promise<Required<Author>> {
         throw new Error("Method not implemented.");
     }
     update(id: number, updated: Partial<Author>): Promise<Required<Author>> {

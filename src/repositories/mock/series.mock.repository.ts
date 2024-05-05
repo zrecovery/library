@@ -11,7 +11,7 @@ export class SeriesMockRepository implements SeriesRepository {
     getById(id: number, query?: Record<string, string | number | string[] | undefined> | undefined): Promise<Required<Series>> {
         throw new Error("Method not implemented.");
     }
-    create(created: Creatable<Series>): Promise<Series> {
+    create(created: Creatable<Series>): Promise<Required<Series>> {
         throw new Error("Method not implemented.");
     }
     update(id: number, updated: Partial<Series>): Promise<Required<Series>> {

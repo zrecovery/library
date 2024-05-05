@@ -9,6 +9,8 @@ import { ArticlePrismaRepository } from "@src/repositories/prisma/article/articl
 import { AuthorPrismaRepository } from "@src/repositories/prisma/author/author.repository";
 import { ChapterRepository } from "@src/repositories/series.repository.port";
 import { ArticleService } from "@src/services/article.service";
+import { SeriesService } from "@src/services/series.service";
+
 const client = new PrismaClient();
 const createRepository = <T>(prodRepository: new (client: PrismaClient) => BaseRepository<T>, mockRepository: new () => BaseRepository<T>): BaseRepository<T> => {
     if (process.env.NODE_ENV === "production") {
@@ -31,6 +33,15 @@ export const articleService = new ArticleService(
     seriesRepository,
     chapterRepository
 );
+
+export const seriesService = new SeriesService(
+    articleRepository,
+    authorRepository,
+    authorArticleRelationshipRepository,
+    seriesRepository,
+    chapterRepository
+);
+
 
 export const iocService = () => {
     articleService

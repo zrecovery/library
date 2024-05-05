@@ -8,7 +8,7 @@ export class ArticleMockRepository implements ArticleRepository {
   getById(id: number, query?: Record<string, string | number | string[] | undefined> | undefined): Promise<Required<Article>> {
     throw new Error("Method not implemented.");
   }
-  create(created: Creatable<Article>): Promise<Article> {
+  create(created: Creatable<Article>): Promise<Required<Article>> {
     throw new Error("Method not implemented.");
   }
   update(id: number, updated: Partial<Article>): Promise<Required<Article>> {

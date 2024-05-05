@@ -1,4 +1,4 @@
-import { Article, Author, Series } from "@src/model";
+import { Article, Author, Chapter, Series } from "@src/model";
 
 export interface IPagination {
   pages: number;
@@ -47,8 +47,8 @@ export interface ISeriesDetail {
   title: string;
   created_at: Date;
   updated_at: Date;
-  articles?: IArticleResponse[];
-  authors?: IAuthorResponse[];
+  articles: IArticleDetail[];
+  authors: Required<Author>[];
 }
 
 export interface ISeriesResponse {
@@ -56,10 +56,19 @@ export interface ISeriesResponse {
   title: string;
   created_at: Date;
   updated_at: Date;
-  articles?: IArticleResponse[];
+  chapters?: IArticleResponse[];
 }
 
 export interface ISeriesResponse {
   series: ISeriesResponse[];
+  pagination: IPagination;
+}
+
+export interface IChapterDetail extends Required<Chapter> {
+  series: Required<Series>;
+}
+
+export interface IChaptersResponse{
+  detail: IChapterDetail[];
   pagination: IPagination;
 }

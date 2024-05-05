@@ -8,7 +8,7 @@ export class ChapterMockRepository implements ChapterRepository {
     getById(id: number, query?: Record<string, string | number | string[] | undefined> | undefined): Promise<Required<Chapter>> {
         throw new Error("Method not implemented.");
     }
-    create(created: Creatable<Chapter>): Promise<Chapter> {
+    create(created: Creatable<Chapter>): Promise<Required<Chapter>> {
         throw new Error("Method not implemented.");
     }
     update(id: number, updated: Partial<Chapter>): Promise<Required<Chapter>> {
