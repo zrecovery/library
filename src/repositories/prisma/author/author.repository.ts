@@ -48,13 +48,13 @@ export class AuthorPrismaRepository implements AuthorRepository {
     const [authors, total] = await this.#client.$transaction([
       this.#client.author.findMany({
         where,
-        take: limit,
         skip: offset,
+        take: limit,
         orderBy: {
           id: "asc",
         },
       }),
-      this.#client.author.count(),
+      this.#client.author.count({where}),
     ]);
     return {
       detail: authors,

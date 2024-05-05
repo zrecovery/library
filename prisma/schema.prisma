@@ -14,7 +14,7 @@ model article {
   created_at       DateTime           @default(now())
   updated_at       DateTime           @default(now())
   articles_authors articles_authors[]
-  articles_series  articles_series[]
+  chapters  chapter[]
 
   @@map("articles")
 }
@@ -31,23 +31,25 @@ model author {
 
 model articles_authors {
   id         Int      @id @default(autoincrement())
-  article_id Int?
-  author_id  Int?
+  article_id Int
+  author_id  Int
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
   authors    author?  @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   articles   article? @relation(fields: [article_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model articles_series {
+model chapter {
   id         Int      @id @default(autoincrement())
-  article_id Int?
-  series_id  Int?
-  order      Float?
+  article_id Int
+  series_id  Int
+  order      Float
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
   series     series?  @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   articles   article? @relation(fields: [article_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("chapters")
 }
 
 model series {
@@ -55,7 +57,7 @@ model series {
   title           String
   created_at      DateTime          @default(now())
   updated_at      DateTime          @default(now())
-  articles_series articles_series[]
+  chapters chapter[]
 }
 
 model search {

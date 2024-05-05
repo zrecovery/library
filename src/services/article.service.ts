@@ -36,7 +36,7 @@ export class ArticleService {
     authorRepository: AuthorRepository,
     authorArticleRepository: ArticleAuthorRelationshipRepository,
     seriesRepository: SeriesRepository,
-    chapterRepository: ChapterRepository 
+    chapterRepository: ChapterRepository
   ) {
     this.#articleRepository = articleRepository;
     this.#authorRepository = authorRepository;
@@ -81,7 +81,7 @@ export class ArticleService {
         // 批量创建作者
         const createdAuthors = await Promise.all(
           authors.map(async (authorInput) => {
-            const authors = (await this.#authorRepository.list({name:authorInput.name})).detail;
+            const authors = (await this.#authorRepository.list({ name: authorInput.name })).detail;
             if (authors.length === 0) {
               authors.push(await this.#authorRepository.create(authorInput));
             }
@@ -174,10 +174,13 @@ export class ArticleService {
             }));
           }
           // 创建关系表记录
-          await this.#authorArticleRepository.create({
-            author_id: author.id!,
-            article_id: id,
-          });
+          await Promise.all(authors.map(async (author) => {
+            await this.#authorArticleRepository.create({
+              author_id: author.id!,
+              article_id: id,
+            });
+          }))
+
         }
       }
 
