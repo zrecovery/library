@@ -28,13 +28,14 @@ export const ArticleDetailSchema = t.Object({
   order: t.Optional(t.Number()),
 });
 
-
 export const ArticlePaginatedHttpDto = PaginatedResponseSchema(
-  t.Array(t.Object({
-    id: t.Number(),
-    title: t.String(),
-    body: t.String()
-  })),
+  t.Array(
+    t.Object({
+      id: t.Number(),
+      title: t.String(),
+      body: t.String(),
+    }),
+  ),
 );
 
 export const ArticleHttpDto = ResponseSchema(ArticleDetailSchema);

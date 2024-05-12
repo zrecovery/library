@@ -30,5 +30,3 @@ export interface ArticleAuthorRelationship extends Timestamp {
   author_id: number;
   article_id: number;
 }
-
-

@@ -39,7 +39,7 @@ export interface IAuthorDetail {
   series?: PaginatedResponse<Series[]>;
 }
 
-export type IAuthorResponse = Response<IAuthorDetail> ;
+export type IAuthorResponse = Response<IAuthorDetail>;
 export type IAuthorsResponse = PaginatedResponse<Required<Author>[]>;
 
 export interface ISeriesDetail {
@@ -68,7 +68,7 @@ export interface IChapterDetail extends Required<Chapter> {
   series: Required<Series>;
 }
 
-export interface IChaptersResponse{
+export interface IChaptersResponse {
   detail: IChapterDetail[];
   pagination: IPagination;
 }

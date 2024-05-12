@@ -24,7 +24,10 @@ export class AuthorPrismaRepository implements AuthorRepository {
     });
   }
 
-  async update(id: number, updated: Updatable<Author>): Promise<Required<Author>> {
+  async update(
+    id: number,
+    updated: Updatable<Author>,
+  ): Promise<Required<Author>> {
     return this.#client.author.update({
       where: { id },
       data: { ...updated },
@@ -37,13 +40,14 @@ export class AuthorPrismaRepository implements AuthorRepository {
     });
   }
 
-  async list(
-    query: Query,
-  ): Promise<PaginatedResponse<Required<Author>[]>> {
+  async list(query: Query): Promise<PaginatedResponse<Required<Author>[]>> {
     const { page, size } = query;
     const { limit, offset } = paginationToOffsetLimit({ page, size });
     const canQueryKey = ["name"];
-    const where = canQueryKey.reduce((prev, key) => query[key] ? { ...prev, [key]: query[key] } : prev, {});
+    const where = canQueryKey.reduce(
+      (prev, key) => (query[key] ? { ...prev, [key]: query[key] } : prev),
+      {},
+    );
 
     const [authors, total] = await this.#client.$transaction([
       this.#client.author.findMany({
@@ -54,7 +58,7 @@ export class AuthorPrismaRepository implements AuthorRepository {
           id: "asc",
         },
       }),
-      this.#client.author.count({where}),
+      this.#client.author.count({ where }),
     ]);
     return {
       detail: authors,
@@ -66,5 +70,4 @@ export class AuthorPrismaRepository implements AuthorRepository {
       },
     };
   }
-
 }

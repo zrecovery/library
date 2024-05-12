@@ -33,7 +33,9 @@ export class ArticlePrismaRepository implements ArticleRepository {
     }
   };
 
-  public create = async (created: IArticleCreateInput): Promise<Required<Article>> => {
+  public create = async (
+    created: IArticleCreateInput,
+  ): Promise<Required<Article>> => {
     return this.#client.article.create({
       data: {
         ...created,
@@ -56,11 +58,30 @@ export class ArticlePrismaRepository implements ArticleRepository {
   };
 
   public delete = async (id: number): Promise<void> => {
-    await this.#client.article.delete({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      await this.#client.chapter.deleteMany({
+        where: {
+          article_id: id,
+        },
+      });
+      await this.#client.articles_authors.deleteMany({
+        where: {
+          article_id: id,
+        },
+      });
+
+      await this.#client.article.delete({
+        where: {
+          id: id,
+        },
+      });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        throw e.stack;
+      } else {
+        throw e;
+      }
+    }
   };
 
   public list = async (
@@ -70,14 +91,23 @@ export class ArticlePrismaRepository implements ArticleRepository {
     const { keywords } = query;
     // Todo: 目前仅识别第一个关键词，应支持多关键词搜索。
     const queryKeywords = keywords ? keywords[0] : undefined;
+    const where = queryKeywords
+      ? {
+          body: {
+            contains: queryKeywords,
+          },
+        }
+      : undefined;
 
-    const count = await this.#client.search.count({
-      where: {
-        body: {
-          contains: queryKeywords,
-        },
-      },
-    });
+    const getArticleCount = (query?: string) => {
+      if (query) {
+        return this.#client.search.count({ where });
+      } else {
+        return this.#client.article.count();
+      }
+    };
+
+    const count = await getArticleCount(queryKeywords);
 
     const pagination = totalPaginationToPaging(count, query);
 
@@ -85,13 +115,9 @@ export class ArticlePrismaRepository implements ArticleRepository {
       select: {
         rowid: true,
       },
-      where: {
-        body: {
-          contains: queryKeywords,
-        },
-      },
-      take: limit,
+      where: where,
       skip: offset,
+      take: limit,
     });
 
     const articles = await this.#client.article.findMany({
@@ -109,5 +135,3 @@ export class ArticlePrismaRepository implements ArticleRepository {
     return result;
   };
 }
-
-

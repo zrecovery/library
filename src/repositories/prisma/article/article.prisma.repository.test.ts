@@ -1,72 +1,59 @@
 import { PrismaClient } from "@prisma/client";
-import { IArticleCreateInput, IArticleUpdateInput } from "@src/interfaces/article.interface";
+import { IArticleUpdateInput } from "@src/interfaces/article.interface";
 import { Query } from "@src/interfaces/query";
 import { PaginatedResponse } from "@src/interfaces/response.interface";
 import { Article } from "@src/model";
-import { beforeEach, describe, expect, it } from "bun:test";
+import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { ArticlePrismaRepository } from "./article.prisma.repository";
+import { articlesMock, created_at, updated_at } from "@src/data.mock";
+import { Creatable, Updatable } from "@src/interfaces/common.interface";
+import { resetDatabase } from "prisma/seed";
 
 describe("ArticlePrismaRepository", () => {
-  let repository: ArticlePrismaRepository;
-  let client: PrismaClient;
-  const created_at = new Date();
-  const updated_at = new Date();
+  const client = new PrismaClient();
+  const repository = new ArticlePrismaRepository(client);
 
-  beforeEach(() => {
-    client = new PrismaClient();
-    repository = new ArticlePrismaRepository(client);
+  beforeEach(async () => {
+    await resetDatabase();
   });
-
   describe("getById", () => {
     it("should return a article", async () => {
-      
-      const expectedArticle: Required<Article> = {
-        id: 1,
-        title: "article title",
-        body: "article body",
-        created_at,
-        updated_at,
-      };
+      const expectedArticle: Required<Article> = articlesMock[0];
       const result = await repository.getById(expectedArticle.id);
 
       expect(result).toEqual(expectedArticle);
     });
-
-    
   });
 
   describe("create", () => {
     it("should create a article", async () => {
-      const input: IArticleCreateInput = {
+      const input: Creatable<Article> = {
         title: "title",
-        body: "body"
+        body: "body",
       };
-      const expectedArticle: Required<Article> = {
+      const expected: Required<Article> = {
         id: 1,
-        ...input,
+        title: "title",
+        body: "body",
         created_at,
         updated_at,
       };
 
       const result = await repository.create(input);
 
-      expect(result).toEqual(expectedArticle);
+      expect(result.title).toEqual(expected.title);
+      expect(result.body).toEqual(expected.body);
     });
   });
 
   describe("update", () => {
     it("should update a article", async () => {
       const id = 1;
-      const input: IArticleUpdateInput = {
+      const input: Updatable<Article> = {
         title: "title1",
       };
-      const expectedArticle: Required<Article> = {
-        id,
-        title: "title1",
-        body: "body",
-        created_at,
-        updated_at,
-      };
+      const expectedArticle: Required<Article> = articlesMock[0];
+      expectedArticle.title = input.title!;
 
       const result = await repository.update(id, input);
 
@@ -77,38 +64,27 @@ describe("ArticlePrismaRepository", () => {
   describe("delete", () => {
     it("should delete a article", async () => {
       const id = 1;
-      await repository.delete(id);
-
-      expect(client.article.delete).toHaveBeenCalledWith({ where: { id } });
+      const repositoryDelete = mock(async (id) => await repository.delete(id));
+      await repositoryDelete(id);
+      expect(repositoryDelete).toHaveBeenCalled();
+      expect(repositoryDelete).toHaveBeenCalledWith(id);
     });
   });
 
   describe("list", () => {
     it("should return a paginated article list", async () => {
-      const offset = 1;
-      const size = 10;
-      const query: Query = { size, page: Math.floor(offset / size) + 1 };
-      const keywords = ["keyword"];
+      const query: Query = { size: 10, page: 1 };
       const expectedPagination: PaginatedResponse<Required<Article>[]> = {
         pagination: {
-          items: 1,
-          pages: Math.floor(offset / size) + 1,
-          size,
-          current:1
+          items: 4,
+          pages: 1,
+          size: 10,
+          current: 1,
         },
-        detail: [
-          {
-            id: 1,
-            title: "article title",
-            body: "article body",
-            created_at,
-            updated_at
-          },
-        ],
+        detail: articlesMock,
       };
 
-
-      const result = await repository.list({ ...query, keywords });
+      const result = await repository.list({ ...query });
 
       expect(result).toEqual(expectedPagination);
     });

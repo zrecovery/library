@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { paginationToOffsetLimit } from "./pagination.util";
-import { Pagination } from "@src/core/schema/pagination.schema";
+
 
 describe("pagination", () => {
   it("应该能正常分页", () => {

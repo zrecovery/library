@@ -5,22 +5,36 @@ import { Author } from "@src/model";
 import { AuthorRepository } from "../author.repository.port";
 
 export class AuthorMockRepository implements AuthorRepository {
-    getByName(author: Creatable<Author>): Promise<Author> {
-        throw new Error("Method not implemented.");
-    }
-    getById(id: number, query?: Record<string, string | number | string[] | undefined> | undefined): Promise<Required<Author>> {
-        throw new Error("Method not implemented.");
-    }
-    create(created: Creatable<Author>): Promise<Required<Author>> {
-        throw new Error("Method not implemented.");
-    }
-    update(id: number, updated: Partial<Author>): Promise<Required<Author>> {
-        throw new Error("Method not implemented.");
-    }
-    delete(id: number): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
-    list(query?: Query | undefined): Promise<PaginatedResponse<Required<Author>[]>> {
-        throw new Error("Method not implemented.");
-    }
+  getByName(author: Creatable<Author>): Promise<Author> {
+    throw new Error("Method not implemented.");
+  }
+  getById(
+    id: number,
+    query?: Record<string, string | number | string[] | undefined> | undefined,
+  ): Promise<Required<Author>> {
+    return Promise.resolve(authorsMock[0]);
+  }
+  create(created: Creatable<Author>): Promise<Required<Author>> {
+    return Promise.resolve(authorsMock[0]);
+  }
+  update(id: number, updated: Partial<Author>): Promise<Required<Author>> {
+    return Promise.resolve(authorsMock[0]);
+  }
+  delete(id: number): Promise<void> {
+    return Promise.resolve();
+  }
+  list(
+    query?: Query | undefined,
+  ): Promise<PaginatedResponse<Required<Author>[]>> {
+    const result: PaginatedResponse<Required<Author>[]> = {
+      detail: authorsMock,
+      pagination: {
+        items: 4,
+        pages: 1,
+        size: 10,
+        current: 1,
+      },
+    };
+    return Promise.resolve(result);
+  }
 }
