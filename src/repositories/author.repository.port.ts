@@ -1,4 +1,4 @@
-import { Author, ArticleAuthorRelationship } from "@src/model";
+import type { ArticleAuthorRelationship, Author } from "@src/model";
 import { BaseRepository } from "./base.repository.port";
 
 export abstract class AuthorRepository extends BaseRepository<Author> {}

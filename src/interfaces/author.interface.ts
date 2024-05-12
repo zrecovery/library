@@ -1,5 +1,5 @@
-import { Author } from "@src/model";
-import { Creatable, Updatable } from "./common.interface";
+import type { Author } from "@src/model";
+import type { Creatable, Updatable } from "./common.interface";
 
 export interface IAuthorCreateInput extends Creatable<Author> {}
 

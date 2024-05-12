@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { BaseRepository } from "@src/repositories/base.repository.port";
+import type { BaseRepository } from "@src/repositories/base.repository.port";
 import { ArticleMockRepository } from "@src/repositories/mock/article.mock.repository";
 import { ArticleAuthorRelationshipMockRepository } from "@src/repositories/mock/article_author_relationship.mock.repository";
 import { AuthorMockRepository } from "@src/repositories/mock/author.mock.repository";
@@ -17,63 +17,63 @@ import { SeriesService } from "@src/services/series.service";
 
 const client = new PrismaClient();
 const createRepository = <T>(
-  prodRepository: new (client: PrismaClient) => BaseRepository<T>,
-  mockRepository: new () => BaseRepository<T>,
+	prodRepository: new (client: PrismaClient) => BaseRepository<T>,
+	mockRepository: new () => BaseRepository<T>,
 ): BaseRepository<T> => {
-  return process.env.NODE_ENV === "production" || process.env.DB_ENV === "prod"
-    ? new prodRepository(client)
-    : new mockRepository();
+	return process.env.NODE_ENV === "production" || process.env.DB_ENV === "prod"
+		? new prodRepository(client)
+		: new mockRepository();
 };
 
 const articleRepository = createRepository(
-  ArticlePrismaRepository,
-  ArticleMockRepository,
+	ArticlePrismaRepository,
+	ArticleMockRepository,
 );
 
 const authorRepository = createRepository(
-  AuthorPrismaRepository,
-  AuthorMockRepository,
+	AuthorPrismaRepository,
+	AuthorMockRepository,
 );
 
 const authorArticleRelationshipRepository = createRepository(
-  ArticleSAuthorsRelationPrismaRepository,
-  ArticleAuthorRelationshipMockRepository,
+	ArticleSAuthorsRelationPrismaRepository,
+	ArticleAuthorRelationshipMockRepository,
 );
 
 const seriesRepository = createRepository(
-  SeriesPrismaRepository,
-  SeriesMockRepository,
+	SeriesPrismaRepository,
+	SeriesMockRepository,
 );
 
 const chapterRepository = createRepository(
-  ChapterPrismaRepository,
-  ChapterMockRepository,
+	ChapterPrismaRepository,
+	ChapterMockRepository,
 );
 
 export const articleService = new ArticleService(
-  articleRepository,
-  authorRepository,
-  authorArticleRelationshipRepository,
-  seriesRepository,
-  chapterRepository,
+	articleRepository,
+	authorRepository,
+	authorArticleRelationshipRepository,
+	seriesRepository,
+	chapterRepository,
 );
 
 export const seriesService = new SeriesService(
-  articleRepository,
-  authorRepository,
-  authorArticleRelationshipRepository,
-  seriesRepository,
-  chapterRepository,
+	articleRepository,
+	authorRepository,
+	authorArticleRelationshipRepository,
+	seriesRepository,
+	chapterRepository,
 );
 
 export const authorService = new AuthorSerivce(
-  authorRepository,
-  articleRepository,
-  seriesRepository,
-  authorArticleRelationshipRepository,
-  chapterRepository,
+	authorRepository,
+	articleRepository,
+	seriesRepository,
+	authorArticleRelationshipRepository,
+	chapterRepository,
 );
 
 export const iocService = () => {
-  articleService;
+	articleService;
 };

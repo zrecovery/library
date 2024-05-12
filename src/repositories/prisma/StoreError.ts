@@ -1,5 +1,5 @@
 export class StoreError extends Error {
-  constructor(message: string) {
-    super(`StoreError: ${message}`);
-  }
+	constructor(message: string) {
+		super(`StoreError: ${message}`);
+	}
 }

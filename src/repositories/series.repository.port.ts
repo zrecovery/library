@@ -1,4 +1,4 @@
-import { Chapter, Series } from "@src/model";
+import type { Chapter, Series } from "@src/model";
 import { BaseRepository } from "./base.repository.port";
 
 export abstract class SeriesRepository extends BaseRepository<Series> {}

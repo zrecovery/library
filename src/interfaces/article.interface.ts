@@ -1,5 +1,5 @@
-import { Article } from "@src/model";
-import { Creatable, Updatable } from "./common.interface";
+import type { Article } from "@src/model";
+import type { Creatable, Updatable } from "./common.interface";
 
 export interface IArticleCreateInput extends Creatable<Article> {}
 
