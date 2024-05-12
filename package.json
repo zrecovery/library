@@ -6,7 +6,7 @@
   "scripts": {
     "build": "./scripts/build.sh",
     "dev": "bun run --watch src/app.ts",
-    "test": "bun test",
+    "test": "bun ./node_modules/.bin/prisma db push && bun test",
     "seed": "bun prisma/seed.ts",
     "lint": "bunx @biomejs/biome lint --apply ./src",
     "format": "bunx @biomejs/biome format --write ./src",
