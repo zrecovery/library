@@ -11,3 +11,5 @@ jobs:
       - run: bun run check
       - run: bunx prisma migrate deploy
       - run: bun run test
+    env:
+      DATABASE_URL: "file:./ci.db"
