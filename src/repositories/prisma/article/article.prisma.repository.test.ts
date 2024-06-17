@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, mock } from "bun:test";
 import { PrismaClient } from "@prisma/client";
 import { articlesMock, created_at, updated_at } from "@src/data.mock";
-import { IArticleUpdateInput } from "@src/interfaces/article.interface";
 import type { Creatable, Updatable } from "@src/interfaces/common.interface";
 import type { Query } from "@src/interfaces/query";
 import type { PaginatedResponse } from "@src/interfaces/response.interface";

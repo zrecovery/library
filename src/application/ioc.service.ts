@@ -21,13 +21,15 @@ const seriesRepository = new SeriesPrismaRepository(client);
 
 const chapterRepository = new ChapterPrismaRepository(client);
 
-export const articleService = new ArticleService(
-  articleRepository,
-  authorRepository,
-  authorArticleRelationshipRepository,
-  seriesRepository,
-  chapterRepository,
-);
+const repository = {
+  articleRepository: articleRepository,
+  authorRepository: authorRepository,
+  authorArticleRepository: authorArticleRelationshipRepository,
+  seriesRepository: seriesRepository,
+  chapterRepository: chapterRepository,
+};
+
+export const articleService = new ArticleService(repository);
 
 export const seriesService = new SeriesService(
   articleRepository,

@@ -6,218 +6,251 @@ import type {
 	IAuthorCreateInput,
 	IAuthorUpdateInput,
 } from "@src/interfaces/author.interface";
-import type { Creatable } from "@src/interfaces/common.interface";
+import { Creatable, Updatable } from "@src/interfaces/common.interface";
 import type { Query } from "@src/interfaces/query";
+import type { IArticleResponse } from "@src/interfaces/response.interface";
+import type { ISeriesCreateInput } from "@src/interfaces/series.interface";
 import type {
-	IArticleResponse,
-	IPagination,
-} from "@src/interfaces/response.interface";
-import type {
-	ISeriesCreateInput,
-	ISeriesUpdateInput,
-} from "@src/interfaces/series.interface";
-import type { Article, Author } from "@src/model";
-import type { ArticleRepository } from "@src/repositories/article.repository.port";
-
-import type {
-	ArticleAuthorRelationshipRepository,
+	Article,
+	ArticleAuthorRelationship,
+	Author,
+	Chapter,
+	Series,
+} from "@src/model";
+import { ArticleRepository } from "@src/repositories/article.repository.port";
+import {
 	AuthorRepository,
+	ArticleAuthorRelationshipRepository,
 } from "@src/repositories/author.repository.port";
-import type {
-	ChapterRepository,
+import { BaseRepository } from "@src/repositories/base.repository.port";
+import {
 	SeriesRepository,
+	ChapterRepository,
 } from "@src/repositories/series.repository.port";
 
-export class ArticleService {
-	#articleRepository: ArticleRepository;
-	#authorRepository: AuthorRepository;
-	#seriesRepository: SeriesRepository;
-	#chapterRepository: ChapterRepository;
-	#authorArticleRepository: ArticleAuthorRelationshipRepository;
+interface Repositories {
+	articleRepository: ArticleRepository;
+	authorRepository: AuthorRepository;
+	authorArticleRepository: ArticleAuthorRelationshipRepository;
+	seriesRepository: SeriesRepository;
+	chapterRepository: ChapterRepository;
+}
 
-	constructor(
-		articleRepository: ArticleRepository,
-		authorRepository: AuthorRepository,
-		authorArticleRepository: ArticleAuthorRelationshipRepository,
-		seriesRepository: SeriesRepository,
-		chapterRepository: ChapterRepository,
-	) {
-		this.#articleRepository = articleRepository;
-		this.#authorRepository = authorRepository;
-		this.#seriesRepository = seriesRepository;
-		this.#chapterRepository = chapterRepository;
-		this.#authorArticleRepository = authorArticleRepository;
+export class ArticleService {
+	#repositories: Repositories;
+
+	constructor(repositories: Repositories) {
+		this.#repositories = repositories;
 	}
 
+	getAuthorsByArticleId = (id: number) =>
+		this.#repositories.authorArticleRepository
+			.list({
+				article_id: id,
+				size: -1,
+			})
+			.then((ar) => ar.detail)
+			.then((authors) => authors.map((author) => author.id))
+			.then((author_ids) =>
+				Promise.all(
+					author_ids.map((id) =>
+						this.#repositories.authorRepository.getById(id),
+					),
+				),
+			);
+
+	getSeriesByArticleId = (id: number) =>
+		this.#repositories.chapterRepository
+			.list({
+				article_id: id,
+				size: 1,
+			})
+			.then((chapters) => chapters.detail)
+			.then((chapters) =>
+				Promise.all([
+					chapters[0],
+					this.#repositories.seriesRepository.getById(chapters[0].series_id),
+				]),
+			);
+
+	search = (query: Query) => this.#repositories.articleRepository.list(query);
+
+	delete = (id: number) => this.#repositories.articleRepository.delete(id);
+
 	findById = async (id: number): Promise<IArticleResponse> => {
-		const article = await this.#articleRepository.getById(id);
-		const authorRelateds = await this.#authorArticleRepository.list({
-			article_id: id,
-		});
-		const authors = await Promise.all(
-			authorRelateds.detail.map(async (authorRelated) => {
-				const author = await this.#authorRepository.getById(
-					authorRelated.author_id,
-				);
-				return author;
-			}),
-		);
-		const chapters = await this.#chapterRepository.list({ article_id: id });
-		const chapter = chapters.detail[0];
-		const series = await this.#seriesRepository.getById(
-			chapters.detail[0].series_id,
-		);
+		const article = await this.#repositories.articleRepository.getById(id);
+		const authors = await this.getAuthorsByArticleId(article.id);
+
+		const [chapter, series] = await this.getSeriesByArticleId(article.id);
+
 		const result = {
-			detail: { ...article, authors, series, order: chapter?.order },
+			detail: { ...article, authors, series, order: chapter.order },
 		};
 		return result;
 	};
 
-	search = async (
-		query: Query,
-	): Promise<{ detail: Required<Article>[]; pagination: IPagination }> => {
-		return this.#articleRepository.list(query);
-	};
+	getAuthorOrCreate = (author: IAuthorCreateInput) =>
+		this.#repositories.authorRepository
+			.list({
+				name: author.name,
+				size: 1,
+			})
+			.then((list) => {
+				if (list.pagination.items === 1) {
+					return list.detail[0];
+				} else {
+					return this.#repositories.authorRepository.create(author);
+				}
+			});
 
 	createArticle = async (
 		article: IArticleCreateInput,
 		authors?: IAuthorCreateInput[],
 		chapter?: { series: ISeriesCreateInput; order: number },
 	): Promise<Article> => {
-		try {
-			// 1、创建文章
-			const articleCreated = await this.#articleRepository.create(article);
+		// 1、创建文章
+		const articleCreated =
+			await this.#repositories.articleRepository.create(article);
+		// 2、创建并关联作者
+		const authorsCreated = authors
+			? await Promise.all(authors.map(this.getAuthorOrCreate))
+			: undefined;
 
-			// 2、创建并关联作者
-			if (authors && authors.length > 0) {
-				// 批量创建作者
-				const createdAuthors = await Promise.all(
-					authors.map(async (authorInput) => {
-						const authors = (
-							await this.#authorRepository.list({ name: authorInput.name })
-						).detail;
-						if (authors.length === 0) {
-							authors.push(await this.#authorRepository.create(authorInput));
-						}
-						return authors[0];
-					}),
-				);
-
-				// 批量创建关系记录
-				await Promise.all(
-					createdAuthors.map(async (author) => {
-						await this.#authorArticleRepository.create({
+		// 批量创建关系记录
+		const articleRelation = authorsCreated
+			? await Promise.all(
+					authorsCreated.map((a) =>
+						this.#repositories.authorArticleRepository.create({
+							author_id: a.id,
 							article_id: articleCreated.id,
-							author_id: author.id,
-						});
-					}),
-				);
-			}
+						}),
+					),
+				)
+			: undefined;
 
-			// 3、创建并关联章节
-			if (chapter) {
-				let series = (
-					await this.#seriesRepository.list({ title: chapter.series.title })
-				).detail[0];
-				if (!series) {
-					series = await this.#seriesRepository.create(chapter.series);
-				}
-
-				// 创建章节
-				await this.#chapterRepository.create({
-					article_id: articleCreated.id,
-					series_id: series.id,
-					order: chapter.order,
+		// 3、创建并关联章节
+		const findSeries = (chapter: {
+			series: ISeriesCreateInput;
+			order: number;
+		}) =>
+			this.#repositories.seriesRepository.list({
+				title: chapter.series.title,
+			});
+		const findSeriesOrCreate = (series: ISeriesCreateInput) =>
+			this.#repositories.seriesRepository
+				.list({ title: series.title, size: 1 })
+				.then((s) => {
+					if (s.pagination.items === 1) {
+						return s.detail[0];
+					} else {
+						return this.#repositories.seriesRepository.create(series);
+					}
 				});
-			}
+		if (chapter) {
+			const series = await findSeriesOrCreate(chapter.series);
 
-			return articleCreated;
-		} catch (error) {
-			console.error("创建文章失败：", error);
-			throw error;
+			// 创建章节
+			const chapterCreated = await this.#repositories.chapterRepository.create({
+				article_id: articleCreated.id,
+				series_id: series.id,
+				order: chapter.order,
+			});
 		}
-	};
 
+		return articleCreated;
+	};
+	/*
+  //m: main, e: extract, r: relation
+  (id,data:{m,e,r})=> pipe(
+  (find(E,e.id)!==null?result=>E.entity:create),
+  (find(R.id))!==null?update:create)
+  )
+  */
 	updateArticle = async (
 		id: number,
 		changes: {
 			article?: IArticleUpdateInput;
-			authors?: IAuthorUpdateInput[];
-			chapter?: { series: ISeriesUpdateInput; order?: number };
+			author?: IAuthorUpdateInput;
+			chapter?: { series?: ISeriesCreateInput; order?: number };
 		},
-	): Promise<void> => {
-		try {
-			// 检索文章
-			const existingArticle = await this.#articleRepository.getById(id);
-			const updatedArticle = { ...existingArticle };
+	) => {
+		if (changes.article) {
+			await this.#repositories.articleRepository.update(id, changes.article);
+		}
 
-			// 更新系列
-			if (changes.chapter?.series.title) {
-				const series = (
-					await this.#seriesRepository.list({
-						title: changes.chapter?.series.title,
-					})
-				).detail[0];
-				if (!series) {
-					// 如果系列不存在，则创建新系列
-					const newSeries = await this.#seriesRepository.create({
-						title: changes.chapter?.series.title,
-					});
-					// 创建关系表记录
-					await this.#chapterRepository.create({
-						article_id: id,
-						series_id: newSeries.id,
-						order: changes.chapter.order ?? 1,
-					});
-				} else {
-					// 更新关系表记录
-					await this.#chapterRepository.update(id, { series_id: series.id });
-				}
+		if (changes.chapter) {
+			if (changes.chapter.series) {
+				const result = await this.#repositories.seriesRepository.list({
+					size: 1,
+					title: changes.chapter.series.title,
+				});
+
+				const series =
+					result.pagination.items === 1
+						? result.detail[0]
+						: await this.#repositories.seriesRepository.create(
+								changes.chapter.series,
+							);
+
+				const chapterQueried = await this.#repositories.chapterRepository.list({
+					size: 1,
+					article_id: id,
+				});
+
+				chapterQueried.pagination.items >= 1
+					? chapterQueried.detail[1]
+					: await this.#repositories.chapterRepository.create({
+							article_id: id,
+							series_id: series.id,
+							order: changes.chapter.order ?? 1,
+						});
+			} else if (changes.chapter.order) {
+				const chapterQueried = await this.#repositories.chapterRepository.list({
+					size: 1,
+					article_id: id,
+				});
+				const chapter = chapterQueried.detail[1];
+				await this.#repositories.chapterRepository.update(chapter.id, {
+					order: chapter.order,
+				});
 			}
-
-			// 更新作者
-			if (changes.authors) {
-				// 清空现有作者
-				await this.#authorArticleRepository.delete(id);
-				// 根据作者名称列表更新作者
-				for (const authorName of changes.authors) {
-					const authors = (
-						await this.#authorRepository.list({
-							name: authorName.name,
-						})
-					).detail;
-
-					if (authors.length === 0) {
-						// 如果作者不存在，则创建新作者
-						if (authorName.name) {
-							const createAuthor: Creatable<Author> = {
-								name: authorName.name,
-							};
-							authors.push(await this.#authorRepository.create(createAuthor));
-						}
-					}
-					// 创建关系表记录
-					await Promise.all(
-						authors.map(async (author) => {
-							await this.#authorArticleRepository.create({
-								author_id: author.id,
-								article_id: id,
-							});
-						}),
-					);
-				}
-			}
-
-			// 保存修改到数据库
-			await this.#articleRepository.update(id, updatedArticle);
-		} catch (error) {
-			// 处理错误
-			console.error("修改文章失败：", error);
-			throw error;
 		}
 	};
-
-	delete = async (id: number): Promise<void> => {
-		await this.#articleRepository.delete(id);
-	};
 }
+
+const tmp = async <
+	T extends Author | Series,
+	M extends ArticleAuthorRelationship | Chapter,
+>(
+	mainMode: { article_id: number },
+	mainRepos: BaseRepository<T>,
+	relationRepos: BaseRepository<M>,
+	main?: Creatable<T>,
+	relation?: Updatable<M>,
+	m_id_key?: (i: T) => object,
+) => {
+	const result = await mainRepos.list({
+		size: 1,
+		...main,
+	});
+
+	const mainQuried =
+		result.pagination.items >= 1
+			? result.detail[0]
+			: await mainRepos.create(main!);
+
+	const relationQueried = await relationRepos.list({
+		size: 1,
+		...mainMode,
+	});
+
+	const creatableEntity: Creatable<M> = {
+		...mainMode,
+		...m_id_key!(mainQuried),
+		...relation,
+	};
+
+	relationQueried.pagination.items >= 1
+		? relationQueried.detail[1]
+		: await relationRepos.create(creatableEntity);
+};
