@@ -1,4 +1,4 @@
-import { Query } from "@src/interfaces/query";
+import type { Query } from "@src/interfaces/query";
 
 export const filterQuery = (canQueryKey: string[], query?: Query) =>
 	canQueryKey.reduce(

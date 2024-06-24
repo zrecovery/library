@@ -66,7 +66,7 @@ export class SeriesService {
 					}),
 				)
 			)
-				.flatMap((a) => a)
+				.flat()
 				.map(async (authors_articles) => {
 					return await this.#authorRepository.getById(
 						authors_articles.author_id,

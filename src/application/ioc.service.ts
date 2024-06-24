@@ -15,38 +15,38 @@ const articleRepository = new ArticlePrismaRepository(client);
 const authorRepository = new AuthorPrismaRepository(client);
 
 const authorArticleRelationshipRepository =
-  new ArticlesAuthorsRelationPrismaRepository(client);
+	new ArticlesAuthorsRelationPrismaRepository(client);
 
 const seriesRepository = new SeriesPrismaRepository(client);
 
 const chapterRepository = new ChapterPrismaRepository(client);
 
 const repository = {
-  articleRepository: articleRepository,
-  authorRepository: authorRepository,
-  authorArticleRepository: authorArticleRelationshipRepository,
-  seriesRepository: seriesRepository,
-  chapterRepository: chapterRepository,
+	articleRepository: articleRepository,
+	authorRepository: authorRepository,
+	authorArticleRepository: authorArticleRelationshipRepository,
+	seriesRepository: seriesRepository,
+	chapterRepository: chapterRepository,
 };
 
 export const articleService = new ArticleService(repository);
 
 export const seriesService = new SeriesService(
-  articleRepository,
-  authorRepository,
-  authorArticleRelationshipRepository,
-  seriesRepository,
-  chapterRepository,
+	articleRepository,
+	authorRepository,
+	authorArticleRelationshipRepository,
+	seriesRepository,
+	chapterRepository,
 );
 
 export const authorService = new AuthorSerivce(
-  authorRepository,
-  articleRepository,
-  seriesRepository,
-  authorArticleRelationshipRepository,
-  chapterRepository,
+	authorRepository,
+	articleRepository,
+	seriesRepository,
+	authorArticleRelationshipRepository,
+	chapterRepository,
 );
 
 export const iocService = () => {
-  articleService;
+	articleService;
 };

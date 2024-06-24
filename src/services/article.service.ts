@@ -6,7 +6,7 @@ import type {
 	IAuthorCreateInput,
 	IAuthorUpdateInput,
 } from "@src/interfaces/author.interface";
-import { Creatable, Updatable } from "@src/interfaces/common.interface";
+import type { Creatable, Updatable } from "@src/interfaces/common.interface";
 import type { Query } from "@src/interfaces/query";
 import type { IArticleResponse } from "@src/interfaces/response.interface";
 import type { ISeriesCreateInput } from "@src/interfaces/series.interface";
@@ -17,15 +17,15 @@ import type {
 	Chapter,
 	Series,
 } from "@src/model";
-import { ArticleRepository } from "@src/repositories/article.repository.port";
-import {
-	AuthorRepository,
+import type { ArticleRepository } from "@src/repositories/article.repository.port";
+import type {
 	ArticleAuthorRelationshipRepository,
+	AuthorRepository,
 } from "@src/repositories/author.repository.port";
-import { BaseRepository } from "@src/repositories/base.repository.port";
-import {
-	SeriesRepository,
+import type { BaseRepository } from "@src/repositories/base.repository.port";
+import type {
 	ChapterRepository,
+	SeriesRepository,
 } from "@src/repositories/series.repository.port";
 
 interface Repositories {
@@ -98,9 +98,8 @@ export class ArticleService {
 			.then((list) => {
 				if (list.pagination.items === 1) {
 					return list.detail[0];
-				} else {
-					return this.#repositories.authorRepository.create(author);
 				}
+				return this.#repositories.authorRepository.create(author);
 			});
 
 	createArticle = async (
@@ -142,9 +141,8 @@ export class ArticleService {
 				.then((s) => {
 					if (s.pagination.items === 1) {
 						return s.detail[0];
-					} else {
-						return this.#repositories.seriesRepository.create(series);
 					}
+					return this.#repositories.seriesRepository.create(series);
 				});
 		if (chapter) {
 			const series = await findSeriesOrCreate(chapter.series);
@@ -234,10 +232,12 @@ const tmp = async <
 		...main,
 	});
 
-	const mainQuried =
-		result.pagination.items >= 1
-			? result.detail[0]
-			: await mainRepos.create(main!);
+	const mainQuried = await (async () => {
+		if (result.pagination.items < 1 && main) {
+			return await mainRepos.create(main);
+		}
+		return result.detail[0];
+	})();
 
 	const relationQueried = await relationRepos.list({
 		size: 1,
@@ -246,7 +246,7 @@ const tmp = async <
 
 	const creatableEntity: Creatable<M> = {
 		...mainMode,
-		...m_id_key!(mainQuried),
+		...m_id_key?.(mainQuried),
 		...relation,
 	};
 
