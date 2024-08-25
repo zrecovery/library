@@ -1,0 +1,78 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["views", "postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgroonga]
+}
+
+model article {
+  id         Int      @id @default(autoincrement())
+  title      String
+  body       String
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  author     author?
+  chapter    chapter?
+
+  @@index([id, title, body])
+  @@map("articles")
+}
+
+model person {
+  id         Int      @id @default(autoincrement())
+  name       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  author     author?
+
+  @@index([id, name])
+  @@map("people")
+}
+
+model author {
+  id         Int      @id @default(autoincrement())
+  article_id Int      @unique
+  person_id  Int      @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  person     person   @relation(fields: [person_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  article    article  @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("authors")
+}
+
+model chapter {
+  id         Int      @id @default(autoincrement())
+  article_id Int      @unique
+  series_id  Int
+  order      Float
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  series     series   @relation(fields: [series_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  articles   article  @relation(fields: [article_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("chapters")
+}
+
+model series {
+  id         Int       @id @default(autoincrement())
+  title      String    @unique
+  created_at DateTime  @default(now())
+  updated_at DateTime  @default(now())
+  chapters   chapter[]
+}
+
+view detail {
+  id        Int     @unique
+  title     String
+  body      String
+  series_id Int?
+  chapter   String?
+  order     Int?
+  person_id Int?
+  person    String?
+}

@@ -1,0 +1,23 @@
+{
+	"name": "domain",
+	"version": "1.0.0",
+	"description": "",
+	"scripts": {
+		"test": "bun test",
+		"lint": "bunx @biomejs/biome lint --write ./src",
+		"format": "bunx @biomejs/biome format --write ./src",
+		"check": "bunx @biomejs/biome check --write ./src"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"exports": {
+		"repository": "./src/repositories.port.ts"
+	},
+	"dependencies": {
+		"@biomejs/biome": "^1.8.3"
+	},
+	"devDependencies": {
+		"bun-types": "latest"
+	}
+}

@@ -1,22 +1,22 @@
 {
-  "name": "solid",
-  "type": "module",
-  "scripts": {
-    "dev": "vinxi dev",
-    "build": "vinxi build",
-    "start": "vinxi start"
-  },
-  "dependencies": {
-    "@ark-ui/solid": "^3.5.0",
-    "@elysiajs/eden": "^1.0.14",
-    "@solidjs/router": "^0.14.1",
-    "@solidjs/start": "^1.0.4",
-    "@unocss/reset": "^0.59.2",
-    "solid-js": "^1.8.18",
-    "unocss": "^0.59.2",
-    "vinxi": "^0.3.14"
-  },
-  "devDependencies": {
-    "elysia": "^1.0.27"
-  }
+	"name": "solid",
+	"type": "module",
+	"scripts": {
+		"dev": "vinxi dev",
+		"build": "vinxi build",
+		"start": "vinxi start"
+	},
+	"dependencies": {
+		"@ark-ui/solid": "^3.5.0",
+		"@elysiajs/eden": "^1.0.14",
+		"@solidjs/router": "^0.14.1",
+		"@solidjs/start": "^1.0.4",
+		"@unocss/reset": "^0.59.2",
+		"solid-js": "^1.8.18",
+		"unocss": "^0.59.2",
+		"vinxi": "^0.3.14"
+	},
+	"devDependencies": {
+		"elysia": "^1.0.27"
+	}
 }

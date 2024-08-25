@@ -1,14 +1,17 @@
 {
-  "name": "library",
-  "module": "index.ts",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.5.3"
-  },
-  "workspaces": [
-    "apps/*"
-  ]
+	"name": "library",
+	"module": "index.ts",
+	"private": true,
+	"scripts": {
+		"lint": "bunx @biomejs/biome lint --write ./",
+		"format": "bunx @biomejs/biome format --write ./",
+		"check": "bunx @biomejs/biome check --write ./"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5.5.4"
+	},
+	"workspaces": ["apps/*", "packages/*"]
 }

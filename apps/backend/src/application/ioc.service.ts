@@ -1,12 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { ArticlesAuthorsRelationPrismaRepository } from "@src/repositories/prisma/article-author/articles_authors_relation.repository";
-import { ArticlePrismaRepository } from "@src/repositories/prisma/article/article.prisma.repository";
-import { AuthorPrismaRepository } from "@src/repositories/prisma/author/author.repository";
-import { ChapterPrismaRepository } from "@src/repositories/prisma/chapter/chapter.repository";
-import { SeriesPrismaRepository } from "@src/repositories/prisma/series/series.repository";
-import { ArticleService } from "@src/services/article.service";
-import { AuthorSerivce } from "@src/services/author.service";
-import { SeriesService } from "@src/services/series.service";
+
+import { ArticleService } from "@src/domain/article/article.service";
+import { AuthorSerivce } from "@src/domain/author.service";
+import { SeriesService } from "@src/domain/series.service";
 
 const client = new PrismaClient();
 

@@ -1,5 +1,6 @@
 import { t } from "elysia";
 import { PaginatedResponseSchema, ResponseSchema } from "../response.schema";
+import { AuthorDto } from "../dto";
 
 export const ArticleCreatedRequestDto = t.Object({
 	title: t.String(),
@@ -34,6 +35,11 @@ export const ArticlePaginatedHttpDto = PaginatedResponseSchema(
 			id: t.Number(),
 			title: t.String(),
 			body: t.String(),
+			authors: t.Optional(
+				t.Array(t.Object({ id: t.Number(), name: t.String() })),
+			),
+			series: t.Optional(t.Object({ id: t.Number(), title: t.String() })),
+			order: t.Optional(t.Number()),
 		}),
 	),
 );
