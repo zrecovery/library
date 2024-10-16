@@ -1,11 +1,13 @@
-import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import type { CreateArticle } from "../../domain/model";
-import { articles, authors, chapters, people, series } from "../scheme";
+import type { ArticleCreate, Id } from "../../domain/model";
+import { articles, authors } from "../scheme";
 import { StoreError, StoreErrorType } from "../store.error";
+import { seriesBaseStore } from "../base/series";
+import { chaptersBaseStore } from "../base/chapter";
+import { personBaseStore } from "../base/person";
 
 export const create =
-  (db: PostgresJsDatabase) => async (data: CreateArticle) => {
+  (db: PostgresJsDatabase) => async (data: ArticleCreate) => {
     const { title, body, author, chapter } = data;
 
     await db.transaction(async (trx) => {
@@ -15,55 +17,19 @@ export const create =
           .values({ title, body })
           .returning();
         const article = articlesEntity[0];
-
-        const result = await trx
-          .select({ id: people.id })
-          .from(people)
-          .where(eq(people.name, author.name));
-        if (result.length === 1) {
+  
+        const person = await personBaseStore.findOrCreate(trx)(author);
           await trx
             .insert(authors)
-            .values({ person_id: result[0].id, article_id: article.id });
-        }
-        if (result.length === 0) {
-          const peopleCreated = await trx
-            .insert(people)
-            .values({ name: author.name })
-            .returning();
-          await trx
-            .insert(authors)
-            .values({ person_id: peopleCreated[0].id, article_id: article.id });
-        }
+            .values({ person_id: person.id, article_id: article.id });
 
         if (chapter) {
-          const result = await trx
-            .select({ id: series.id })
-            .from(series)
-            .where(eq(series.title, chapter.title));
-          if (result.length === 1) {
-            await trx
-              .insert(chapters)
-              .values({
+          const result = await seriesBaseStore.findOrCreate(trx)(chapter)
+            await  chaptersBaseStore.create(trx)({
                 article_id: article.id,
-                series_id: result[0].id,
+                series_id: result.id,
                 order: chapter.order,
-              })
-              .returning();
-          }
-          if (result.length === 0) {
-            const seriesCreated = await trx
-              .insert(series)
-              .values({ title: chapter.title })
-              .returning();
-            await trx
-              .insert(chapters)
-              .values({
-                article_id: article.id,
-                series_id: seriesCreated[0].id,
-                order: chapter.order,
-              })
-              .returning();
-          }
+              });
         }
       } catch (e) {
         try {

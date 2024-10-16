@@ -1,17 +1,19 @@
 import type {
+  ArticleCreate,
   ArticleDetail,
   ArticleList,
-  CreateArticle,
+  ArticleUpdate,
   Id,
   Pagination,
-  UpdateArticle,
 } from "../model";
 
 export interface ArticleStore {
-  create(date: CreateArticle): Promise<void>;
-  findMany(query: Pagination & { keyword?: string }): Promise<ArticleList>;
-  find(id: Id): Promise<ArticleDetail>;
-  update(id: Id, data: UpdateArticle): Promise<void>;
+  create(date: ArticleCreate): Promise<void>;
+  findMany(
+    query: Partial<Pagination & { keyword: string }>
+  ): Promise<ArticleList>;
+  find(id: Id): Promise<ArticleDetail | null>;
+  update(id: Id, data: ArticleUpdate): Promise<void>;
   remove(id: Id): Promise<void>;
 }
 

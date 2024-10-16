@@ -1,66 +1,28 @@
 import Elysia, { t } from "elysia";
 import { swagger } from "@elysiajs/swagger";
 import { articlesService } from "./ioc";
-
-const detail = t.Object({
-  id: t.Number(),
-  title: t.String(),
-  body: t.String(),
-  author: t.Object({
-    id: t.Number(),
-    name: t.String(),
-  }),
-  chapter: t.Optional(
-    t.Object({
-      id: t.Number(),
-      title: t.String(),
-      order: t.Number(),
-    }),
-  ),
-});
-
-const update = t.Object({
-  id: t.Number(),
-  title: t.Optional(t.String()),
-  body: t.Optional(t.String()),
-  author: t.Optional(
-    t.Object({
-      name: t.String(),
-    }),
-  ),
-  chapter: t.Optional(
-    t.Object({
-      title: t.String(),
-      order: t.Number(),
-    }),
-  ),
-});
-
-const ArticleModel = new Elysia().model({
-  "article.create": t.Object({
-    title: t.String(),
-    body: t.String(),
-    author: t.Object({
-      name: t.String(),
-    }),
-    chapter: t.Optional(
-      t.Object({
-        title: t.String(),
-        order: t.Number(),
-      }),
-    ),
-  }),
-  "article.detail": detail,
-  "article.update": update,
-});
+import { ArticleSchema } from "../domain/model";
 
 const articlesController = new Elysia({ prefix: "/articles" })
-  .use(ArticleModel)
-
-  .get("/:id", ({ params: { id } }) => articlesService.find(id), {
-    params: t.Object({ id: t.Numeric() }),
-    response: "article.detail",
+  .use(ArticleSchema)
+  .get("/", ({ query }) => articlesService.findMany(query), {
+    query: "article.query",
+    response: "article.list",
   })
+  .get(
+    "/:id",
+    async ({ params: { id } }) => {
+      const result = await articlesService.find(id);
+      if (result === null) {
+        throw new Error("Not Found");
+      }
+      return result;
+    },
+    {
+      params: t.Object({ id: t.Numeric() }),
+      response: "article.detail",
+    },
+  )
   .post("/", ({ body }) => articlesService.create(body), {
     body: "article.create",
   })
@@ -74,3 +36,5 @@ app
   .use(swagger())
   .group("/api", (api) => api.use(articlesController))
   .listen(3000);
+
+export type App = typeof app;

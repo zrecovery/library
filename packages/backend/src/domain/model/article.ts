@@ -1,47 +1,93 @@
-// 文件名: packages/backend/src/domain/model/article.ts
+import Elysia, { t, type Static } from "elysia";
 
-import type { Chapter, ChapterBasic } from "./chapter";
-import type { Id, Identity, PaginatedResponse } from "./common";
-import type { PersonProps } from "./person";
+export const CreateSchema = t.Object({
+  title: t.String(),
+  body: t.String(),
+  author: t.Object({
+    name: t.String(),
+  }),
+  chapter: t.Optional(
+    t.Object({
+      title: t.String(),
+      order: t.Number(),
+    }),
+  ),
+});
 
-// 文章的基本属性
-export type ArticleProps = Readonly<{
-  title: string;
-  body: string;
-}>;
+export type ArticleCreate = Static<typeof CreateSchema>;
 
-// 文章的基本信息
-export type ArticleBasic = Readonly<Identity & ArticleProps>;
+export const DetailSchema = t.Object(
+  {
+    id: t.Number(),
+    title: t.String(),
+    body: t.String(),
+    author: t.Object({
+      id: t.Number(),
+      name: t.String(),
+    }),
+    chapter: t.Optional(
+      t.Object({
+        id: t.Number(),
+        title: t.String(),
+        order: t.Number(),
+      }),
+    ),
+  },
+  {
+    error: "Not Find",
+  },
+);
 
-// 创建文章所需的信息
-export type CreateArticle = Readonly<
-  Pick<ArticleProps, "title" | "body"> & {
-    chapter?: Chapter;
-    author: PersonProps;
-  }
->;
+export type ArticleDetail = Static<typeof DetailSchema>;
 
-// 更新文章所需的信息
-export type UpdateArticle = Readonly<
-  Partial<Pick<ArticleProps, "title" | "body">> & {
-    id: Id;
-    chapter?: {
-      title: string;
-      order?: number;
-    };
-    author?: {
-      name: string;
-    };
-  }
->;
+const UpdateSchema = t.Object({
+  id: t.Number(),
+  title: t.Optional(t.String()),
+  body: t.Optional(t.String()),
+  author: t.Optional(
+    t.Object({
+      name: t.String(),
+    }),
+  ),
+  chapter: t.Optional(
+    t.Object({
+      title: t.String(),
+      order: t.Number(),
+    }),
+  ),
+});
 
-// 文章列表
-export type ArticleList = PaginatedResponse<ReadonlyArray<ArticleBasic>>;
+export type ArticleUpdate = Static<typeof UpdateSchema>;
 
-// 文章的详细信息
-export type ArticleDetail = Readonly<
-  ArticleBasic & {
-    author: Identity & PersonProps;
-    chapter?: ChapterBasic;
-  }
->;
+const QuerySchema = t.Object({
+  keyword: t.Optional(t.String()),
+  page: t.Optional(t.Numeric()),
+  size: t.Optional(t.Numeric()),
+});
+
+export type ArticleQuery = Static<typeof QuerySchema>;
+
+const ListSchema = t.Object({
+  pagination: t.Object({
+    current: t.Number(),
+    pages: t.Number(),
+    size: t.Number(),
+    items: t.Number(),
+  }),
+  data: t.Array(
+    t.Object({
+      id: t.Number(),
+      title: t.String(),
+    }),
+  ),
+});
+
+export type ArticleList = Static<typeof ListSchema>;
+
+export const ArticleSchema = new Elysia().model({
+  "article.create": CreateSchema,
+  "article.detail": DetailSchema,
+  "article.update": UpdateSchema,
+  "article.query": QuerySchema,
+  "article.list": ListSchema,
+});

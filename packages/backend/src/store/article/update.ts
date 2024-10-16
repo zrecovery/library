@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import type { Id, PersonProps } from "../../domain/model";
+import type { Id } from "../../domain/model";
 import { articles, authors, chapters, people, series } from "../scheme";
 
 export const update =
@@ -10,7 +10,7 @@ export const update =
     data: {
       title?: string;
       body?: string;
-      author?: Partial<PersonProps>;
+      author?: Partial<{ name: string }>;
       chapter?: Partial<{ title: string; order: number }>;
     },
   ) => {

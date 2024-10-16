@@ -3,7 +3,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { mockDB } from "../test/mock";
 import { create } from "./create";
-import type { CreateArticle } from "../../domain/model";
+import type { ArticleCreate } from "../../domain/model";
 import {
   findAuthor,
   findPerson,
@@ -19,7 +19,7 @@ const db = drizzle(queryClient);
 
 interface TestStruct {
   title: string;
-  input: CreateArticle;
+  input: ArticleCreate;
   expect: {
     error?: StoreErrorType | string;
     title?: string;
