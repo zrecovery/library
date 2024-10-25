@@ -1,5 +1,5 @@
 {
-    "name": "backend",
+    "name": "epubs",
     "main": "./src/application/app.ts",
     "module": "./src/application/app.ts",
     "devDependencies": {
@@ -13,10 +13,5 @@
     "peerDependencies": {
         "typescript": "^5.6.3"
     },
-    "dependencies": {
-        "@elysiajs/swagger": "^1.1.5",
-        "drizzle-orm": "^0.33.0",
-        "elysia": "^1.1.23",
-        "postgres": "^3.4.4"
-    }
+    "dependencies": {}
 }

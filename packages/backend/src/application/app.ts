@@ -31,10 +31,10 @@ const articlesController = new Elysia({ prefix: "/articles" })
     body: "article.update",
   });
 
-const app = new Elysia();
-app
+export const app = new Elysia()
   .use(swagger())
   .group("/api", (api) => api.use(articlesController))
-  .listen(3000);
+  .get("/hi", () => "hi")
+  .listen(3001);
 
-export type App = typeof app;
+export type Server = typeof app;
