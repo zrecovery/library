@@ -9,5 +9,3 @@ export const findOrCreate =
     const result = p.length < 1 ? await create(db)(data) : p;
     return result[0];
   };
-
-

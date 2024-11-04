@@ -1,6 +1,3 @@
-
 export type PersonCreate = {
-    name: string;
+  name: string;
 };
-
-

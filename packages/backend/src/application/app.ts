@@ -1,7 +1,8 @@
-import Elysia, { t } from "elysia";
+import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
-import { articlesService } from "./ioc";
+import Elysia, { t } from "elysia";
 import { ArticleSchema } from "../domain/model";
+import { articlesService } from "./ioc";
 
 const articlesController = new Elysia({ prefix: "/articles" })
   .use(ArticleSchema)
@@ -33,8 +34,8 @@ const articlesController = new Elysia({ prefix: "/articles" })
 
 export const app = new Elysia()
   .use(swagger())
+  .use(cors({ origin: "localhost:3000" }))
   .group("/api", (api) => api.use(articlesController))
-  .get("/hi", () => "hi")
   .listen(3001);
 
 export type Server = typeof app;

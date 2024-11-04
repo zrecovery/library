@@ -14,5 +14,9 @@
   "peerDependencies": {
     "typescript": "^5.5.4"
   },
-  "workspaces": ["packages/*"]
+  "workspaces": ["packages/*"],
+  "dependencies": {
+    "epub.js": "^0.2.15",
+    "fflate": "^0.8.2"
+  }
 }

@@ -5,5 +5,3 @@ export type ChapterCreate = {
   series_id: Id;
   order: number;
 };
-
-

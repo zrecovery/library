@@ -1,10 +1,8 @@
+import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import type { ArticleCreate, Id } from "../../domain/model";
-import { articles, authors } from "../scheme";
+import type { ArticleCreate } from "../../domain/model";
+import { articles, authors, chapters, people, series } from "../scheme";
 import { StoreError, StoreErrorType } from "../store.error";
-import { seriesBaseStore } from "../base/series";
-import { chaptersBaseStore } from "../base/chapter";
-import { personBaseStore } from "../base/person";
 
 export const create =
   (db: PostgresJsDatabase) => async (data: ArticleCreate) => {
@@ -17,24 +15,43 @@ export const create =
           .values({ title, body })
           .returning();
         const article = articlesEntity[0];
-  
-        const person = await personBaseStore.findOrCreate(trx)(author);
-          await trx
-            .insert(authors)
-            .values({ person_id: person.id, article_id: article.id });
+
+        await trx
+          .insert(people)
+          .values({ name: author.name })
+          .onConflictDoNothing({ target: people.name });
+
+        const [person] = await trx
+          .select({ id: people.id, name: people.name })
+          .from(people)
+          .where(eq(people.name, author.name));
+
+        await trx
+          .insert(authors)
+          .values({ person_id: person.id, article_id: article.id });
 
         if (chapter) {
-          const result = await seriesBaseStore.findOrCreate(trx)(chapter)
-            await  chaptersBaseStore.create(trx)({
-                article_id: article.id,
-                series_id: result.id,
-                order: chapter.order,
-              });
+          await trx
+            .insert(series)
+            .values({ title: chapter.title })
+            .onConflictDoNothing({ target: series.title });
+
+          const [s] = await trx
+            .select({ id: series.id, title: series.title })
+            .from(series)
+            .where(eq(series.title, chapter.title));
+
+          await trx.insert(chapters).values({
+            article_id: article.id,
+            series_id: s.id,
+            order: chapter.order,
+          });
         }
       } catch (e) {
         try {
           trx.rollback();
         } catch {}
+        console.error(e);
         throw new StoreError("创建文章失败", StoreErrorType.Other, e);
       }
     });

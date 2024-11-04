@@ -10,7 +10,7 @@ import type {
 export interface ArticleStore {
   create(date: ArticleCreate): Promise<void>;
   findMany(
-    query: Partial<Pagination & { keyword: string }>
+    query: Partial<Pagination & { keyword: string }>,
   ): Promise<ArticleList>;
   find(id: Id): Promise<ArticleDetail | null>;
   update(id: Id, data: ArticleUpdate): Promise<void>;
