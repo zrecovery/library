@@ -1,7 +1,7 @@
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import { articles, series, people, authors, chapters } from "../scheme";
 import { eq } from "drizzle-orm";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { Id } from "../../domain/model";
+import { articles, authors, chapters, people, series } from "../scheme";
 
 export const findArticleByTitle = (db: PostgresJsDatabase) => (title: string) =>
   db
@@ -13,10 +13,10 @@ export const findArticleById = (db: PostgresJsDatabase) => (id: Id) =>
   db
     .select()
     .from(articles)
-    .innerJoin(authors, eq(authors.article_id, articles.id))
-    .innerJoin(people, eq(authors.person_id, people.id))
-    .innerJoin(chapters, eq(chapters.article_id, articles.id))
-    .innerJoin(series, eq(chapters.series_id, series.id))
+    .leftJoin(authors, eq(authors.article_id, articles.id))
+    .leftJoin(people, eq(authors.person_id, people.id))
+    .leftJoin(chapters, eq(chapters.article_id, articles.id))
+    .leftJoin(series, eq(chapters.series_id, series.id))
     .where(eq(articles.id, id));
 
 export const findPerson = (db: PostgresJsDatabase) => (name: string) =>

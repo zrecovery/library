@@ -1,6 +1,6 @@
 import { A } from "@solidjs/router";
 
-export default function NotFound() {
+export function NotFound() {
   return (
     <main class="text-center mx-auto text-gray-700 p-4">
       <h1 class="max-6-xs text-6xl text-sky-700 font-thin uppercase my-16">
@@ -12,6 +12,7 @@ export default function NotFound() {
           href="https://solidjs.com"
           target="_blank"
           class="text-sky-600 hover:underline"
+          rel="noreferrer"
         >
           solidjs.com
         </a>{" "}

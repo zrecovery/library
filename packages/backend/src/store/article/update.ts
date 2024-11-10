@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { Id } from "../../domain/model";
 import { articles, authors, chapters, people, series } from "../scheme";
+import { StoreError, StoreErrorType } from "../store.error.ts";
 
 export const update =
   (db: PostgresJsDatabase) =>
@@ -19,14 +20,14 @@ export const update =
       await db
         .select()
         .from(articles)
-        .innerJoin(authors, eq(authors.article_id, articles.id))
-        .innerJoin(people, eq(authors.person_id, people.id))
-        .innerJoin(chapters, eq(chapters.article_id, articles.id))
-        .innerJoin(series, eq(chapters.series_id, series.id))
+        .leftJoin(authors, eq(authors.article_id, articles.id))
+        .leftJoin(people, eq(authors.person_id, people.id))
+        .leftJoin(chapters, eq(chapters.article_id, articles.id))
+        .leftJoin(series, eq(chapters.series_id, series.id))
         .where(eq(articles.id, id))
     )[0];
 
-    db.transaction(async (trx) => {
+    await db.transaction(async (trx) => {
       try {
         if (title || body) {
           await trx
@@ -43,6 +44,12 @@ export const update =
               .where(eq(people.name, author.name));
 
             const isExistedNewAuthor = query.length === 1;
+            if (!article.authors) {
+              throw new StoreError(
+                "脏数据：未查找到关联作者",
+                StoreErrorType.Other,
+              );
+            }
             const isExistedRelation = article.authors.id !== null;
 
             if (isExistedNewAuthor && isExistedRelation) {
@@ -50,7 +57,7 @@ export const update =
               await trx
                 .update(authors)
                 .set({ person_id: a.id })
-                .where(eq(authors.id, article.authors.id));
+                .where(eq(authors.id, article.authors?.id));
             }
 
             if (!isExistedNewAuthor && isExistedRelation) {
@@ -142,8 +149,8 @@ export const update =
           }
         }
       } catch (e) {
-        console.log(e);
         trx.rollback();
+        throw e;
       }
     });
   };

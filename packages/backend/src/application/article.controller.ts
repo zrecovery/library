@@ -1,10 +1,8 @@
-import { cors } from "@elysiajs/cors";
-import { swagger } from "@elysiajs/swagger";
-import Elysia, { t } from "elysia";
+import Elysia, { error, t } from "elysia";
 import { ArticleSchema } from "../domain/model";
 import { articlesService } from "./ioc";
 
-const articlesController = new Elysia({ prefix: "/articles" })
+export const articlesController = new Elysia({ prefix: "/articles" })
   .use(ArticleSchema)
   .get("/", ({ query }) => articlesService.findMany(query), {
     query: "article.query",
@@ -15,13 +13,16 @@ const articlesController = new Elysia({ prefix: "/articles" })
     async ({ params: { id } }) => {
       const result = await articlesService.find(id);
       if (result === null) {
-        throw new Error("Not Found");
+        return error(404, "Not Found");
       }
       return result;
     },
     {
       params: t.Object({ id: t.Numeric() }),
-      response: "article.detail",
+      response: {
+        200: "article.detail",
+        404: t.String(),
+      },
     },
   )
   .post("/", ({ body }) => articlesService.create(body), {
@@ -30,12 +31,7 @@ const articlesController = new Elysia({ prefix: "/articles" })
   .put("/:id", ({ body, params: { id } }) => articlesService.update(id, body), {
     params: t.Object({ id: t.Numeric() }),
     body: "article.update",
+  })
+  .delete("/:id", ({ params: { id } }) => articlesService.remove(id), {
+    params: t.Object({ id: t.Numeric() }),
   });
-
-export const app = new Elysia()
-  .use(swagger())
-  .use(cors({ origin: "localhost:3000" }))
-  .group("/api", (api) => api.use(articlesController))
-  .listen(3001);
-
-export type Server = typeof app;

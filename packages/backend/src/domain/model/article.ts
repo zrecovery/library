@@ -67,6 +67,24 @@ const QuerySchema = t.Object({
 
 export type ArticleQuery = Static<typeof QuerySchema>;
 
+const MetaSchema = t.Object({
+  id: t.Number(),
+  title: t.String(),
+  author: t.Optional(
+    t.Object({
+      name: t.String(),
+    }),
+  ),
+  chapter: t.Optional(
+    t.Object({
+      title: t.String(),
+      order: t.Number(),
+    }),
+  ),
+});
+
+export type ArticleMeta = Static<typeof MetaSchema>;
+
 const ListSchema = t.Object({
   pagination: t.Object({
     current: t.Number(),
@@ -74,12 +92,7 @@ const ListSchema = t.Object({
     size: t.Number(),
     items: t.Number(),
   }),
-  data: t.Array(
-    t.Object({
-      id: t.Number(),
-      title: t.String(),
-    }),
-  ),
+  data: t.Array(MetaSchema),
 });
 
 export type ArticleList = Static<typeof ListSchema>;

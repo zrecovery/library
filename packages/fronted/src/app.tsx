@@ -11,9 +11,11 @@ export default function App() {
     <Router
       root={(props) => (
         <>
-          <Nav />
+          <div class="p-4" style="height: 96vh">
+            <Nav />
 
-          <Suspense>{props.children}</Suspense>
+            <Suspense>{props.children}</Suspense>
+          </div>
         </>
       )}
     >

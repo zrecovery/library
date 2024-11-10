@@ -1,11 +1,11 @@
 import { beforeEach, expect, test } from "bun:test";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { mockDB } from "../test/mock";
-import { update } from "./update";
-import type { Id, UpdateArticle } from "../../domain/model";
-import { findArticleById } from "../test/query";
+import type { ArticleUpdate, Id } from "../../domain/model";
 import type { StoreErrorType } from "../store.error";
+import { mockDB } from "../test/mock";
+import { findArticleById } from "../test/query";
+import { update } from "./update";
 
 const test_uri = "postgres://postgres:postgres@localhost:5432/test";
 const queryClient = postgres(test_uri);
@@ -13,7 +13,7 @@ const db = drizzle(queryClient);
 
 interface TestStruct {
   title: string;
-  input: UpdateArticle;
+  input: ArticleUpdate;
   error?: StoreErrorType | string;
   expect: {
     articles: {

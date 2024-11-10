@@ -4,6 +4,7 @@ import {
   NavigationMenuItemLabel,
   NavigationMenuTrigger,
 } from "~/components/ui/navigation-menu";
+import { SearchBar } from "~/components/ui/search-bar";
 
 export default function Nav() {
   return (

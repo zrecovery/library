@@ -1,16 +1,29 @@
 import type { RouteProps } from "@solidjs/router";
 import { useParams } from "@solidjs/router";
 import { Show, createResource } from "solid-js";
+import { Button } from "~/components/ui/button";
 import { articleRepository } from "~/libs/api";
 
 export default function ArticleDetail() {
   const { id } = useParams<{ id: string }>();
-  console.log(id);
-  const [response] = createResource(() => Number(id), articleRepository.detail);
+  const ID = Number(id);
+  const [response] = createResource(() => ID, articleRepository.detail);
   return (
     <Show when={!response.loading}>
       <Show when={response()}>
-        <h1>{response()?.title}</h1>
+        <article class="p-1">
+          <h1 id="title">{response()?.title}</h1>
+          <div id="content" style="white-space: pre-wrap">
+            {response()?.body}
+          </div>
+        </article>
+        <Button
+          onClick={() => {
+            articleRepository.remove(ID).then(() => console.log("delete"));
+          }}
+        >
+          删除
+        </Button>
       </Show>
     </Show>
   );

@@ -45,7 +45,6 @@ class ArticleRepository {
     const { data, error } = await repository.api.articles.index.get({
       query: q,
     });
-    //this.#checkStatus(response.status);
     return data;
   }
 
@@ -53,7 +52,7 @@ class ArticleRepository {
     const { data, error, status } = await repository.api
       .articles({ id: id })
       .get();
-    //this.#checkStatus(status);
+
     return data;
   }
 
@@ -61,6 +60,13 @@ class ArticleRepository {
     const response = await repository.api.articles.index.post(data);
     this.#checkStatus(response.status);
   }
+
+  async remove(id: number) {
+    const { data, error, status } = await repository.api
+      .articles({ id: id })
+      .delete();
+  }
+
   #checkStatus(status: number) {
     switch (status) {
       case 200:

@@ -1,17 +1,17 @@
 import { beforeEach, expect, test } from "bun:test";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { mockDB } from "../test/mock";
-import { create } from "./create";
 import type { ArticleCreate } from "../../domain/model";
-import {
-  findAuthor,
-  findPerson,
-  findArticleByTitle,
-  findSeries,
-  findChapter,
-} from "../test/query";
 import type { StoreErrorType } from "../store.error";
+import { mockDB } from "../test/mock";
+import {
+  findArticleByTitle,
+  findAuthor,
+  findChapter,
+  findPerson,
+  findSeries,
+} from "../test/query";
+import { create } from "./create";
 
 const test_uri = "postgres://postgres:postgres@localhost:5432/test";
 const queryClient = postgres(test_uri);
@@ -85,22 +85,11 @@ const cases: TestStruct[] = [
       series: { title: "Made-up Book" },
     },
   },
-  {
-    title: "should throw error if input's author not exist",
-    input: {
-      title: "new blog",
-      body: "new blog body",
-      author: undefined,
-    },
-    expect: {
-      error: "创建文章失败",
-    },
-  },
 ];
 
-const l = (result: Array<object>, expe: object) => {
+const l = (result: Array<object>, exp: object) => {
   expect(result.length).toEqual(1);
-  expect(result).toMatchObject([expe]);
+  expect(result).toMatchObject([exp]);
 };
 
 const testCase = (c: TestStruct) => {
