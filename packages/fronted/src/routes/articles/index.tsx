@@ -19,7 +19,7 @@ import { articleRepository } from "~/libs/api";
 
 export default function ArticleList() {
   const [page, setPage] = createSignal(1);
-  const [size, setSize] = createSignal(10);
+  const [size, setSize] = createSignal(3);
   const [keyword, setKeyword] = createSignal<string>("");
   const [result] = createResource(
     () => ({ page: page(), size: size(), keyword: keyword() }),
@@ -39,7 +39,7 @@ export default function ArticleList() {
           >
             <For each={result()?.data}>
               {(meta, index) => (
-                <Card class="w-md max-w-full">
+                <Card class="w-sm max-w-full max-h-xs">
                   <CardHeader>
                     <A href={`/articles/${meta.id}`}>
                       <CardTitle>{meta.title}</CardTitle>
@@ -59,13 +59,14 @@ export default function ArticleList() {
             </For>
           </div>
           <div
-            class="justify-center"
+            class="justify-center max-w-full"
             style="grid-are: pagination;align-content: center;"
           >
             <Pagination
               page={page()}
               onPageChange={setPage}
-              count={result()?.pagination.pages}
+              // @ts-ignore
+              count={result().pagination.pages}
               itemComponent={(props) => (
                 <PaginationItem page={props.page}>{props.page}</PaginationItem>
               )}

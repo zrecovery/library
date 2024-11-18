@@ -9,7 +9,7 @@ export const CreateSchema = t.Object({
   chapter: t.Optional(
     t.Object({
       title: t.String(),
-      order: t.Number(),
+      order: t.Number({ minimum: 0 }),
     }),
   ),
 });
@@ -29,7 +29,7 @@ export const DetailSchema = t.Object(
       t.Object({
         id: t.Number(),
         title: t.String(),
-        order: t.Number(),
+        order: t.Number({ minimum: 0 }),
       }),
     ),
   },
@@ -52,7 +52,7 @@ const UpdateSchema = t.Object({
   chapter: t.Optional(
     t.Object({
       title: t.String(),
-      order: t.Number(),
+      order: t.Number({ minimum: 0 }),
     }),
   ),
 });
@@ -61,8 +61,8 @@ export type ArticleUpdate = Static<typeof UpdateSchema>;
 
 const QuerySchema = t.Object({
   keyword: t.Optional(t.String()),
-  page: t.Optional(t.Numeric()),
-  size: t.Optional(t.Numeric()),
+  page: t.Optional(t.Numeric({ minimum: 0 })),
+  size: t.Optional(t.Numeric({ minimum: 0 })),
 });
 
 export type ArticleQuery = Static<typeof QuerySchema>;
@@ -78,7 +78,7 @@ const MetaSchema = t.Object({
   chapter: t.Optional(
     t.Object({
       title: t.String(),
-      order: t.Number(),
+      order: t.Number({ minimum: 0 }),
     }),
   ),
 });
@@ -87,9 +87,9 @@ export type ArticleMeta = Static<typeof MetaSchema>;
 
 const ListSchema = t.Object({
   pagination: t.Object({
-    current: t.Number(),
-    pages: t.Number(),
-    size: t.Number(),
+    current: t.Number({ minimum: 0 }),
+    pages: t.Number({ minimum: 0 }),
+    size: t.Number({ minimum: 0 }),
     items: t.Number(),
   }),
   data: t.Array(MetaSchema),

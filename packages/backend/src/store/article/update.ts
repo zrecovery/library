@@ -47,7 +47,7 @@ export const update =
             if (!article.authors) {
               throw new StoreError(
                 "脏数据：未查找到关联作者",
-                StoreErrorType.Other,
+                StoreErrorType.ValidationError,
               );
             }
             const isExistedRelation = article.authors.id !== null;

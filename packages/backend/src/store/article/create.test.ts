@@ -1,132 +1,162 @@
-import { beforeEach, expect, test } from "bun:test";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import type { ArticleCreate } from "../../domain/model";
-import type { StoreErrorType } from "../store.error";
-import { mockDB } from "../test/mock";
-import {
-  findArticleByTitle,
-  findAuthor,
-  findChapter,
-  findPerson,
-  findSeries,
-} from "../test/query";
-import { create } from "./create";
+import { describe, expect, test } from 'bun:test';
+import type { ArticleCreate } from '../../domain/model';
+import { StoreErrorType } from '../store.error';
+import { createContextLogger } from '../../utils/logger';
+import { createTestDb, expectError, withTestDb } from '../../utils/test';
+import { create } from './create';
+import { articles, series } from '../scheme';
+import { eq } from 'drizzle-orm';
 
-const test_uri = "postgres://postgres:postgres@localhost:5432/test";
-const queryClient = postgres(test_uri);
-const db = drizzle(queryClient);
+const logger = createContextLogger('ArticleCreateTest');
+const db = createTestDb();
+describe('Article Creation', () => {
+  describe('Validation', () => {
+    test('should reject empty title', withTestDb(async (db) => {
+      const input: ArticleCreate = {
+        title: '',
+        body: 'Test body',
+        author: { name: 'Test Author' }
+      };
 
-interface TestStruct {
-  title: string;
-  input: ArticleCreate;
-  expect: {
-    error?: StoreErrorType | string;
-    title?: string;
-    body?: string;
-    person?: { name: string };
-    chapter?: { order: number };
-    series?: { title: string };
-  };
-}
+      await expectError(
+        create(db)(input),
+        StoreErrorType.ValidationError,
+        'title is required'
+      );
+    }));
 
-beforeEach(async () => {
-  await mockDB(db);
-});
+    test('should reject empty body', withTestDb(async (db) => {
+      const input: ArticleCreate = {
+        title: 'Test Title',
+        body: '',
+        author: { name: 'Test Author' }
+      };
 
-const cases: TestStruct[] = [
-  {
-    title: "should create a new article without series and with new author",
-    input: {
-      title: "new blog",
-      body: "new blog body",
-      author: { name: "new author" },
-    },
-    expect: {
-      title: "new blog",
-      body: "new blog body",
-      person: { name: "new author" },
-    },
-  },
-  {
-    title: "should create a new article with new series and with new author",
-    input: {
-      title: "new blog",
-      body: "new blog body",
-      author: { name: "new author" },
-      chapter: { title: "new series", order: 1 },
-    },
-    expect: {
-      title: "new blog",
-      body: "new blog body",
-      person: { name: "new author" },
-      chapter: { order: 1 },
-      series: { title: "new series" },
-    },
-  },
-  {
-    title:
-      "should create a new article with new series and with existed author",
-    input: {
-      title: "new blog",
-      body: "new blog body",
-      author: {
-        name: "John Doe",
-      },
-      chapter: { title: "Made-up Book", order: 2 },
-    },
-    expect: {
-      title: "new blog",
-      body: "new blog body",
-      person: {
-        name: "John Doe",
-      },
-      chapter: { order: 2 },
-      series: { title: "Made-up Book" },
-    },
-  },
-];
+      await expectError(
+        create(db)(input),
+        StoreErrorType.ValidationError,
+        'body is required'
+      );
+    }));
 
-const l = (result: Array<object>, exp: object) => {
-  expect(result.length).toEqual(1);
-  expect(result).toMatchObject([exp]);
-};
+    test('should reject missing author', withTestDb(async (db) => {
+      const input: ArticleCreate = {
+        title: 'Test Title',
+        body: 'Test body',
+        author: { name: '' }
+      };
 
-const testCase = (c: TestStruct) => {
-  test(c.title, async () => {
-    const result = create(db)(c.input);
-
-    if (c.expect.error) {
-      expect(async () => {
-        await result;
-      }).toThrowError(c.expect.error);
-    } else {
-      expect(await result).toBeEmpty();
-      // assert new blog and author is existed in db.
-      const article = await findArticleByTitle(db)(c.input.title);
-      l(article, { title: c.expect.title, body: c.expect.body });
-
-      if (c.expect.person) {
-        const person = await findPerson(db)(c.input.author.name);
-        l(person, c.expect.person);
-
-        const author = await findAuthor(db)(article[0].id);
-        l(author, { article_id: article[0].id, person_id: person[0].id });
-      }
-
-      if (c.input.chapter && c.expect.series) {
-        const series = await findSeries(db)(c.input.chapter.title);
-        l(series, c.expect.series);
-
-        const chapter = await findChapter(db)(article[0].id);
-        l(chapter, {
-          order: c.expect.chapter?.order,
-          article_id: article[0].id,
-          series_id: series[0].id,
-        });
-      }
-    }
+      await expectError(
+        create(db)(input),
+        StoreErrorType.ValidationError,
+        'Author name is required'
+      );
+    }));
   });
-};
 
-cases.map(testCase);
+  describe('Success Cases', () => {
+    test('should create article with required fields', withTestDb(async (db) => {
+      const input: ArticleCreate = {
+        title: 'Test Title',
+        body: 'Test body',
+        author: { name: 'Test Author' }
+      };
+
+      await create(db)(input);
+
+      // Verify article creation
+      const result = await db.query.articles.findFirst({
+        with: {
+          author: {
+            with: {
+              person: true
+            }
+          }
+        },
+        where: (eq(articles.title, input.title))
+      });
+
+      expect(result).toBeDefined();
+      expect(result?.title).toBe(input.title);
+      expect(result?.body).toBe(input.body);
+      expect(result?.author?.person.name).toBe(input.author.name);
+    }));
+
+    test('should create article with chapter', withTestDb(async (db) => {
+      const input: ArticleCreate = {
+        title: 'Test Title',
+        body: 'Test body',
+        author: { name: 'Test Author' },
+        chapter: {
+          title: 'Test Chapter',
+          order: 1
+        }
+      };
+
+      await create(db)(input);
+
+      // Verify article and chapter creation
+      const result = await db.query.articles.findFirst({
+        with: {
+          author: {
+            with: {
+              person: true
+            }
+          },
+          chapter: {
+            with: {
+              series: true
+            }
+          }
+        },
+        where: (eq(articles.title, input.title))
+      });
+
+      expect(result).toBeDefined();
+      expect(result?.chapter?.series.title).toBe(input.chapter?.title);
+      expect(result?.chapter?.order).toBe(input.chapter?.order);
+    }));
+  });
+
+  describe('Error Cases', () => {
+    test('should handle duplicate chapter title', withTestDb(async (db) => {
+      const input1: ArticleCreate = {
+        title: 'Test Title 1',
+        body: 'Test body 1',
+        author: { name: 'Test Author' },
+        chapter: {
+          title: 'Same Chapter',
+          order: 1
+        }
+      };
+
+      const input2: ArticleCreate = {
+        title: 'Test Title 2',
+        body: 'Test body 2',
+        author: { name: 'Test Author' },
+        chapter: {
+          title: 'Same Chapter',
+          order: 2
+        }
+      };
+
+      await create(db)(input1);
+      await create(db)(input2);
+
+      // Verify both articles share the same series
+      const results = await db.query.articles.findMany({
+        with: {
+          chapter: {
+            with: {
+              series: true
+            }
+          }
+        },
+        where:eq(series.title, 'Same Chapter')
+      });
+
+      expect(results).toHaveLength(2);
+      expect(results[0].chapter?.series.id).toBe(results[1].chapter?.series.id);
+    }));
+  });
+});

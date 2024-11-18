@@ -9,13 +9,24 @@ if (uri === undefined) {
 }
 
 const connectDb = (uri: string) => {
+  if (!uri) {
+    throw new Error('Database URI is required');
+  }
+
   try {
-    console.log(uri);
-    const client = postgres(uri);
+    console.info('Connecting to database:', uri);
+    const client = postgres(uri, {
+      max: 10, // Connection pool size
+      idle_timeout: 20,
+      connect_timeout: 10
+    });
+    
     const db = drizzle(client);
+    console.info('Database connection established');
     return createArticleStore(db);
   } catch (e) {
-    console.error(e);
+    console.error('Failed to connect to database:', e);
+    throw new Error('Database connection failed');
   }
 };
 

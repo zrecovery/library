@@ -1,10 +1,7 @@
 import {
   NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuItemLabel,
   NavigationMenuTrigger,
 } from "~/components/ui/navigation-menu";
-import { SearchBar } from "~/components/ui/search-bar";
 
 export default function Nav() {
   return (
@@ -29,6 +26,13 @@ export default function Nav() {
         class="transition-[box-shadow,background-color] focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring data-[expanded]:bg-accent"
       >
         新建
+      </NavigationMenuTrigger>
+      <NavigationMenuTrigger
+        as="a"
+        href="/admin"
+        class="transition-[box-shadow,background-color] focus-visible:outline-none focus-visible:ring-[1.5px] focus-visible:ring-ring data-[expanded]:bg-accent"
+      >
+        管理
       </NavigationMenuTrigger>
     </NavigationMenu>
   );
