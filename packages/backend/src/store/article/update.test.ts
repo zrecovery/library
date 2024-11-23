@@ -1,80 +1,67 @@
-import { beforeEach, expect, test } from "bun:test";
-import { drizzle } from "drizzle-orm/postgres-js";
+import { describe, expect, test, beforeEach } from "bun:test";
+import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import type { ArticleUpdate, Id } from "../../domain/model";
-import type { StoreErrorType } from "../store.error";
+import { StoreErrorType } from "../store.error";
 import { mockDB } from "../test/mock";
 import { findArticleById } from "../test/query";
 import { update } from "./update";
+import { withTestDb, expectError } from "../../utils/test";
+import type * as schema from "../../store/scheme";
 
-const test_uri = "postgres://postgres:postgres@localhost:5432/test";
+const test_uri =
+  process.env.DATABASE_URI ||
+  "postgres://postgres:postgres@localhost:5432/test";
 const queryClient = postgres(test_uri);
 const db = drizzle(queryClient);
 
-interface TestStruct {
-  title: string;
-  input: ArticleUpdate;
-  error?: StoreErrorType | string;
-  expect: {
-    articles: {
-      id: Id;
-      body: string;
-      title: string;
-    };
-    people: { name: string };
-    chapters: { order: number };
-    series: { title: string };
-  };
-}
-
-beforeEach(async () => {
-  await mockDB(db);
-});
-
-const cases: TestStruct[] = [
-  {
-    title:
-      "should update a new article content with existed author, series and create new series and author",
-    input: {
-      id: 1,
-      title: "new blog",
-      body: "new blog body",
-      author: { name: "new author" },
-      chapter: { title: "new books", order: 1 },
-    },
-    error: undefined,
-    expect: {
-      articles: {
+describe("Article Update", () => {
+  const cases = [
+    {
+      title:
+        "should update a new article content with existed author, series and create new series and author",
+      input: {
         id: 1,
         title: "new blog",
         body: "new blog body",
+        author: { name: "new author" },
+        chapter: { title: "new books", order: 1 },
       },
-      people: { name: "new author" },
-      chapters: { order: 1 },
-      series: { title: "new books" },
+      error: undefined,
+      expect: {
+        articles: {
+          id: 1,
+          title: "new blog",
+          body: "new blog body",
+        },
+        people: { name: "new author" },
+        chapters: { order: 1 },
+        series: { title: "new books" },
+      },
     },
-  },
-];
+  ];
 
-const l = (result: Array<object>, expe: object) => {
-  expect(result.length).toEqual(1);
-  expect(result).toMatchObject([expe]);
-};
-
-const testCase = (c: TestStruct) => {
-  test(c.title, async () => {
-    const action = update(db)(c.input.id, c.input);
-
-    if (c.error) {
-      expect(async () => {
-        await action;
-      }).toThrowError(c.error);
-    } else {
-      expect(await action).toBeEmpty();
-      const article = await findArticleById(db)(c.input.id);
-      l(article, c.expect);
-    }
+  cases.map((c) => {
+    test(
+      c.title,
+      withTestDb(async (db: PostgresJsDatabase<typeof schema>) => {
+        db.transaction(async (trx) => {
+          const result = await update(db)(c.input.id, c.input);
+          if (c.error) {
+            expectError(Promise.reject(result), StoreErrorType.ValidationError);
+          } else {
+            const article = findArticleById(db)(c.input.id);
+            expect(article).toMatchObject({
+              id: c.expect.articles.id,
+              title: c.expect.articles.title,
+              body: c.expect.articles.body,
+              authors: { name: c.expect.people.name },
+              chapters: { order: c.expect.chapters.order },
+              series: { title: c.expect.series.title },
+            });
+          }
+        });
+      }),
+    );
   });
-};
-
-cases.map(testCase);
+});

@@ -12,6 +12,7 @@ export const people = pgTable("people", {
   name: text("name").notNull(),
 });
 
+
 export const authors = pgTable("authors", {
   id: serial("id").primaryKey().notNull(),
   person_id: integer("person_id")
@@ -21,6 +22,26 @@ export const authors = pgTable("authors", {
     .references(() => articles.id)
     .notNull(),
 });
+
+export const peopleRelations = relations(people, ({ many }) => ({
+  authors: many(authors),
+}));
+
+export const articlesRelations = relations(articles, ({ one }) => ({
+  authors: one(authors),
+  chapters: one(chapters),
+}));
+
+export const authorsRelations = relations(authors, ({ one }) => ({
+  article: one(articles, {
+    fields: [authors.article_id],
+    references: [articles.id],
+  }),
+  person: one(people, {
+    fields: [authors.person_id],
+    references: [people.id],
+  }),
+}));
 
 export const series = pgTable("series", {
   id: serial("id").primaryKey().notNull(),
@@ -39,3 +60,18 @@ export const chapters = pgTable("chapters", {
     .notNull()
     .notNull(),
 });
+
+export const seriesRelations = relations(series, ({ many }) => ({
+  chapters: many(chapters),
+}));
+
+export const chaptersRelations = relations(chapters, ({ one }) => ({
+  article: one(articles, {
+    fields: [chapters.article_id],
+    references: [articles.id],
+  }),
+  series: one(series, {
+    fields: [chapters.series_id],
+    references: [series.id],
+  }),
+}));

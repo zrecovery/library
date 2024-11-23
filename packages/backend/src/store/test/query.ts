@@ -2,14 +2,15 @@ import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { Id } from "../../domain/model";
 import { articles, authors, chapters, people, series } from "../scheme";
+import type * as schema from "../scheme";
 
-export const findArticleByTitle = (db: PostgresJsDatabase) => (title: string) =>
+export const findArticleByTitle = (db: PostgresJsDatabase<typeof schema>) => (title: string) =>
   db
     .select({ id: articles.id, title: articles.title, body: articles.body })
     .from(articles)
     .where(eq(articles.title, title));
 
-export const findArticleById = (db: PostgresJsDatabase) => (id: Id) =>
+export const findArticleById = (db: PostgresJsDatabase<typeof schema>) => (id: Id) =>
   db
     .select()
     .from(articles)

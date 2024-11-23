@@ -3,9 +3,10 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { Id } from "../../domain/model";
 import { articles, authors, chapters, people, series } from "../scheme";
 import { StoreError, StoreErrorType } from "../store.error.ts";
+import type * as schema from "../../store/scheme";
 
 export const update =
-  (db: PostgresJsDatabase) =>
+  (db: PostgresJsDatabase<typeof schema>) =>
   async (
     id: Id,
     data: {

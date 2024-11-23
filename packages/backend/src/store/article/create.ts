@@ -3,9 +3,10 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { ArticleCreate } from "../../domain/model";
 import { articles, authors, chapters, people, series } from "../scheme";
 import { StoreError, StoreErrorType } from "../store.error";
+import type * as schema from "../../store/scheme";
 
 export const create =
-  (db: PostgresJsDatabase) => async (data: ArticleCreate) => {
+  (db: PostgresJsDatabase<typeof schema>) => async (data: ArticleCreate) => {
     // Input validation
     if (!data.title?.trim()) {
       throw new StoreError(
