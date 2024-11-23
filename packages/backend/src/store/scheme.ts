@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { integer, pgTable, real, serial, text } from "drizzle-orm/pg-core";
 
 export const articles = pgTable("articles", {
@@ -17,7 +18,7 @@ export const authors = pgTable("authors", {
     .references(() => people.id)
     .notNull(),
   article_id: integer("article_id")
-    .references(() => series.id)
+    .references(() => articles.id)
     .notNull(),
 });
 

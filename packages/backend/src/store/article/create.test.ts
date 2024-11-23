@@ -2,13 +2,12 @@ import { describe, expect, test } from 'bun:test';
 import type { ArticleCreate } from '../../domain/model';
 import { StoreErrorType } from '../store.error';
 import { createContextLogger } from '../../utils/logger';
-import { createTestDb, expectError, withTestDb } from '../../utils/test';
+import {  expectError, withTestDb } from '../../utils/test';
 import { create } from './create';
 import { articles, series } from '../scheme';
 import { eq } from 'drizzle-orm';
 
 const logger = createContextLogger('ArticleCreateTest');
-const db = createTestDb();
 describe('Article Creation', () => {
   describe('Validation', () => {
     test('should reject empty title', withTestDb(async (db) => {

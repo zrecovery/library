@@ -18,22 +18,15 @@
             "watchMode": true
         },
         {
+            "name": "Test Program",
             "type": "bun",
-            "internalConsoleOptions": "neverOpen",
+            "args": [
+                "test"
+            ],
             "request": "launch",
-            "name": "Run File",
-            "program": "${file}",
-            "cwd": "${workspaceFolder}",
-            "noDebug": true,
-            "watchMode": false
-        },
-        {
-            "type": "bun",
-            "internalConsoleOptions": "neverOpen",
-            "request": "attach",
-            "name": "Attach Bun",
-            "url": "ws://localhost:6499/",
-            "stopOnEntry": false
+            "program": "src/**/*.test.ts",
+            "stopOnEntry": false,
+            "internalConsoleOptions": "openOnSessionStart"
         }
     ]
 }

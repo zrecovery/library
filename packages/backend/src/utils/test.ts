@@ -1,6 +1,6 @@
 import { expect } from "bun:test";
 import { sql } from "drizzle-orm";
-import { drizzle } from 'drizzle-orm/postgres-js';
+import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from "postgres";
 import * as schema from "../store/scheme";
 import { createContextLogger } from "./logger";
@@ -50,7 +50,7 @@ export const expectError = async <T>(
 };
 
 export const withTestDb = (
-  testFn: (db: PostgresJsDatabase) => Promise<void>,
+  testFn: (db: PostgresJsDatabase<typeof schema>) => Promise<void>,
 ) => {
   return async () => {
     const db = createTestDb();

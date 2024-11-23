@@ -26,6 +26,6 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "elysia": "^1.1.24"
+    "elysia": "^1.1.25"
   }
 }
