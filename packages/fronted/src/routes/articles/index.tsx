@@ -19,7 +19,7 @@ import { articleRepository } from "~/libs/api";
 
 export default function ArticleList() {
   const [page, setPage] = createSignal(1);
-  const [size, setSize] = createSignal(3);
+  const [size, setSize] = createSignal(12);
   const [keyword, setKeyword] = createSignal<string>("");
   const [result] = createResource(
     () => ({ page: page(), size: size(), keyword: keyword() }),
@@ -39,7 +39,7 @@ export default function ArticleList() {
           >
             <For each={result()?.data}>
               {(meta, index) => (
-                <Card class="w-sm max-w-full max-h-xs">
+                <Card class="w-sm  max-w-full max-h-40">
                   <CardHeader>
                     <A href={`/articles/${meta.id}`}>
                       <CardTitle>{meta.title}</CardTitle>

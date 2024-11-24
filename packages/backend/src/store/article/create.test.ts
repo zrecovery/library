@@ -4,7 +4,7 @@ import { StoreErrorType } from "../store.error";
 import { createContextLogger } from "../../utils/logger";
 import { expectError, withTestDb } from "../../utils/test";
 import { create } from "./create";
-import { articles, authors, series } from "../scheme";
+import { articles, series } from "../scheme";
 import { eq } from "drizzle-orm";
 
 const logger = createContextLogger("ArticleCreateTest");
