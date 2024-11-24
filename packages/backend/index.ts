@@ -5,7 +5,7 @@ import { articlesController } from "./src/application/article.controller.ts";
 
 export const app = new Elysia()
   .use(swagger())
-  .use(cors({ origin: "localhost:3000" }))
+  .use(cors({ origin: "localhost:3002" }))
   .group("/api", (api) => api.use(articlesController))
   .listen(3001);
 

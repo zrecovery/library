@@ -13,7 +13,7 @@
                 "run"
             ],
             "cwd": "${workspaceFolder}/packages/backend/",
-            "program": "${cwd}/index.ts",
+            "program": "index.ts",
             "stopOnEntry": false,
             "watchMode": true
         },

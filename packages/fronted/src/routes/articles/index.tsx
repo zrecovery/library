@@ -60,7 +60,7 @@ export default function ArticleList() {
           </div>
           <div
             class="justify-center max-w-full"
-            style="grid-are: pagination;align-content: center;"
+            style="grid-area: pagination;align-content: center;"
           >
             <Pagination
               page={page()}
