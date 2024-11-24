@@ -3,7 +3,7 @@ import { Show, createResource } from "solid-js";
 import { Button } from "~/components/ui/button";
 import { articleRepository } from "~/libs/api";
 
-export function ArticleDetail() {
+export default function ArticleDetail() {
   const { id } = useParams<{ id: string }>();
   const ID = Number(id);
   const [response] = createResource(() => ID, articleRepository.detail);
