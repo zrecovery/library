@@ -19,7 +19,7 @@ import { articleRepository } from "~/libs/api";
 
 export default function ArticleList() {
   const [page, setPage] = createSignal(1);
-  const [size, setSize] = createSignal(12);
+  const [size, setSize] = createSignal(10);
   const [keyword, setKeyword] = createSignal<string>("");
   const [result] = createResource(
     () => ({ page: page(), size: size(), keyword: keyword() }),
@@ -31,52 +31,65 @@ export default function ArticleList() {
       <Show when={result()}>
         <div
           class="grid"
-          style='height:100%;grid-template-areas: "main" "pagination"; grid-gap:1rem;grid-template-rows: 1fr 8rem;'
+          style='height:100%; grid-template:1fr/1fr 64rem 1fr'
         >
+          <div />
           <div
-            class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-md"
-            style="grid-area: main "
+          class="grid"
+          style='height:100%;grid-template-areas: "main" "pagination"; grid-gap:1rem;grid-template-rows: 1fr 8rem;'
           >
-            <For each={result()?.data}>
-              {(meta, index) => (
-                <Card class="w-sm  max-w-full max-h-40">
-                  <CardHeader>
-                    <A href={`/articles/${meta.id}`}>
-                      <CardTitle>{meta.title}</CardTitle>
-                    </A>
-
-                    <Show when={meta.chapter}>
-                      <A href={`/books/${meta.id}`}>
-                        <CardDescription>{meta.chapter?.title}</CardDescription>
-                      </A>
-                    </Show>
-                  </CardHeader>
-                  <CardFooter>
-                    <p>{meta.author?.name}</p>
-                  </CardFooter>
-                </Card>
-              )}
-            </For>
-          </div>
-          <div
-            class="justify-center max-w-full"
-            style="grid-area: pagination;align-content: center;"
-          >
-            <Pagination
-              page={page()}
-              onPageChange={setPage}
-              // @ts-ignore
-              count={result().pagination.pages}
-              itemComponent={(props) => (
-                <PaginationItem page={props.page}>{props.page}</PaginationItem>
-              )}
-              ellipsisComponent={() => <PaginationEllipsis />}
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-2 h-md justify-center align-center justify-items-center items-center "
+              style="grid-area: main "
             >
-              <PaginationPrevious />
-              <PaginationItems />
-              <PaginationNext />
-            </Pagination>
+              <For each={result()?.data}>
+                {(meta, index) => (
+                  <Card class="w-sm  max-w-full h-32">
+                    <CardHeader>
+                      <A href={`/articles/${meta.id}`}>
+                        <CardTitle class="truncate leading-normal">
+                          {meta.title}
+                        </CardTitle>
+                      </A>
+
+                      <Show when={meta.chapter}>
+                        <A href={`/books/${meta.id}`}>
+                          <CardDescription>
+                            {meta.chapter?.title}
+                          </CardDescription>
+                        </A>
+                      </Show>
+                    </CardHeader>
+                    <CardFooter>
+                      <p>{meta.author?.name}</p>
+                    </CardFooter>
+                  </Card>
+                )}
+              </For>
+            </div>
+            <div
+              class="justify-center max-w-full"
+              style="grid-area: pagination;align-content: center;"
+            >
+              <Pagination
+                page={page()}
+                onPageChange={setPage}
+                // @ts-ignore
+                count={result().pagination.pages}
+                itemComponent={(props) => (
+                  <PaginationItem page={props.page}>
+                    {props.page}
+                  </PaginationItem>
+                )}
+                ellipsisComponent={() => <PaginationEllipsis />}
+              >
+                <PaginationPrevious />
+                <PaginationItems />
+                <PaginationNext />
+              </Pagination>
+            </div>
           </div>
+          <div />
         </div>
       </Show>
     </Show>
