@@ -18,7 +18,15 @@ export default function ArticleDetail() {
         </article>
         <Button
           onClick={() => {
-            articleRepository.remove(ID).then(() => console.log("delete"));
+            articleRepository.remove(ID).then((status) =>  {
+
+            if (status === 201){
+             console.log("delete"); 
+            }else
+          {
+            alert("error");
+          };
+            });
           }}
         >
           删除

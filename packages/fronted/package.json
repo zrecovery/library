@@ -14,10 +14,10 @@
     "@solidjs/start": "^1.0.10",
     "@tanstack/solid-table": "^8.20.5",
     "@unocss/reset": "^0.59.4",
-    "class-variance-authority": "^0.7.0",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "solid-js": "^1.9.3",
-    "tailwind-merge": "^2.5.4",
+    "tailwind-merge": "^2.5.5",
     "unocss": "^0.59.4",
     "unocss-preset-animations": "^1.1.0",
     "vinxi": "^0.4.3"

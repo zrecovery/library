@@ -7,16 +7,10 @@ import type {
   Id,
 } from "../model";
 import { createContextLogger } from '../../utils/logger';
+import type { ArticleStore } from "./article-store.interface";
 
 const logger = createContextLogger('ArticleService');
 
-export interface ArticleStore {
-  findMany(query: ArticleQuery): Promise<ArticleList>;
-  find(id: Id): Promise<ArticleDetail | null>;
-  create(date: ArticleCreate): Promise<void>;
-  update(id: Id, data: ArticleUpdate): Promise<void>;
-  remove(id: Id): Promise<void>;
-}
 
 export const createArticleService = (store: ArticleStore) => ({
   async findMany(query: ArticleQuery): Promise<ArticleList> {

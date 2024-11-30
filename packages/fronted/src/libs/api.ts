@@ -65,6 +65,7 @@ class ArticleRepository {
     const { data, error, status } = await repository.api
       .articles({ id: id })
       .delete();
+      return status;
   }
 
   #checkStatus(status: number) {

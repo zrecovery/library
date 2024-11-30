@@ -1,10 +1,10 @@
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import type { ArticleStore } from "../../domain/article/article.service";
 import { find } from "./find";
 import { findMany } from "./findMany";
 import { create } from "./create";
 import { update } from "./update";
 import { remove } from "./remove";
+import type { ArticleStore } from "../../domain/article/article-store.interface";
 
 export const createArticleStore = (db: PostgresJsDatabase): ArticleStore => {
   return {

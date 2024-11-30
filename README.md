@@ -1,15 +1,25 @@
 # library
+本项目主要用于管理电子书的文章信息，包括作者、系列等和基本阅读功能。
 
-To install dependencies:
+## 技术栈
+- [Bun](https://bun.sh/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Drizzle ORM](https://drizzle-orm.netlify.app/)
+- [SolidJS](https://www.solidjs.com/)
 
-```bash
-bun install
-```
+## 设计目标
+### 文章管理
+- 分页读取文章列表
+- 新增，可以指定作者和系列，支持Web客户端上传和本地导入
+- 修改，修改文章的作者，系列时，需要判断作者和系列是否存在，不存在的话需要创建。
+- 删除
+- 搜索，根据给出的关键词搜索文章。可以多个关键词，或不包括关键词。
+- 根据ID，读取文章内容
 
-To run:
+### 作者管理
+- 根据作者id获取作者信息，包含作者的文章和系列信息，带分页。
+- 删除作者，作者下的文章和系列都会被删除。
 
-```bash
-bun run index.tsx
-```
-
-This project was created using `bun init` in bun v1.1.20. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+### 系列管理
+- 根据系列id获取系列信息，包含系列的文章和作者信息，带分页。
+- 删除系列，系列下的文章和作者都会被删除。
