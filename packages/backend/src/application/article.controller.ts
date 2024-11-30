@@ -25,13 +25,34 @@ export const articlesController = new Elysia({ prefix: "/articles" })
       },
     },
   )
-  .post("/", ({ body }) => articlesService.create(body), {
-    body: "article.create",
-  })
-  .put("/:id", ({ body, params: { id } }) => articlesService.update(id, body), {
-    params: t.Object({ id: t.Numeric() }),
-    body: "article.update",
-  })
-  .delete("/:id", ({ params: { id } }) => articlesService.remove(id), {
-    params: t.Object({ id: t.Numeric() }),
-  });
+  .post(
+    "/",
+    ({ body, set }) => {
+      articlesService.create(body);
+      set.status = "Created";
+    },
+    {
+      body: "article.create",
+    },
+  )
+  .put(
+    "/:id",
+    ({ body, params: { id }, set }) => {
+      articlesService.update(id, body);
+      set.status = "No Content";
+    },
+    {
+      params: t.Object({ id: t.Numeric() }),
+      body: "article.update",
+    },
+  )
+  .delete(
+    "/:id",
+    ({ params: { id }, set }) => {
+      articlesService.remove(id);
+      set.status = "No Content";
+    },
+    {
+      params: t.Object({ id: t.Numeric() }),
+    },
+  );

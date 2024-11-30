@@ -4,7 +4,7 @@ import { articlesService } from "backend/src/application/ioc.ts";
 import {
   type Config,
   type Created,
-  type FileFormat,
+  FileFormat,
   type Raw,
   format,
 } from "./src/model.ts";
@@ -57,3 +57,9 @@ export const localInput = async (config: Config) => {
   console.log(failures);
   console.log("finish");
 };
+
+localInput({
+  root: "/home/dev/下载/epub",
+  reg: /(\[\d{6}]\/)?(?<id>(\d*))_\((?<author_id>\d*)\)(_\[(?<series>.*)\((?<order>\d*)\)\]_)?\((?<author>(.*))\)(?<title>.*).epub/,
+  format: FileFormat.epub,
+});

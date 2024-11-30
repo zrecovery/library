@@ -20,7 +20,7 @@ export default function ArticleDetail() {
           onClick={() => {
             articleRepository.remove(ID).then((status) =>  {
 
-            if (status === 201){
+            if (status === 204){
              console.log("delete"); 
             }else
           {
