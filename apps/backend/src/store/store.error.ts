@@ -1,10 +1,10 @@
 export enum StoreErrorType {
-  NotFound = 'NOT_FOUND',
-  ValidationError = 'VALIDATION_ERROR',
-  DatabaseError = 'DATABASE_ERROR',
-  DuplicateEntry = 'DUPLICATE_ENTRY',
-  InvalidOperation = 'INVALID_OPERATION',
-  UnknownError = 'UNKNOWN_ERROR'
+  NotFound = "NOT_FOUND",
+  ValidationError = "VALIDATION_ERROR",
+  DatabaseError = "DATABASE_ERROR",
+  DuplicateEntry = "DUPLICATE_ENTRY",
+  InvalidOperation = "INVALID_OPERATION",
+  UnknownError = "UNKNOWN_ERROR",
 }
 
 export class StoreError extends Error {
@@ -12,10 +12,10 @@ export class StoreError extends Error {
     message: string,
     public readonly type: StoreErrorType,
     public readonly raw?: unknown,
-    public readonly context?: Record<string, unknown>
+    public readonly context?: Record<string, unknown>,
   ) {
     super(message);
-    this.name = 'StoreError';
+    this.name = "StoreError";
     Object.setPrototypeOf(this, StoreError.prototype);
   }
 
@@ -24,7 +24,7 @@ export class StoreError extends Error {
       name: this.name,
       message: this.message,
       type: this.type,
-      context: this.context
+      context: this.context,
     };
   }
 }

@@ -4,21 +4,23 @@ import type { Id } from "../../domain/model";
 import { articles, authors, chapters, people, series } from "../scheme";
 import type * as schema from "../scheme";
 
-export const findArticleByTitle = (db: PostgresJsDatabase<typeof schema>) => (title: string) =>
-  db
-    .select({ id: articles.id, title: articles.title, body: articles.body })
-    .from(articles)
-    .where(eq(articles.title, title));
+export const findArticleByTitle =
+  (db: PostgresJsDatabase<typeof schema>) => (title: string) =>
+    db
+      .select({ id: articles.id, title: articles.title, body: articles.body })
+      .from(articles)
+      .where(eq(articles.title, title));
 
-export const findArticleById = (db: PostgresJsDatabase<typeof schema>) => (id: Id) =>
-  db
-    .select()
-    .from(articles)
-    .leftJoin(authors, eq(authors.article_id, articles.id))
-    .leftJoin(people, eq(authors.person_id, people.id))
-    .leftJoin(chapters, eq(chapters.article_id, articles.id))
-    .leftJoin(series, eq(chapters.series_id, series.id))
-    .where(eq(articles.id, id));
+export const findArticleById =
+  (db: PostgresJsDatabase<typeof schema>) => (id: Id) =>
+    db
+      .select()
+      .from(articles)
+      .leftJoin(authors, eq(authors.article_id, articles.id))
+      .leftJoin(people, eq(authors.person_id, people.id))
+      .leftJoin(chapters, eq(chapters.article_id, articles.id))
+      .leftJoin(series, eq(chapters.series_id, series.id))
+      .where(eq(articles.id, id));
 
 export const findPerson = (db: PostgresJsDatabase) => (name: string) =>
   db

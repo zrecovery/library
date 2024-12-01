@@ -1,6 +1,6 @@
 import { expect } from "bun:test";
 import { sql } from "drizzle-orm";
-import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "../store/scheme";
 import { createContextLogger } from "./logger";
@@ -44,11 +44,11 @@ export const expectError = async <T>(
     expect().fail("Expected an error but none was thrown");
   } catch (error: unknown) {
     if (error instanceof StoreError) {
-    expect(error.type).toBe(errorType);
-    if (message) {
-      expect(error.message).toContain(message);
-    }
-    }else{
+      expect(error.type).toBe(errorType);
+      if (message) {
+        expect(error.message).toContain(message);
+      }
+    } else {
       expect().fail("Expected an error but none was thrown");
     }
   }

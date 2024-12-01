@@ -1,6 +1,6 @@
-import pino from 'pino';
+import pino from "pino";
 
-const logLevel = process.env.LOG_LEVEL || 'info';
+const logLevel = process.env.LOG_LEVEL || "info";
 
 export const logger = pino({
   level: logLevel,
@@ -11,13 +11,13 @@ export const logger = pino({
     },
   },
   transport: {
-    target: 'pino-pretty',
+    target: "pino-pretty",
     options: {
       colorize: false,
-      ignore: 'pid,hostname',
-      translateTime: 'UTC:yyyy-mm-dd HH:MM:ss.l'
-    }
-  }
+      ignore: "pid,hostname",
+      translateTime: "UTC:yyyy-mm-dd HH:MM:ss.l",
+    },
+  },
 });
 
 export const createContextLogger = (context: string) => {

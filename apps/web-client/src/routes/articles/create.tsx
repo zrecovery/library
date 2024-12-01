@@ -1,4 +1,3 @@
 export default function Create() {
-    
-    return <div>create</div>;
+  return <div>create</div>;
 }

@@ -12,7 +12,6 @@ export const people = pgTable("people", {
   name: text("name").notNull(),
 });
 
-
 export const authors = pgTable("authors", {
   id: serial("id").primaryKey().notNull(),
   person_id: integer("person_id")

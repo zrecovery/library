@@ -18,14 +18,12 @@ export default function ArticleDetail() {
         </article>
         <Button
           onClick={() => {
-            articleRepository.remove(ID).then((status) =>  {
-
-            if (status === 204){
-             console.log("delete"); 
-            }else
-          {
-            alert("error");
-          };
+            articleRepository.remove(ID).then((status) => {
+              if (status === 204) {
+                console.log("delete");
+              } else {
+                alert("error");
+              }
             });
           }}
         >

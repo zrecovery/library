@@ -1,4 +1,11 @@
-import type { ArticleQuery, ArticleList, Id, ArticleDetail, ArticleCreate, ArticleUpdate } from "../model";
+import type {
+  ArticleQuery,
+  ArticleList,
+  Id,
+  ArticleDetail,
+  ArticleCreate,
+  ArticleUpdate,
+} from "../model";
 
 export interface ArticleStore {
   findMany(query: ArticleQuery): Promise<ArticleList>;

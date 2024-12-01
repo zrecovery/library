@@ -10,28 +10,28 @@ export const create =
     // Input validation
     if (!data.title?.trim()) {
       throw new StoreError(
-        'Article title is required',
+        "Article title is required",
         StoreErrorType.ValidationError,
         null,
-        { field: 'title' }
+        { field: "title" },
       );
     }
 
     if (!data.body?.trim()) {
       throw new StoreError(
-        'Article body is required',
+        "Article body is required",
         StoreErrorType.ValidationError,
         null,
-        { field: 'body' }
+        { field: "body" },
       );
     }
 
     if (!data.author?.name?.trim()) {
       throw new StoreError(
-        'Author name is required',
+        "Author name is required",
         StoreErrorType.ValidationError,
         null,
-        { field: 'author.name' }
+        { field: "author.name" },
       );
     }
 
@@ -44,14 +44,14 @@ export const create =
           .insert(articles)
           .values({ title: title.trim(), body: body.trim() })
           .returning();
-        
+
         if (!articlesEntity.length) {
           throw new StoreError(
-            'Failed to create article',
-            StoreErrorType.DatabaseError
+            "Failed to create article",
+            StoreErrorType.DatabaseError,
           );
         }
-        
+
         const article = articlesEntity[0];
 
         // Handle author
@@ -67,10 +67,10 @@ export const create =
 
         if (!person) {
           throw new StoreError(
-            'Failed to create or find author',
+            "Failed to create or find author",
             StoreErrorType.DatabaseError,
             null,
-            { authorName: author.name }
+            { authorName: author.name },
           );
         }
 
@@ -82,10 +82,10 @@ export const create =
         if (chapter) {
           if (!chapter.title?.trim()) {
             throw new StoreError(
-              'Chapter title is required when chapter is provided',
+              "Chapter title is required when chapter is provided",
               StoreErrorType.ValidationError,
               null,
-              { field: 'chapter.title' }
+              { field: "chapter.title" },
             );
           }
 
@@ -101,10 +101,10 @@ export const create =
 
           if (!s) {
             throw new StoreError(
-              'Failed to create or find series',
+              "Failed to create or find series",
               StoreErrorType.DatabaseError,
               null,
-              { chapterTitle: chapter.title }
+              { chapterTitle: chapter.title },
             );
           }
 
@@ -120,9 +120,9 @@ export const create =
           throw e;
         }
         throw new StoreError(
-          'Failed to create article',
+          "Failed to create article",
           StoreErrorType.UnknownError,
-          e
+          e,
         );
       }
     });

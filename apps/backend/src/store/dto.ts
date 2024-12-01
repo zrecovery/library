@@ -25,7 +25,10 @@ export const toModel = <T extends MetaResult | FindResult>(
   r: T,
 ): T extends FindResult ? ArticleDetail : ArticleMeta => {
   if (!r.author) {
-    throw new StoreError(`脏数据：缺少author，article_id=${r.article.id}`, StoreErrorType.ValidationError);
+    throw new StoreError(
+      `脏数据：缺少author，article_id=${r.article.id}`,
+      StoreErrorType.ValidationError,
+    );
   }
   const chapter =
     r.chapter.id && r.chapter.order && r.chapter.title

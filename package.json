@@ -14,10 +14,7 @@
   "peerDependencies": {
     "typescript": "latest"
   },
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
+  "workspaces": ["packages/*", "apps/*"],
   "dependencies": {
     "epub.js": "^0.2.15",
     "fflate": "^0.8.2"

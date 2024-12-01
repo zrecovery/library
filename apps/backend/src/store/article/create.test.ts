@@ -176,7 +176,8 @@ describe("Article Creation", () => {
 
           expect(results).toHaveLength(2);
           // biome-ignore lint/style/noNonNullAssertion: <explanation>
-          expect(results[0].chapters?.series.id).toBe(results[1].chapters!.series.id,
+          expect(results[0].chapters?.series.id).toBe(
+            results[1].chapters!.series.id,
           );
         });
       }),
