@@ -1,19 +1,10 @@
-import { describe, expect, test, beforeEach } from "bun:test";
-import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import type { ArticleUpdate, Id } from "../../domain/model";
+import { describe, expect, test } from "bun:test";
+import { type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { StoreErrorType } from "../store.error";
-import { mockDB } from "../test/mock";
 import { findArticleById } from "../test/query";
 import { update } from "./update";
 import { withTestDb, expectError } from "../../utils/test";
 import type * as schema from "../../store/scheme";
-
-const test_uri =
-  process.env.DATABASE_URI ||
-  "postgres://postgres:postgres@localhost:5432/test";
-const queryClient = postgres(test_uri);
-const db = drizzle(queryClient);
 
 describe("Article Update", () => {
   const cases = [

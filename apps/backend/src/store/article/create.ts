@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import type { ArticleCreate } from "../../domain/model";
+import type { ArticleCreate } from "@domain/model";
 import { articles, authors, chapters, people, series } from "../scheme";
 import { StoreError, StoreErrorType } from "../store.error";
 import type * as schema from "../../store/scheme";

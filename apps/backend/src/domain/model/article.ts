@@ -1,5 +1,7 @@
+// Import necessary modules from Elysia
 import Elysia, { t, type Static } from "elysia";
 
+// Schema for creating an article
 export const CreateSchema = t.Object({
   title: t.String(),
   body: t.String(),
@@ -13,33 +15,30 @@ export const CreateSchema = t.Object({
     }),
   ),
 });
-
 export type ArticleCreate = Static<typeof CreateSchema>;
 
-export const DetailSchema = t.Object(
-  {
+// Schema for article details
+export const DetailSchema = t.Object({
+  id: t.Number(),
+  title: t.String(),
+  body: t.String(),
+  author: t.Object({
     id: t.Number(),
-    title: t.String(),
-    body: t.String(),
-    author: t.Object({
+    name: t.String(),
+  }),
+  chapter: t.Optional(
+    t.Object({
       id: t.Number(),
-      name: t.String(),
+      title: t.String(),
+      order: t.Number({ minimum: 0 }),
     }),
-    chapter: t.Optional(
-      t.Object({
-        id: t.Number(),
-        title: t.String(),
-        order: t.Number({ minimum: 0 }),
-      }),
-    ),
-  },
-  {
-    error: "Not Find",
-  },
-);
-
+  ),
+}, {
+  error: "Not Found",
+});
 export type ArticleDetail = Static<typeof DetailSchema>;
 
+// Schema for updating an article
 const UpdateSchema = t.Object({
   id: t.Number(),
   title: t.Optional(t.String()),
@@ -56,17 +55,17 @@ const UpdateSchema = t.Object({
     }),
   ),
 });
-
 export type ArticleUpdate = Static<typeof UpdateSchema>;
 
+// Schema for querying articles
 const QuerySchema = t.Object({
   keyword: t.Optional(t.String()),
   page: t.Optional(t.Numeric({ minimum: 0 })),
   size: t.Optional(t.Numeric({ minimum: 0 })),
 });
-
 export type ArticleQuery = Static<typeof QuerySchema>;
 
+// Schema for article metadata
 const MetaSchema = t.Object({
   id: t.Number(),
   title: t.String(),
@@ -82,9 +81,9 @@ const MetaSchema = t.Object({
     }),
   ),
 });
-
 export type ArticleMeta = Static<typeof MetaSchema>;
 
+// Schema for listing articles
 const ListSchema = t.Object({
   pagination: t.Object({
     current: t.Number({ minimum: 0 }),
@@ -94,9 +93,9 @@ const ListSchema = t.Object({
   }),
   data: t.Array(MetaSchema),
 });
-
 export type ArticleList = Static<typeof ListSchema>;
 
+// Export all schemas under a single model
 export const ArticleSchema = new Elysia().model({
   "article.create": CreateSchema,
   "article.detail": DetailSchema,

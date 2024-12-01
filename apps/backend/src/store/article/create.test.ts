@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import type { ArticleCreate } from "../../domain/model";
+import type { ArticleCreate } from "@domain/model";
 import { StoreErrorType } from "../store.error";
-import { createContextLogger } from "../../utils/logger";
-import { expectError, withTestDb } from "../../utils/test";
+import { createContextLogger } from "@utils/logger";
+import { expectError, withTestDb } from "@utils/test";
 import { create } from "./create";
 import { articles, series } from "../scheme";
 import { eq } from "drizzle-orm";
