@@ -6,7 +6,9 @@ import { update } from "./update";
 import { remove } from "./remove";
 import type { ArticleStore } from "../../domain/article/article-store.interface";
 
-export const createArticleStore = (db: PostgresJsDatabase): ArticleStore => {
+import type * as schema from "../../store/scheme";
+
+export const createArticleStore = (db: PostgresJsDatabase<typeof schema>): ArticleStore => {
   return {
     findMany: findMany(db),
     find: find(db),

@@ -5,9 +5,10 @@ import type { ArticleDetail, Id } from "../../domain/model";
 import { type FindResult, toModel } from "../dto.ts";
 import { articles, authors, chapters, people, series } from "../scheme";
 import { StoreError, StoreErrorType } from "../store.error";
+import type * as schema from "../../store/scheme";
 
 export const find =
-  (db: PostgresJsDatabase) =>
+  (db: PostgresJsDatabase<typeof schema>) =>
   async (id: Id): Promise<ArticleDetail | null> => {
     const result: FindResult[] = await db
       .select({

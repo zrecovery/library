@@ -3,7 +3,9 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { Id } from "../../domain/model";
 import { articles, authors, chapters } from "../scheme";
 
-export const remove = (db: PostgresJsDatabase) => async (id: Id) => {
+import type * as schema from "../../store/scheme";
+
+export const remove = (db: PostgresJsDatabase<typeof schema>) => async (id: Id) => {
   return db.transaction(async (tx) => {
     try {
       await tx.delete(authors).where(eq(authors.article_id, id));

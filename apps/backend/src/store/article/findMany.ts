@@ -4,9 +4,12 @@ import type { ArticleList, Pagination } from "../../domain/model";
 import { type MetaResult, toModel } from "../dto.ts";
 import { articles, authors, chapters, people, series } from "../scheme";
 
+import type * as schema from "../../store/scheme";
+
+
 // 获取文章列表
 export const findMany =
-  (db: PostgresJsDatabase) =>
+  (db: PostgresJsDatabase<typeof schema>) =>
   async (query: Pagination & { keyword?: string }): Promise<ArticleList> => {
     try {
       const condition = query.keyword
