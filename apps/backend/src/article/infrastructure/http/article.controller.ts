@@ -1,12 +1,13 @@
+import { schema } from "@article/domain/schema";
 import Elysia, { error, t } from "elysia";
-import { ArticleSchema } from "../domain/model";
-import { articlesService } from "./ioc";
+import { createArticleService } from "src/application/article.service";
 
+const articlesService = createArticleService();
 export const articlesController = new Elysia({ prefix: "/articles" })
-  .use(ArticleSchema)
+  .model(schema)
   .get("/", ({ query }) => articlesService.findMany(query), {
-    query: "article.query",
-    response: "article.list",
+    query: "findMany.request",
+    response: "findMany.response",
   })
   .get(
     "/:id",
@@ -20,7 +21,7 @@ export const articlesController = new Elysia({ prefix: "/articles" })
     {
       params: t.Object({ id: t.Numeric() }),
       response: {
-        200: "article.detail",
+        200: "find.response",
         404: t.String(),
       },
     },
@@ -32,7 +33,7 @@ export const articlesController = new Elysia({ prefix: "/articles" })
       set.status = "Created";
     },
     {
-      body: "article.create",
+      body: "create.request",
     },
   )
   .put(
@@ -43,7 +44,7 @@ export const articlesController = new Elysia({ prefix: "/articles" })
     },
     {
       params: t.Object({ id: t.Numeric() }),
-      body: "article.update",
+      body: "update.request",
     },
   )
   .delete(

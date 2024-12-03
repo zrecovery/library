@@ -1,7 +1,7 @@
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import Elysia from "elysia";
-import { articlesController } from "./src/application/article.controller.ts";
+import { articlesController } from "./src/article/infrastructure/http/article.controller.ts";
 import { opentelemetry } from "@elysiajs/opentelemetry";
 
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-node";

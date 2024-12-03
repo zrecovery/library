@@ -1,11 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import type { ArticleCreate } from "@domain/model";
-import { StoreErrorType } from "../store.error";
+import { StoreErrorType } from "./store.error";
 import { createContextLogger } from "@utils/logger";
 import { expectError, withTestDb } from "@utils/test";
-import { create } from "./create";
-import { articles, series } from "../scheme";
+import { articles, series } from "./scheme";
 import { eq } from "drizzle-orm";
+import type { ArticleCreate } from "@article/domain/schema/create";
+import { save } from "./save";
 
 const logger = createContextLogger("ArticleCreateTest");
 
@@ -21,7 +21,7 @@ describe("Article Creation", () => {
         };
 
         await expectError(
-          create(db)(input),
+          save(db)(input),
           StoreErrorType.ValidationError,
           "title is required",
         );
@@ -38,7 +38,7 @@ describe("Article Creation", () => {
         };
 
         await expectError(
-          create(db)(input),
+          save(db)(input),
           StoreErrorType.ValidationError,
           "body is required",
         );
@@ -55,7 +55,7 @@ describe("Article Creation", () => {
         };
 
         await expectError(
-          create(db)(input),
+          save(db)(input),
           StoreErrorType.ValidationError,
           "Author name is required",
         );
@@ -73,7 +73,7 @@ describe("Article Creation", () => {
           author: { name: "Test Author" },
         };
 
-        await create(db)(input);
+        await save(db)(input);
 
         // Verify article creation
         const result = await db.query.articles.findFirst({
@@ -107,7 +107,7 @@ describe("Article Creation", () => {
           },
         };
 
-        await create(db)(input);
+        await save(db)(input);
 
         // Verify article and chapter creation
         const result = await db.query.articles.findFirst({
@@ -159,8 +159,8 @@ describe("Article Creation", () => {
           },
         };
         db.transaction(async (trx) => {
-          await create(db)(input1);
-          await create(db)(input2);
+          await save(db)(input1);
+          await save(db)(input2);
 
           // Verify both articles share the same series
           const results = await db.query.articles.findMany({

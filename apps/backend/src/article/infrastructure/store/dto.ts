@@ -1,4 +1,4 @@
-import type { ArticleDetail, ArticleMeta } from "../domain/model";
+import type { ArticleDetail, ArticleMeta } from "../../../model/index.ts";
 import { StoreError, StoreErrorType } from "./store.error.ts";
 
 export type FindResult = {

@@ -2,9 +2,9 @@ import { expect } from "bun:test";
 import { sql } from "drizzle-orm";
 import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as schema from "../store/scheme";
+import * as schema from "../article/infrastructure/store/scheme";
 import { createContextLogger } from "./logger";
-import { StoreError, type StoreErrorType } from "../store/store.error";
+import { StoreError, type StoreErrorType } from "../article/infrastructure/store/store.error";
 
 const logger = createContextLogger("TestUtils");
 

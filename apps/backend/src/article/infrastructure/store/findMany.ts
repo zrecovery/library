@@ -1,16 +1,17 @@
 import { count, eq, like } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import type { ArticleList, Pagination } from "../../domain/model";
-import { type MetaResult, toModel } from "../dto.ts";
-import { articles, authors, chapters, people, series } from "../scheme";
+import { type MetaResult, toModel } from "./dto.ts";
+import { articles, authors, chapters, people, series } from "./scheme.ts";
 
-import type * as schema from "../../store/scheme";
+import type * as schema from "./scheme.ts";
+import type { ArticleListResponse } from "@domain/schema/list.ts";
+import type { Pagination } from "src/model/index.ts";
 
 
 // 获取文章列表
 export const findMany =
   (db: PostgresJsDatabase<typeof schema>) =>
-  async (query: Pagination & { keyword?: string }): Promise<ArticleList> => {
+  async (query: Pagination & { keyword?: string }): Promise<ArticleListResponse> => {
     try {
       const condition = query.keyword
         ? like(articles.body, `%${query.keyword}%`)

@@ -1,14 +1,8 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { createArticleService } from "../domain/article/article.service";
-import { createArticleStore } from "../store/article";
+import * as schema from "./scheme";
 
-const uri = process.env.DATABASE_URI;
-if (uri === undefined) {
-  throw new Error("No database uri provided");
-}
-
-const connectDb = (uri: string) => {
+export const connectDb = (uri: string) => {
   if (!uri) {
     throw new Error("Database URI is required");
   }
@@ -21,14 +15,12 @@ const connectDb = (uri: string) => {
       connect_timeout: 10,
     });
 
-    const db = drizzle(client);
+    const db = drizzle(client, { schema: schema });
     console.info("Database connection established");
-    return createArticleStore(db);
+    return db;
   } catch (e) {
     console.error("Failed to connect to database:", e);
     throw new Error("Database connection failed");
   }
 };
 
-const articleStore = connectDb(uri);
-export const articlesService = createArticleService(articleStore);

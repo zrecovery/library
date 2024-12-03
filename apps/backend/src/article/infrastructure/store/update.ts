@@ -1,9 +1,9 @@
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import type { Id } from "../../domain/model";
-import { articles, authors, chapters, people, series } from "../scheme";
-import { StoreError, StoreErrorType } from "../store.error.ts";
-import type * as schema from "../../store/scheme";
+import { articles, authors, chapters, people, series } from "./scheme.ts";
+import { StoreError, StoreErrorType } from "./store.error.ts";
+import type * as schema from "./scheme.ts";
+import type { Id } from "src/model/index.ts";
 
 export const update =
   (db: PostgresJsDatabase<typeof schema>) =>

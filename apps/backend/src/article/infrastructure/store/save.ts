@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import type { ArticleCreate } from "@domain/model";
-import { articles, authors, chapters, people, series } from "../scheme";
-import { StoreError, StoreErrorType } from "../store.error";
-import type * as schema from "../../store/scheme";
+import { articles, authors, chapters, people, series } from "./scheme";
+import { StoreError, StoreErrorType } from "./store.error";
+import type * as schema from "./scheme";
+import type { ArticleCreate } from "@article/domain/schema/create";
 
-export const create =
+export const save =
   (db: PostgresJsDatabase<typeof schema>) => async (data: ArticleCreate) => {
     // Input validation
     if (!data.title?.trim()) {

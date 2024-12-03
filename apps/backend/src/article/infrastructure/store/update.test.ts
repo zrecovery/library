@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { type PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import { StoreErrorType } from "../store.error";
-import { findArticleById } from "../test/query";
-import { update } from "./update";
-import { withTestDb, expectError } from "../../utils/test";
-import type * as schema from "../../store/scheme";
+import { StoreErrorType } from "./store.error";
+import { findArticleById } from "./test/query";
+import { update } from "./article/update";
+import type * as schema from "./scheme";
+import { expectError, withTestDb } from "@utils/test";
 
 describe("Article Update", () => {
   const cases = [
