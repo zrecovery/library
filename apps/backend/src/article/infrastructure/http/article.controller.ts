@@ -1,4 +1,4 @@
-import { schema } from "@article/domain/schema";
+import { schema } from "@article/domain/types";
 import Elysia, { error, t } from "elysia";
 import { createArticleService } from "@article/application/article.service";
 

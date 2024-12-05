@@ -4,7 +4,7 @@ import { type MetaResult, toModel } from "./dto.ts";
 import { articles, authors, chapters, people, series } from "./scheme.ts";
 
 import type * as schema from "./scheme.ts";
-import type { ArticleListResponse } from "@domain/schema/list.ts";
+import type { ArticleListResponse } from "@article/domain/types/list.ts";
 import type { Pagination } from "src/model/index.ts";
 
 

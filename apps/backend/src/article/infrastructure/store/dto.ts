@@ -1,5 +1,6 @@
-import type { ArticleDetail, ArticleMeta } from "../../../model/index.ts";
+import type { ArticleDetail } from "@article/domain/types/detail.ts";
 import { StoreError, StoreErrorType } from "./store.error.ts";
+import type { ArticleMeta } from "@article/domain/types/list.ts";
 
 export type FindResult = {
   article: { id: number; title: string; body: string };

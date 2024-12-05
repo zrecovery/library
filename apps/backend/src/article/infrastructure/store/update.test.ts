@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { StoreErrorType } from "./store.error";
 import { findArticleById } from "./test/query";
-import { update } from "./article/update";
+import { update } from "./update";
 import type * as schema from "./scheme";
 import { expectError, withTestDb } from "@utils/test";
 

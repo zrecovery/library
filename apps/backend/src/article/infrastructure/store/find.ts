@@ -6,7 +6,7 @@ import { articles, authors, chapters, people, series } from "./scheme.ts";
 import { StoreError, StoreErrorType } from "./store.error.ts";
 import type * as schema from "./scheme.ts";
 import type { Id } from "src/model/index.ts";
-import type { ArticleDetail } from "@article/domain/schema/detail.ts";
+import type { ArticleDetail } from "@article/domain/types/detail.ts";
 
 export const find =
   (db: PostgresJsDatabase<typeof schema>) =>

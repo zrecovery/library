@@ -4,7 +4,7 @@ import { createContextLogger } from "@utils/logger";
 import { expectError, withTestDb } from "@utils/test";
 import { articles, series } from "./scheme";
 import { eq } from "drizzle-orm";
-import type { ArticleCreate } from "@article/domain/schema/create";
+import type { ArticleCreate } from "@article/domain/types/create";
 import { save } from "./save";
 
 const logger = createContextLogger("ArticleCreateTest");

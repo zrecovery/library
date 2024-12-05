@@ -3,7 +3,7 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { articles, authors, chapters, people, series } from "./scheme";
 import { StoreError, StoreErrorType } from "./store.error";
 import type * as schema from "./scheme";
-import type { ArticleCreate } from "@article/domain/schema/create";
+import type { ArticleCreate } from "@article/domain/types/create";
 
 export const save =
   (db: PostgresJsDatabase<typeof schema>) => async (data: ArticleCreate) => {

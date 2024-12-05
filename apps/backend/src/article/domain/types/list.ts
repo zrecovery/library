@@ -24,4 +24,5 @@ export const ArticleListResponseSchema = Type.Object({
   data: Type.Array(ArticleMetaSchema),
 });
 
+export type ArticleMeta = Static<typeof ArticleMetaSchema>;
 export type ArticleListResponse = Static<typeof ArticleListResponseSchema>;

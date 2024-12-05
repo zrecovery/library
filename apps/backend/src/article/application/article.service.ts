@@ -1,8 +1,8 @@
-import { create } from "@article/domain/usecases/create";
-import { update } from "@article/domain/usecases/edit";
-import { find } from "@article/domain/usecases/find";
-import { findMany } from "@article/domain/usecases/find-many";
-import { remove } from "@article/domain/usecases/remove";
+import { create } from "@article/domain/services/create";
+import { update } from "@article/domain/services/edit";
+import { find } from "@article/domain/services/find";
+import { findMany } from "@article/domain/services/find-many";
+import { remove } from "@article/domain/services/remove";
 import { createArticleStore } from "@article/infrastructure/store";
 import { createContextLogger} from "@utils/logger";
 import { connectDb } from "src/article/infrastructure/store/connect";

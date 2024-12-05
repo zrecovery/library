@@ -17,6 +17,8 @@
     "baseUrl": ".",
     "paths": {
       "@article/*": ["src/article/*"],
+      "@chapter/*": ["src/chapter/*"],
+      "@author/*": ["src/author/*"],
       "@utils/*": ["src/utils/*"],
     },
 
