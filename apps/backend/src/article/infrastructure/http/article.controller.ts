@@ -1,6 +1,6 @@
 import { schema } from "@article/domain/schema";
 import Elysia, { error, t } from "elysia";
-import { createArticleService } from "src/application/article.service";
+import { createArticleService } from "@article/application/article.service";
 
 const articlesService = createArticleService();
 export const articlesController = new Elysia({ prefix: "/articles" })
