@@ -1,7 +1,7 @@
 import { cors } from "@elysiajs/cors";
 import { swagger } from "@elysiajs/swagger";
 import Elysia from "elysia";
-import { articlesController } from "./src/article/infrastructure/http/article.controller.ts";
+import { articleModule } from "./src/article";
 import { opentelemetry } from "@elysiajs/opentelemetry";
 
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-node";
@@ -15,7 +15,7 @@ export const app = new Elysia()
       spanProcessors: [new BatchSpanProcessor(new OTLPTraceExporter())],
     }),
   )
-  .group("/api", (api) => api.use(articlesController))
+  .group("/api", (api) => api.use(articleModule.controller))
   .listen(3001);
 
 export type Server = typeof app;

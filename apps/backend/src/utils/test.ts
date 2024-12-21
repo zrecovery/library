@@ -1,10 +1,13 @@
 import { expect } from "bun:test";
 import { sql } from "drizzle-orm";
-import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { type PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as schema from "../article/infrastructure/store/scheme";
+import * as schema from "../shared/infrastructure/store/schema";
+import {
+  StoreError,
+  type StoreErrorType,
+} from "../shared/infrastructure/store/store.error";
 import { createContextLogger } from "./logger";
-import { StoreError, type StoreErrorType } from "../article/infrastructure/store/store.error";
 
 const logger = createContextLogger("TestUtils");
 
@@ -59,11 +62,13 @@ export const withTestDb = (
 ) => {
   return async () => {
     const db = createTestDb();
-    try {
-      await clearTestData(db);
-      await testFn(db);
-    } finally {
-      await clearTestData(db);
-    }
+    db.transaction(async(trx)=>  {
+      try {
+        await clearTestData(trx);
+        await testFn(trx);
+      } finally {
+        await clearTestData(trx);
+      }
+    })
   };
 };
