@@ -1,11 +1,11 @@
-import type { Logger } from "src/interface/logger";
 import type { FindMany } from "@author/domain/interfaces/store/find-many";
 import type {
-  AuthorQuery,
   AuthorListResponse,
+  AuthorQuery,
 } from "@author/domain/types/list";
+import type { Logger } from "src/interface/logger";
 
-export const findMany =
+export const list =
   (logger: Logger, store: FindMany) =>
   (query: AuthorQuery): Promise<AuthorListResponse> =>
     store.findMany(query);

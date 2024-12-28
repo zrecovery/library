@@ -1,0 +1,21 @@
+{
+  "name": "web-api",
+  "main": "./index.ts",
+  "module": "./index.ts",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "dev": "bun --watch run index.ts"
+  },
+  "peerDependencies": {
+    "typescript": "latest"
+  },
+  "dependencies": {
+    "@bogeychan/elysia-logger": "^0.1.4",
+    "@elysiajs/cors": "^1.1.1",
+    "@elysiajs/opentelemetry": "^1.1.7",
+    "@elysiajs/swagger": "^1.1.6",
+    "elysia": "^1.1.25"
+  }
+}

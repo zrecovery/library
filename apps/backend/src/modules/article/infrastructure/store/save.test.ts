@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import type { ArticleCreate } from "@article/domain/types/create";
+import { StoreErrorType } from "@shared/domain/interfaces/store.error";
 import { articles, series } from "@shared/infrastructure/store/schema";
-import { StoreErrorType } from "@shared/infrastructure/store/store.error";
 import { createContextLogger } from "@utils/logger";
 import { expectError, withTestDb } from "@utils/test";
 import { eq } from "drizzle-orm";
@@ -9,10 +9,8 @@ import { save } from "./save";
 
 const logger = createContextLogger("ArticleCreateTest");
 
-beforeEach(()=>{});
-afterEach(()=>{
-
-});
+beforeEach(() => {});
+afterEach(() => {});
 
 describe("Article Creation", () => {
   describe("Validation", () => {

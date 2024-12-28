@@ -1,5 +1,9 @@
 import type { ArticleCreate } from "@article/domain/types/create";
 import {
+  StoreError,
+  StoreErrorType,
+} from "@shared/domain/interfaces/store.error"
+import {
   articles,
   authors,
   chapters,
@@ -7,10 +11,6 @@ import {
   series,
 } from "@shared/infrastructure/store/schema";
 import type * as schema from "@shared/infrastructure/store/schema";
-import {
-  StoreError,
-  StoreErrorType,
-} from "@shared/infrastructure/store/store.error";
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 

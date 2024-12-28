@@ -1,7 +1,11 @@
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
-import { type FindResult, toModel } from "./dto.ts";
+import type { ArticleDetail } from "@article/domain/types/detail.ts";
+import {
+  StoreError,
+  StoreErrorType,
+} from "@shared/domain/interfaces/store.error"
 import {
   articles,
   authors,
@@ -9,13 +13,9 @@ import {
   people,
   series,
 } from "@shared/infrastructure/store/schema.ts";
-import {
-  StoreError,
-  StoreErrorType,
-} from "@shared/infrastructure/store/store.error.ts";
 import type * as schema from "@shared/infrastructure/store/schema.ts";
 import type { Id } from "src/model/index.ts";
-import type { ArticleDetail } from "@article/domain/types/detail.ts";
+import { type FindResult, toModel } from "./dto.ts";
 
 export const find =
   (db: PostgresJsDatabase<typeof schema>) =>

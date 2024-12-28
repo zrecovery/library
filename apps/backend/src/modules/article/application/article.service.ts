@@ -1,7 +1,7 @@
 import { create } from "@article/domain/services/create";
+import { detail } from "@article/domain/services/detail";
 import { edit } from "@article/domain/services/edit";
-import { find } from "@article/domain/services/find";
-import { findMany } from "@article/domain/services/find-many";
+import { findMany } from "@article/domain/services/list";
 import { remove } from "@article/domain/services/remove";
 import { createArticleStore } from "@article/infrastructure/store";
 import { connectDb } from "@shared/infrastructure/store/connect";
@@ -22,7 +22,7 @@ export const createArticleService = () => {
 
   const articleUpdateService = edit(logger, store);
 
-  const articleFindService = find(logger, store);
+  const articleFindService = detail(logger, store);
 
   const articleFindManyService = findMany(logger, store);
 

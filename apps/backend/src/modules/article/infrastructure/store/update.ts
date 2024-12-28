@@ -1,4 +1,8 @@
 import {
+  StoreError,
+  StoreErrorType,
+} from "@shared/domain/interfaces/store.error"
+import {
   articles,
   authors,
   chapters,
@@ -6,10 +10,6 @@ import {
   series,
 } from "@shared/infrastructure/store/schema.ts";
 import type * as schema from "@shared/infrastructure/store/schema.ts";
-import {
-  StoreError,
-  StoreErrorType,
-} from "@shared/infrastructure/store/store.error.ts";
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { Id } from "src/model/index.ts";

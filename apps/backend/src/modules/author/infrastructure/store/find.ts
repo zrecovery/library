@@ -1,18 +1,13 @@
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import { eq, isNotNull, and, isNull } from "drizzle-orm";
-import * as schema from "@shared/infrastructure/store/schema";
-import type { Id } from "src/model";
 import type { AuthorDetail } from "@author/domain/types/detail";
+import * as schema from "@shared/infrastructure/store/schema";
 import {
   StoreError,
   StoreErrorType,
 } from "@shared/infrastructure/store/store.error";
-import {
-  toModel,
-  toChapterModel,
-  toChapterMetaModel,
-  toAuthorModel,
-} from "./dto";
+import { and, eq, isNotNull } from "drizzle-orm";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import type { Id } from "src/model";
+import { toAuthorModel, toChapterMetaModel, toModel } from "./dto";
 
 export const find =
   (db: PostgresJsDatabase<typeof schema>) =>

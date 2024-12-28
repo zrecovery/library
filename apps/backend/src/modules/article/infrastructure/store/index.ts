@@ -2,7 +2,6 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { find } from "./find";
 import { findMany } from "./findMany";
 
-import type * as schema from "../../../shared/infrastructure/store/schema";
 import type {
   Find,
   FindMany,
@@ -10,6 +9,7 @@ import type {
   Save,
   Update,
 } from "@article/domain/interfaces/store";
+import type * as schema from "@shared/infrastructure/store/schema";
 import { remove } from "./remove";
 import { save } from "./save";
 import { update } from "./update";

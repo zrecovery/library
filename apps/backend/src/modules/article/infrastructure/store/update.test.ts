@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
+import { StoreErrorType } from "@shared/domain/interfaces/store.error";
 import type * as schema from "@shared/infrastructure/store/schema";
-import { StoreErrorType } from "@shared/infrastructure/store/store.error";
 import { findArticleById } from "@shared/infrastructure/store/test/query";
 import { expectError, withTestDb } from "@utils/test";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";

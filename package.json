@@ -16,6 +16,7 @@
   },
   "workspaces": ["packages/*", "apps/*"],
   "dependencies": {
+    "effect": "^3.12.0",
     "epub.js": "^0.2.15",
     "fflate": "^0.8.2"
   }
