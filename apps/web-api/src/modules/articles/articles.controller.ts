@@ -1,5 +1,5 @@
-import type { ArticleService } from "@article/domain/interfaces/service";
-import { schema } from "@article/domain/types";
+import type { ArticleService } from "backend/articles";
+import { schema } from "backend/articles";
 import Elysia, { error, t } from "elysia";
 
 export const createArticlesController = (articlesService: ArticleService) =>

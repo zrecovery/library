@@ -12,6 +12,7 @@
     "typescript": "latest"
   },
   "dependencies": {
+    "backend": "workspace:*",
     "@bogeychan/elysia-logger": "^0.1.4",
     "@elysiajs/cors": "^1.1.1",
     "@elysiajs/opentelemetry": "^1.1.7",

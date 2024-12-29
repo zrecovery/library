@@ -2,9 +2,9 @@
   "name": "backend",
   "main": "./index.ts",
   "module": "./index.ts",
-  "exports":{
+  "exports": {
     ".": "./index.ts",
-    "articles": "modules/articles/index.ts"
+    "articles": "./src/modules/articles/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "drizzle-orm": "^0.33.0",
-    "postgres": "^3.4.5"
+    "postgres": "^3.4.5",
+    "result": "workspace:*"
   }
 }

@@ -2,7 +2,7 @@ import { expect } from "bun:test";
 import {
   StoreError,
   type StoreErrorType,
-} from  "@shared/domain/interfaces/store.error";
+} from "@shared/domain/interfaces/store.error";
 import { sql } from "drizzle-orm";
 import { type PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";

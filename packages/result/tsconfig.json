@@ -7,23 +7,18 @@
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "allowJs": true,
+
     // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "@articles/*": ["src/modules/articles/*"],
-      "@chapters/*": ["src/modules/chapters/*"],
-      "@authors/*": ["src/modules/authors/*"],
-      "@utils/*": ["src/utils/*"],
-      "@shared/*": ["src/shared/*"]
-    },
+
     // Best practices
     "strict": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
+
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,

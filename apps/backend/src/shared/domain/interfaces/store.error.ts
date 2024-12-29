@@ -1,3 +1,5 @@
+import type { Id } from "../types/common";
+
 export enum StoreErrorType {
   NotFound = "NOT_FOUND",
   ValidationError = "VALIDATION_ERROR",
@@ -10,21 +12,23 @@ export enum StoreErrorType {
 export class StoreError extends Error {
   constructor(
     message: string,
-    public readonly type: StoreErrorType,
+    public readonly _tag: string,
     public readonly raw?: unknown,
     public readonly context?: Record<string, unknown>,
   ) {
     super(message);
-    this.name = "StoreError";
     Object.setPrototypeOf(this, StoreError.prototype);
   }
+}
 
-  public toJSON() {
-    return {
-      name: this.name,
-      message: this.message,
-      type: this.type,
-      context: this.context,
-    };
+export class NotFoundStoreError extends StoreError {
+  constructor(message: string) {
+    super(message, "NotFound");
+  }
+}
+
+export class UnknownStoreError extends StoreError {
+  constructor(message: string) {
+    super(message, "Unknown");
   }
 }
