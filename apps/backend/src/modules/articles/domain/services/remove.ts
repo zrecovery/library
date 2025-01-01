@@ -1,9 +1,9 @@
-import type { Logger } from "src/interface/logger";
-import type { Id } from "src/model";
-import type { Remove } from "@article/domain/interfaces/store";
+import type { Remover } from "@articles/domain/interfaces/store";
+import type { Logger } from "@shared/domain/interfaces/logger";
+import type { Id } from "@shared/domain/types";
 
 export const remove =
-  (logger: Logger, store: Remove) =>
+  (logger: Logger, store: Remover) =>
   async (id: Id): Promise<void> => {
     logger.debug({ id }, "Removing article");
     try {

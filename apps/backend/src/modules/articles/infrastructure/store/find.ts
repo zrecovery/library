@@ -3,10 +3,8 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import type { ArticleDetail } from "@articles/domain/types/detail.ts";
 import {
-  type NotFoundStoreError,
-  StoreError,
-  StoreErrorType,
-  type UnknownStoreError,
+  NotFoundStoreError,
+  UnknownStoreError,
 } from "@shared/domain/interfaces/store.error";
 import type { Id } from "@shared/domain/types/common";
 import {
@@ -17,13 +15,17 @@ import {
   series,
 } from "@shared/infrastructure/store/schema.ts";
 import type * as schema from "@shared/infrastructure/store/schema.ts";
-import  { type Effect, gen} from "effect/Effect";
+import { Unknown } from "effect/Schema";
+import { Err, Ok, type Result } from "result";
 import { type FindResult, toModel } from "./dto.ts";
 
 export const find =
   (db: PostgresJsDatabase<typeof schema>) =>
-  (id: Id): Effect<ArticleDetail, NotFoundStoreError | UnknownStoreError> => {
-    const result: FindResult[] = await db
+  async (
+    id: Id,
+  ): Promise<Result<ArticleDetail, NotFoundStoreError | UnknownStoreError>> => {
+    try {
+      const queryResult: FindResult[] = await db
         .select({
           article: {
             id: articles.id,
@@ -46,15 +48,16 @@ export const find =
         .leftJoin(chapters, eq(chapters.article_id, articles.id))
         .leftJoin(series, eq(chapters.series_id, series.id))
         .where(eq(articles.id, id));
-    });
-
-    if (result.length === 0) {
-      return null;
+    } catch (e) {
+      return Err(new UnknownStoreError("未知错误", e));
+    }
+    if (queryResult.length === 0) {
+      return Err(new NotFoundStoreError(`找不到文章 ${id}`));
     }
 
-    if (result.length !== 1) {
-      throw new StoreError("内部存在脏数据", StoreErrorType.NotFound);
+    if (queryResult.length !== 1) {
+      return Err(new UnknownStoreError(`脏数据：文章id： ${id}`));
     }
-
-    return result.map(toModel)[0];
+    const ok = Ok(queryResult.map(toModel)[0]);
+    return ok;
   };

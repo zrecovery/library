@@ -1,14 +1,14 @@
-import { Type, type Static } from "@sinclair/typebox";
-import { PaginationQuerySchema } from "src/model";
+import { PaginationQuerySchema } from "@shared/domain/types";
+import { type Static, Type } from "@sinclair/typebox";
 
-export const ArticleQuerySchema = Type.Composite([
+export const ArticleQuery = Type.Composite([
   Type.Object({
     keyword: Type.Optional(Type.String()),
   }),
   Type.Partial(PaginationQuerySchema),
 ]);
 
-export type ArticleQuery = Static<typeof ArticleQuerySchema>;
+export type ArticleQuery = Static<typeof ArticleQuery>;
 
 export const ArticleId = Type.Object({
   id: Type.Number(),

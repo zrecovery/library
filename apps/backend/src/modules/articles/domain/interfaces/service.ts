@@ -10,9 +10,11 @@ import type { NotFoundError, UnknownError } from "@shared/domain/types/errors";
 import type { Result } from "result";
 
 export interface ArticleService {
-  create: (data: ArticleCreate) => Promise<void>;
+  create: (data: ArticleCreate) => Promise<Result<void, UnknownError>>;
   edit: (id: Id, data: ArticleUpdate) => Promise<void>;
-  detail: (id: Id) => Result<ArticleDetail, NotFoundError | UnknownError>;
+  detail: (
+    id: Id,
+  ) => Promise<Result<ArticleDetail, NotFoundError | UnknownError>>;
   list: (query: ArticleQuery) => Promise<ArticleListResponse>;
   remove: (id: Id) => Promise<void>;
 }

@@ -1,12 +1,12 @@
+import { ArticleSchema } from "@shared/domain/types/article";
+import { AuthorSchema } from "@shared/domain/types/author";
+import { ChapterSchema } from "@shared/domain/types/chapter";
+import { IdSchema } from "@shared/domain/types/common";
 import { type Static, Type } from "@sinclair/typebox";
-import { IdSchema } from "src/model";
-import { ArticleSchema } from "src/model/article";
-import { AuthorSchema } from "src/model/author";
-import { ChapterSchema } from "src/model/chapter";
 
 // ToDo 修改ArticleDetailSchema的定义，IdSchema应为解构后的IdSchema。
 // ToDo 修改ArticleDetailSchema的定义，ArticleSchema应为解构后的ArticleSchema。
-export const ArticleDetailSchema = Type.Composite([
+export const ArticleDetail = Type.Composite([
   IdSchema,
   ArticleSchema,
   Type.Object({
@@ -15,4 +15,4 @@ export const ArticleDetailSchema = Type.Composite([
   }),
 ]);
 
-export type ArticleDetail = Static<typeof ArticleDetailSchema>;
+export type ArticleDetail = Static<typeof ArticleDetail>;

@@ -30,9 +30,9 @@ export const ResultType = {
  * Interface for handling match operations on a Result.
  * Allows executing different logic based on the Result being Ok or Err.
  */
-interface Match<T, E, U> {
+interface Match<T, E, U, EU> {
   ok: (val: T) => U;
-  err: (val: E) => U;
+  err: (val: E) => EU;
 }
 
 /**
@@ -168,7 +168,9 @@ export interface Result<T extends NonUndefined, E extends NonUndefined> {
    * // error === "Error: failure"
    * ```
    */
-  match<U extends NonUndefined>(fn: Match<T, E, U>): U;
+  match<U extends NonUndefined, EU extends NonUndefined>(
+    fn: Match<T, E, U, EU>,
+  ): U | EU;
 
   /**
    * Maps a Result<Ok, Err> to Result<U, Err> by applying a function to a contained Ok value,
@@ -292,7 +294,9 @@ class OkImpl<T extends NonUndefined, E extends NonUndefined>
     return None as NoneOption<E>;
   }
 
-  match<U extends NonUndefined>(matchObject: Match<T, E, U>): U {
+  match<U extends NonUndefined, EU extends NonUndefined>(
+    matchObject: Match<T, E, U, EU>,
+  ): U {
     return matchObject.ok(this.val);
   }
 
@@ -353,7 +357,9 @@ class ErrImpl<T extends NonUndefined, E extends NonUndefined>
     return Some(this.val);
   }
 
-  match<U extends NonUndefined>(matchObject: Match<T, E, U>): U {
+  match<U extends NonUndefined, EU extends NonUndefined>(
+    matchObject: Match<T, E, U, EU>,
+  ): EU {
     return matchObject.err(this.val);
   }
 

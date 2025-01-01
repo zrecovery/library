@@ -1,5 +1,3 @@
-import type { Id } from "../types/common";
-
 export enum StoreErrorType {
   NotFound = "NOT_FOUND",
   ValidationError = "VALIDATION_ERROR",
@@ -13,22 +11,20 @@ export class StoreError extends Error {
   constructor(
     message: string,
     public readonly _tag: string,
-    public readonly raw?: unknown,
-    public readonly context?: Record<string, unknown>,
+    public readonly raw?: Error,
   ) {
-    super(message);
-    Object.setPrototypeOf(this, StoreError.prototype);
+    super(`${message}\n${raw ? raw.message : ""}`);
   }
 }
 
 export class NotFoundStoreError extends StoreError {
-  constructor(message: string) {
-    super(message, "NotFound");
+  constructor(message: string, raw?: Error) {
+    super(message, "NotFound", raw);
   }
 }
 
 export class UnknownStoreError extends StoreError {
-  constructor(message: string) {
-    super(message, "Unknown");
+  constructor(message: string, raw?: Error) {
+    super(message, "Unknown", raw);
   }
 }

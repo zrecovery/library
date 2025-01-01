@@ -1,10 +1,10 @@
-import { Type, type Static } from "@sinclair/typebox";
-import { IdSchema } from "src/model";
-import { ArticleSchema } from "src/model/article";
-import { AuthorSchema } from "src/model/author";
-import { ChapterSchema } from "src/model/chapter";
+import { IdSchema } from "@shared/domain/types";
+import { ArticleSchema } from "@shared/domain/types/article";
+import { AuthorSchema } from "@shared/domain/types/author";
+import { ChapterSchema } from "@shared/domain/types/chapter";
+import { type Static, Type } from "@sinclair/typebox";
 
-export const ArticleUpdateSchema = Type.Composite([
+export const ArticleUpdate = Type.Composite([
   IdSchema,
   ArticleSchema,
   Type.Object({
@@ -13,4 +13,4 @@ export const ArticleUpdateSchema = Type.Composite([
   }),
 ]);
 
-export type ArticleUpdate = Static<typeof ArticleUpdateSchema>;
+export type ArticleUpdate = Static<typeof ArticleUpdate>;

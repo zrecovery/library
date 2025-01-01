@@ -1,19 +1,19 @@
-import { Type, type Static } from "@sinclair/typebox";
-import { PaginationResponse } from "src/model";
-import { AuthorSchema } from "src/model/author";
-import { ChapterSchema } from "src/model/chapter";
+import { PaginationResponse } from "@shared/domain/types";
+import { AuthorSchema } from "@shared/domain/types/author";
+import { ChapterSchema } from "@shared/domain/types/chapter";
+import { type Static, Type } from "@sinclair/typebox";
 
-export const ArticleMetaSchema = Type.Object({
+export const ArticleMeta = Type.Object({
   id: Type.Number(),
   title: Type.String(),
   author: AuthorSchema,
   chapter: Type.Optional(ChapterSchema),
 });
 
-export const ArticleListResponseSchema = Type.Object({
+export const ArticleListResponse = Type.Object({
   pagination: PaginationResponse,
-  data: Type.Array(ArticleMetaSchema),
+  data: Type.Array(ArticleMeta),
 });
 
-export type ArticleMeta = Static<typeof ArticleMetaSchema>;
-export type ArticleListResponse = Static<typeof ArticleListResponseSchema>;
+export type ArticleMeta = Static<typeof ArticleMeta>;
+export type ArticleListResponse = Static<typeof ArticleListResponse>;

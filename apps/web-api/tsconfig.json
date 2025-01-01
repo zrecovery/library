@@ -12,14 +12,6 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "noEmit": true,
-    "baseUrl": ".",
-    "paths": {
-      "@article/*": ["src/modules/article/*"],
-      "@chapter/*": ["src/modules/chapter/*"],
-      "@author/*": ["src/modules/author/*"],
-      "@utils/*": ["src/utils/*"],
-      "@shared/*": ["src/shared/*"]
-    },
     // Best practices
     "strict": true,
     "skipLibCheck": true,
@@ -27,6 +19,10 @@
     // Some stricter flags (disabled by default)
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
-  }
+    "noPropertyAccessFromIndexSignature": false,
+    "compilerOptions": {
+      "composite": true
+    }
+  },
+  "references": [{ "path": "../backend" }]
 }

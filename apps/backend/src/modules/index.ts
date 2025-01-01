@@ -1,1 +1,1 @@
-export * as Articles from "./articles";
+export * from "./articles";
