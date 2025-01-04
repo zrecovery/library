@@ -17,7 +17,7 @@ export type FindResult = {
 
 export type MetaResult = {
   article: { id: number; title: string };
-  author: { id: number; name: string } | null;
+  author: { id: number | null; name: string | null };
   chapter: {
     id: number | null;
     title: string | null;

@@ -1,6 +1,6 @@
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import { find } from "./find";
-import { findMany } from "./findMany";
+import { DrizzleFinder } from "./find";
+import { DrizzleLister } from "./findMany";
 
 import type {
   Finder,
@@ -18,8 +18,8 @@ export const createArticleStore = (
   db: PostgresJsDatabase<typeof schema>,
 ): Saver & Lister & Finder & Updater & Remover => {
   return {
-    findMany: findMany(db),
-    find: find(db),
+    findMany: new DrizzleLister(db).findMany,
+    find: new DrizzleFinder(db).find,
     save: save(db),
     update: update(db),
     remove: remove(db),

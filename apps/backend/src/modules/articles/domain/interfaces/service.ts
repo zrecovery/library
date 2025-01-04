@@ -1,7 +1,7 @@
 import type { ArticleCreate } from "@articles/domain/types/create";
 
 import type { ArticleUpdate } from "@articles/domain/types/update";
-import type { Id } from "@shared/domain/types/common";
+import type { Id } from "@shared/domain/types";
 
 import type { ArticleDetail } from "@articles/domain/types/detail";
 import type { ArticleListResponse } from "@articles/domain/types/list";
@@ -10,11 +10,13 @@ import type { NotFoundError, UnknownError } from "@shared/domain/types/errors";
 import type { Result } from "result";
 
 export interface ArticleService {
-  create: (data: ArticleCreate) => Promise<Result<void, UnknownError>>;
-  edit: (id: Id, data: ArticleUpdate) => Promise<void>;
+  create: (data: ArticleCreate) => Promise<Result<null, UnknownError>>;
+  edit: (id: Id, data: ArticleUpdate) => Promise<Result<null, UnknownError>>;
   detail: (
     id: Id,
   ) => Promise<Result<ArticleDetail, NotFoundError | UnknownError>>;
-  list: (query: ArticleQuery) => Promise<ArticleListResponse>;
-  remove: (id: Id) => Promise<void>;
+  list: (
+    query: ArticleQuery,
+  ) => Promise<Result<ArticleListResponse, UnknownError>>;
+  remove: (id: Id) => Promise<Result<null, UnknownError>>;
 }

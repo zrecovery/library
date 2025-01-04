@@ -4,7 +4,7 @@ import type * as schema from "@shared/infrastructure/store/schema";
 import { findArticleById } from "@shared/infrastructure/store/test/query";
 import { expectError, withTestDb } from "@utils/test";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
-import { update } from "./update";
+import { DrizzleUpdater } from "./update";
 
 describe("Article Update", () => {
   const cases = [
@@ -37,7 +37,8 @@ describe("Article Update", () => {
       c.title,
       withTestDb(async (db: PostgresJsDatabase<typeof schema>) => {
         db.transaction(async (trx) => {
-          const result = await update(db)(c.input.id, c.input);
+          const updater = new DrizzleUpdater(trx);
+          const result = await updater.update(c.input.id, c.input);
           if (c.error) {
             expectError(Promise.reject(result), StoreErrorType.ValidationError);
           } else {
