@@ -20,10 +20,31 @@ const ArticleModel = new Elysia().model({
 export const createArticlesController = (articlesService: ArticleService) =>
   new Elysia({ prefix: "/articles" })
     .use(ArticleModel)
-    .get("/", ({ query }) => articlesService.list(query), {
-      query: "findMany.request",
-      response: "findMany.response",
-    })
+    .get(
+      "/",
+      async ({ query }) => {
+        const result = await articlesService.list(query);
+        const handleError = (err: DomainError) => {
+          switch (err._tag) {
+            case "NotFound":
+              return error(404, "Not Found");
+
+            default:
+              return error(500, "Internal Server Error");
+          }
+        };
+        return result.match({
+          ok: (val) => {
+            return val;
+          },
+          err: (e) => handleError(e),
+        });
+      },
+      {
+        query: "findMany.request",
+        response: "findMany.response",
+      },
+    )
 
     .get(
       "/:id",

@@ -1,20 +1,13 @@
-import { cors } from "@elysiajs/cors";
-import { opentelemetry } from "@elysiajs/opentelemetry";
 import { swagger } from "@elysiajs/swagger";
-import Elysia from "elysia";
+import { createArticleService } from "backend";
+import { Elysia } from "elysia";
+import { createArticlesController } from "./src/modules/articles/articles.controller";
 
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
-import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-node";
+const articleService = createArticleService();
+const articleController = createArticlesController(articleService);
 
 export const app = new Elysia()
-  .use(swagger())
-  .use(cors({ origin: "localhost:3002" }))
-  .use(
-    opentelemetry({
-      spanProcessors: [new BatchSpanProcessor(new OTLPTraceExporter())],
-    }),
-  )
-  .group("/api", (api) => api.use(ArticleController))
+  .group("/api", (api) => api.use(articleController))
   .listen(3001);
 
 export type Server = typeof app;

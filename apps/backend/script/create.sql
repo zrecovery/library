@@ -81,3 +81,20 @@ EXECUTE PROCEDURE update_timestamps();
 
 CREATE EXTENSION IF NOT EXISTS pgroonga;
 CREATE INDEX pgroonga_content_index ON articles USING pgroonga (title,body);
+
+
+CREATE VIEW library AS
+SELECT articles.id AS id,
+	articles.title AS title,
+	chapters.id AS chapter_id,
+  chapters.order AS chapter_order,
+  chapters.series_id AS series_id,
+  series.title AS series_title,
+  authors.id AS author_id,
+  people.id AS people_id,
+  people.name AS people_name
+FROM articles
+LEFT JOIN authors ON authors.article_id = articles.id
+LEFT JOIN people ON authors.person_id = people.id
+LEFT JOIN chapters ON chapters.article_id = articles.id
+LEFT JOIN series ON chapters.series_id = series.id;

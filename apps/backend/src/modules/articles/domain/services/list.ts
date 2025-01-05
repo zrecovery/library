@@ -9,6 +9,7 @@ import type { Result } from "result";
 const handleQuery = (error: StoreError) => {
   switch (error._tag) {
     default:
+      console.error(error);
       return new UnknownError("Unknown error", error);
   }
 };

@@ -10,18 +10,19 @@ import type {
   Updater,
 } from "@articles/domain/interfaces/store";
 import type * as schema from "@shared/infrastructure/store/schema";
-import { remove } from "./remove";
-import { save } from "./save";
-import { update } from "./update";
+import { DrizzleRemover } from "./remove";
+import { DrizzleSaver } from "./save";
+import { DrizzleUpdater } from "./update";
 
 export const createArticleStore = (
   db: PostgresJsDatabase<typeof schema>,
 ): Saver & Lister & Finder & Updater & Remover => {
+  const lister = new DrizzleLister(db);
   return {
-    findMany: new DrizzleLister(db).findMany,
+    findMany: lister.findMany,
     find: new DrizzleFinder(db).find,
-    save: save(db),
-    update: update(db),
-    remove: remove(db),
+    save: new DrizzleSaver(db).save,
+    update: new DrizzleUpdater(db).update,
+    remove: new DrizzleRemover(db).remove,
   };
 };

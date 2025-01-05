@@ -6,20 +6,32 @@ import {
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
+import type { Remover } from "@articles/domain";
+import { type Id, UnknownError } from "@shared/domain";
 import type * as schema from "@shared/infrastructure/store/schema";
-import type { Id } from "src/model";
+import { Err, Ok } from "result";
 
-export const remove =
-  (db: PostgresJsDatabase<typeof schema>) => async (id: Id) => {
-    return db.transaction(async (tx) => {
+export class DrizzleRemover implements Remover {
+  #db: PostgresJsDatabase<typeof schema>;
+
+  constructor(db: PostgresJsDatabase<typeof schema>) {
+    this.#db = db;
+  }
+
+  remove = async (id: Id) => {
+    await this.#db.transaction(async (tx) => {
       try {
         await tx.delete(authors).where(eq(authors.article_id, id));
         await tx.delete(chapters).where(eq(chapters.article_id, id));
         await tx.delete(articles).where(eq(articles.id, id));
       } catch (e) {
-        console.error(e);
         tx.rollback();
-        throw e;
+        if (e instanceof Error) {
+          return Err(new UnknownError(`Delete article ${id}`, e));
+        }
+        return Err(new UnknownError(`Delete article ${id} failed: ${e}`));
       }
     });
+    return Ok(null);
   };
+}

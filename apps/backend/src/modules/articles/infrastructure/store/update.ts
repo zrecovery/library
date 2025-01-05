@@ -1,4 +1,4 @@
-import { Unknown, type Updater } from "@articles/domain";
+import type { Updater } from "@articles/domain";
 import { type Id, UnknownError } from "@shared/domain";
 import {
   NotFoundStoreError,

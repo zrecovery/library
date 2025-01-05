@@ -20,9 +20,11 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
-    "compilerOptions": {
-      "composite": true
-    }
+    "composite": true
   },
-  "references": [{ "path": "../backend" }]
+  "references": [
+    {
+      "path": "../backend"
+    }
+  ]
 }

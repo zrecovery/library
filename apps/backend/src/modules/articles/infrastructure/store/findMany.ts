@@ -7,7 +7,7 @@ import { UnknownStoreError } from "@shared/domain/interfaces/store.error.ts";
 import type { Pagination } from "@shared/domain/types/common";
 import { articles, libraryView } from "@shared/infrastructure/store/schema.ts";
 import type * as schema from "@shared/infrastructure/store/schema.ts";
-import { count, like } from "drizzle-orm";
+import { type SQL, count, like } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { Err, Ok, type Result } from "result";
 
@@ -43,10 +43,10 @@ export class DrizzleLister implements Lister {
   /**
    * 构造搜索条件，如无关键字则返回 undefined。
    */
-  private buildCondition(keyword?: string) {
+  private buildCondition = (keyword?: string): SQL | undefined => {
     const trimmed = keyword?.trim();
     return trimmed ? like(articles.body, `%${trimmed}%`) : undefined;
-  }
+  };
 
   /**
    * 构建列表查询。
@@ -54,11 +54,11 @@ export class DrizzleLister implements Lister {
    * @param page 当前分页页码
    * @param size 每页显示的数量
    */
-  private buildListQuery(
-    condition: ReturnType<typeof this.buildCondition>,
+  buildListQuery = (
     page: number,
     size: number,
-  ) {
+    condition: ReturnType<typeof this.buildCondition>,
+  ) => {
     const offset = (page - 1) * size;
     const baseQuery = this.db
       .select({
@@ -85,34 +85,33 @@ export class DrizzleLister implements Lister {
       .limit(size)
       .offset(offset);
 
-    // 只在 condition 不为空时应用 where 条件，避免传入 undefined
-    return condition ? baseQuery.where(condition) : baseQuery;
-  }
+    return baseQuery.where(condition);
+  };
 
   /**
    * 构建统计记录总数的查询。
    * @param condition 过滤条件，可为空
    */
   private buildCountQuery(condition: ReturnType<typeof this.buildCondition>) {
-    const baseCountQuery = this.db
+    return this.db
       .select({ value: count(articles.id).as("total") })
-      .from(articles);
-
-    return condition ? baseCountQuery.where(condition) : baseCountQuery;
+      .from(articles)
+      .where(condition);
   }
 
   /**
    * 对外提供的主要查询方法，将拆分好的辅助函数组合起来完成逻辑。
    */
-  public async findMany(
+  findMany = async (
     query: Pagination & { keyword?: string },
-  ): Promise<Result<ArticleListResponse, UnknownStoreError>> {
-    try {
-      const { page, size, keyword } = query;
-      const condition = this.buildCondition(keyword);
+  ): Promise<Result<ArticleListResponse, UnknownStoreError>> => {
+    const { page, size, keyword } = query;
+    const trimmed = keyword?.trim();
+    const condition = trimmed ? like(articles.body, `%${trimmed}%`) : undefined;
 
+    try {
       // 1. 查询列表数据
-      const listQuery = this.buildListQuery(condition, page, size);
+      const listQuery = this.buildListQuery(page, size, condition);
       const rows = await listQuery;
       const list: ArticleMeta[] = rows.map(toModel);
 
@@ -135,5 +134,5 @@ export class DrizzleLister implements Lister {
     } catch (error) {
       return Err(new UnknownStoreError(`未知错误：${String(error)}`));
     }
-  }
+  };
 }
