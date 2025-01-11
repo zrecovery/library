@@ -15,7 +15,7 @@ export const connectDb = (uri: string) => {
       connect_timeout: 10,
     });
 
-    const db = drizzle(client, { schema: schema });
+    const db = drizzle(client, { schema: schema, logger: true });
     console.info("Database connection established");
     return db;
   } catch (e) {

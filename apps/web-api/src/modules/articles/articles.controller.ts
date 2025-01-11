@@ -2,7 +2,6 @@ import {
   ArticleCreate,
   ArticleDetail,
   ArticleListResponse,
-  ArticleQuery,
   type ArticleService,
   ArticleUpdate,
   type DomainError,
@@ -10,7 +9,11 @@ import {
 import Elysia, { error, t } from "elysia";
 
 const ArticleModel = new Elysia().model({
-  "findMany.request": ArticleQuery,
+  "findMany.request": t.Object({
+    page: t.Optional(t.Numeric({ minimum: 0, default: 1 })),
+    size: t.Optional(t.Numeric({ minimum: 0, default: 1 })),
+    keywords: t.Optional(t.String()),
+  }),
   "findMany.response": ArticleListResponse,
   "find.response": ArticleDetail,
   "create.request": ArticleCreate,
@@ -28,7 +31,8 @@ export const createArticlesController = (articlesService: ArticleService) =>
           switch (err._tag) {
             case "NotFound":
               return error(404, "Not Found");
-
+            case "Invalidation":
+              return error(400, "Bad Request");
             default:
               return error(500, "Internal Server Error");
           }
@@ -42,7 +46,12 @@ export const createArticlesController = (articlesService: ArticleService) =>
       },
       {
         query: "findMany.request",
-        response: "findMany.response",
+        response: {
+          200: "findMany.response",
+          400: t.String(),
+          404: t.String(),
+          500: t.String(),
+        },
       },
     )
 

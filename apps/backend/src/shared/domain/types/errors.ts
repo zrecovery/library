@@ -25,3 +25,12 @@ export class UnknownError extends DomainError {
     super(message, "Unknown", raw);
   }
 }
+
+export class InvalidationError extends DomainError {
+  constructor(
+    message: string,
+    readonly raw?: Error,
+  ) {
+    super(message, "Invalidation", raw);
+  }
+}

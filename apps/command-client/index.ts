@@ -1,6 +1,6 @@
 import { readdir } from "node:fs/promises";
 
-import { articlesService } from "backend/src/application/ioc.ts";
+import { type ArticleService, createArticleService } from "backend";
 import {
   type Config,
   type Created,
@@ -17,14 +17,17 @@ Config example: {
   format: FileFormat.plain,
 };
  */
-
+const articlesService: ArticleService = createArticleService();
 const save = (failures: string[]) => async (data: Created) => {
-  try {
-    await articlesService.create(data);
-  } catch (e) {
-    console.error(e);
-    failures.push(data.filename);
-  }
+  const r = await articlesService.create(data);
+  const handleResult = r.match({
+    ok: (val) => val,
+    err: (e) => {
+      console.error(e);
+      failures.push(data.filename);
+      return e;
+    },
+  });
 };
 
 const filterFormat = (fileFormat: FileFormat) => (file: string) => {

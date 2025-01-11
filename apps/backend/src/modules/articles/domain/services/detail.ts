@@ -30,6 +30,5 @@ export const detail =
 
     const r = await store.find(id);
 
-    const a = r.mapErr(ErrorHandler(id));
-    return a;
+    return r.mapErr(ErrorHandler(id));
   };

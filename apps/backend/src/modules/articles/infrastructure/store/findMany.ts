@@ -60,6 +60,7 @@ export class DrizzleLister implements Lister {
     condition: ReturnType<typeof this.buildCondition>,
   ) => {
     const offset = (page - 1) * size;
+
     const baseQuery = this.db
       .select({
         article: {
@@ -68,7 +69,7 @@ export class DrizzleLister implements Lister {
         },
         author: {
           id: libraryView.people_id,
-          name: libraryView.people_name,
+          author: libraryView.people_name,
         },
         chapter: {
           id: libraryView.series_id,
@@ -119,7 +120,7 @@ export class DrizzleLister implements Lister {
       const countQuery = this.buildCountQuery(condition);
       const countResult = await countQuery;
       const totalItems = countResult[0]?.value ?? 0;
-      const totalPages = Math.ceil(totalItems / size);
+      const totalPages = Math.ceil(totalItems / (size ?? 10));
 
       // 3. 构造并返回
       return Ok({
@@ -127,11 +128,12 @@ export class DrizzleLister implements Lister {
         pagination: {
           current: page,
           pages: totalPages,
-          size,
+          size: size,
           items: totalItems,
         },
       });
     } catch (error) {
+      console.error(error);
       return Err(new UnknownStoreError(`未知错误：${String(error)}`));
     }
   };

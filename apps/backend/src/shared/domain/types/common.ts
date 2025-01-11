@@ -7,8 +7,8 @@ export type Id = number;
 export type Pagination = { page: number; size: number };
 
 export const PaginationQuerySchema = Type.Object({
-  page: Type.Number({ minimum: 0 }),
-  size: Type.Number({ minimum: 0 }),
+  page: Type.Number({ minimum: 0, default: 1 }),
+  size: Type.Number({ minimum: 0, default: 10 }),
 });
 
 export const PaginationResponse = Type.Object({

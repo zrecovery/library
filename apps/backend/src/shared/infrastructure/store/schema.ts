@@ -1,11 +1,11 @@
-import { relations, eq } from "drizzle-orm";
+import { eq, relations } from "drizzle-orm";
 import {
   integer,
   pgTable,
+  pgView,
   real,
   serial,
   text,
-  pgView,
 } from "drizzle-orm/pg-core";
 
 export const articles = pgTable("articles", {
@@ -82,22 +82,14 @@ export const chaptersRelations = relations(chapters, ({ one }) => ({
   }),
 }));
 
-export const libraryView = pgView("library").as((qb) => {
-  return qb
-    .select({
-      id: articles.id,
-      title: articles.title,
-      chapter_id: chapters.id,
-      chapter_order: chapters.order,
-      series_id: chapters.series_id,
-      series_title: series.title,
-      author_id: authors.id,
-      people_id: people.id,
-      people_name: people.name,
-    })
-    .from(articles)
-    .leftJoin(authors, eq(authors.article_id, articles.id))
-    .leftJoin(people, eq(authors.person_id, people.id))
-    .leftJoin(chapters, eq(chapters.article_id, articles.id))
-    .leftJoin(series, eq(chapters.series_id, series.id));
-});
+export const libraryView = pgView("library", {
+  id: integer("id"),
+  title: text("title"),
+  chapter_id: integer("chapter_id"),
+  chapter_order: real("chapter_order"),
+  series_id: integer("series_id"),
+  series_title: text("series_title"),
+  author_id: integer("author_id"),
+  people_id: integer("people_id"),
+  people_name: text("people_name"),
+}).existing();
