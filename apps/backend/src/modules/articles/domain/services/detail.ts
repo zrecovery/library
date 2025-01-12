@@ -28,7 +28,7 @@ export const detail =
   ): Promise<Result<ArticleDetail, NotFoundError | UnknownError>> => {
     logger.debug({ id }, "Finding article");
 
-    const r = await store.find(id);
+    const result = await store.find(id);
 
-    return r.mapErr(ErrorHandler(id));
+    return result.mapErr(ErrorHandler(id));
   };

@@ -18,6 +18,8 @@ const errorHandler = (error: StoreError) => {
 export const create =
   (logger: Logger, store: Saver) =>
   async (data: ArticleCreate): Promise<Result<null, UnknownError>> => {
+    logger.info("创建文件");
+    logger.debug(JSON.stringify(data));
     const result = await store.save(data);
     return result.mapErr(errorHandler);
   };

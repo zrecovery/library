@@ -13,7 +13,7 @@ export const logger = pino({
   transport: {
     target: "pino-pretty",
     options: {
-      colorize: false,
+      colorize: true,
       ignore: "pid,hostname",
       translateTime: "UTC:yyyy-mm-dd HH:MM:ss.l",
     },
