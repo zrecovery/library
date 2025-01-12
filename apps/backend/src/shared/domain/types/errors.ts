@@ -1,7 +1,13 @@
+export enum DomainErrorTag {
+  NotFound = "Not Found",
+  Invalidation = "Invalidation",
+  Unknown = "Unknown"
+}
+
 export class DomainError extends Error {
   constructor(
     message: string,
-    readonly _tag: string,
+    readonly _tag: DomainErrorTag,
     readonly raw?: Error,
   ) {
     super(message);
@@ -13,7 +19,7 @@ export class NotFoundError extends DomainError {
     message: string,
     readonly raw?: Error,
   ) {
-    super(message, "NotFound", raw);
+    super(message, DomainErrorTag.NotFound, raw);
   }
 }
 
@@ -22,7 +28,7 @@ export class UnknownError extends DomainError {
     message: string,
     readonly raw?: Error,
   ) {
-    super(message, "Unknown", raw);
+    super(message, DomainErrorTag.Unknown, raw);
   }
 }
 
@@ -31,6 +37,6 @@ export class InvalidationError extends DomainError {
     message: string,
     readonly raw?: Error,
   ) {
-    super(message, "Invalidation", raw);
+    super(message, DomainErrorTag.Invalidation, raw);
   }
 }

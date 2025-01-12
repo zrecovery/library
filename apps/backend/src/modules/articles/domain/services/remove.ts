@@ -1,12 +1,12 @@
 import type { Remover } from "@articles/domain/interfaces/store";
 import type { Logger } from "@shared/domain/interfaces/logger";
-import type { StoreError } from "@shared/domain/interfaces/store.error";
+import { StoreErrorTag, type StoreError } from "@shared/domain/interfaces/store.error";
 import { type Id, NotFoundError, UnknownError } from "@shared/domain/types";
 import type { Result } from "result";
 
 const ErrorHandler = (id: Id) => (error: StoreError) => {
   switch (error._tag) {
-    case "NotFound":
+    case StoreErrorTag.NotFound:
       return new NotFoundError(`Not found article: ${id}`);
 
     default:

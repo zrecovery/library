@@ -2,15 +2,14 @@ import type { Updater } from "@articles/domain/interfaces/store";
 import { ArticleUpdate } from "@articles/domain/types/update";
 import { InvalidationError, NotFoundError, UnknownError } from "@shared/domain";
 import type { Logger } from "@shared/domain/interfaces/logger";
-import type { StoreError } from "@shared/domain/interfaces/store.error";
+import { StoreErrorTag, type StoreError } from "@shared/domain/interfaces/store.error";
 import type { Id } from "@shared/domain/types/common";
-import { Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import { Err, type Result } from "result";
 
 const ErrorHandler = (id: Id) => (error: StoreError) => {
   switch (error._tag) {
-    case "NotFound":
+    case StoreErrorTag.NotFound:
       return new NotFoundError(`Not found article: ${id}`);
 
     default:

@@ -1,2 +1,2 @@
 export * from "./interfaces";
-export * from "./types";
+export { ArticleId, ArticleQuery, ArticleCreate, ArticleDetail, ArticleUpdate, ArticleListResponse } from "./types";

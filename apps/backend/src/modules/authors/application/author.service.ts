@@ -1,9 +1,9 @@
-import { detail } from "@author/domain/services/detail";
-import { createAuthorStore } from "@author/infrastructure/store";
+import { detail } from "@authors/domain/services/detail";
+import { createAuthorStore } from "@authors/infrastructure/store";
 import { connectDb } from "@shared/infrastructure/store/connect";
 import { createContextLogger } from "@utils/logger";
 
-export const createauthorService = () => {
+export const createAuthorService = () => {
   const uri = process.env.DATABASE_URI;
   if (uri === undefined) {
     throw new Error("No database uri provided");

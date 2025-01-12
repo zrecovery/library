@@ -1,16 +1,16 @@
 import type { Finder } from "@articles/domain/interfaces/store";
 import type { ArticleDetail } from "@articles/domain/types/detail";
 
-import type { StoreError } from "@shared/domain/interfaces/store.error";
+import { StoreErrorTag, type StoreError } from "@shared/domain/interfaces/store.error";
 
 import type { Logger } from "@shared/domain/interfaces/logger";
 import type { Id } from "@shared/domain/types/common";
 import { NotFoundError, UnknownError } from "@shared/domain/types/errors";
-import { Ok, type Result } from "result";
+import type { Result } from "result";
 
 const ErrorHandler = (id: Id) => (error: StoreError) => {
   switch (error._tag) {
-    case "NotFound":
+    case StoreErrorTag.NotFound:
       return new NotFoundError(`Not found article: ${id}`);
 
     default:
@@ -26,7 +26,7 @@ export const detail =
   async (
     id: Id,
   ): Promise<Result<ArticleDetail, NotFoundError | UnknownError>> => {
-    logger.debug({ id }, "Finding article");
+    logger.debug( `Finding article ${id}`);
 
     const result = await store.find(id);
 

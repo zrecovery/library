@@ -5,6 +5,7 @@ import {
   type ArticleService,
   ArticleUpdate,
   type DomainError,
+  DomainErrorTag,
 } from "backend";
 import Elysia, { error, t } from "elysia";
 
@@ -29,9 +30,9 @@ export const createArticlesController = (articlesService: ArticleService) =>
         const result = await articlesService.list(query);
         const handleError = (err: DomainError) => {
           switch (err._tag) {
-            case "NotFound":
+            case DomainErrorTag.NotFound:
               return error(404, "Not Found");
-            case "Invalidation":
+            case DomainErrorTag.Invalidation:
               return error(400, "Bad Request");
             default:
               return error(500, "Internal Server Error");
@@ -61,7 +62,7 @@ export const createArticlesController = (articlesService: ArticleService) =>
         const result = await articlesService.detail(id);
         const handleError = (err: DomainError) => {
           switch (err._tag) {
-            case "NotFound":
+            case DomainErrorTag.NotFound:
               return error(404, "Not Found");
 
             default:
