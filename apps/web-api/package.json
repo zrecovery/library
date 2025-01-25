@@ -12,7 +12,7 @@
     "typescript": "latest"
   },
   "dependencies": {
-    "@bogeychan/elysia-logger": "^0.1.7",
+    "@bogeychan/elysia-logger": "^0.1.8",
     "@elysiajs/cors": "^1.2.0",
     "@elysiajs/opentelemetry": "^1.2.0",
     "@elysiajs/swagger": "^1.2.0",

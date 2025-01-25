@@ -8,13 +8,7 @@ import {
   UnknownStoreError,
 } from "@shared/domain/interfaces/store.error";
 import type { Id } from "@shared/domain/types/common";
-import {
-  articles,
-  authors,
-  chapters,
-  people,
-  series,
-} from "@shared/infrastructure/store/schema.ts";
+import { libraryView } from "@shared/infrastructure/store/schema.ts";
 import type * as schema from "@shared/infrastructure/store/schema.ts";
 import { Err, Ok, type Result } from "result";
 import { type FindResult, toModel } from "./dto.ts";
@@ -32,26 +26,22 @@ export class DrizzleFinder implements Finder {
       const queryResult: FindResult[] = await this.#db
         .select({
           article: {
-            id: articles.id,
-            title: articles.title,
-            body: articles.body,
+            id: libraryView.id,
+            title: libraryView.title,
+            body: libraryView.body,
           },
           author: {
-            id: people.id,
-            name: people.name,
+            id: libraryView.people_id,
+            name: libraryView.people_name,
           },
           chapter: {
-            id: series.id,
-            title: series.title,
-            order: chapters.order,
+            id: libraryView.series_id,
+            title: libraryView.series_title,
+            order: libraryView.chapter_order,
           },
         })
-        .from(articles)
-        .leftJoin(authors, eq(authors.article_id, articles.id))
-        .leftJoin(people, eq(authors.person_id, people.id))
-        .leftJoin(chapters, eq(chapters.article_id, articles.id))
-        .leftJoin(series, eq(chapters.series_id, series.id))
-        .where(eq(articles.id, id));
+        .from(libraryView)
+        .where(eq(libraryView.id, id));
 
       if (queryResult.length === 0) {
         return Err(new NotFoundStoreError(`找不到文章 ${id}`));
@@ -60,13 +50,15 @@ export class DrizzleFinder implements Finder {
       if (queryResult.length !== 1) {
         return Err(new UnknownStoreError(`脏数据：文章id： ${id}`));
       }
-      const ok = Ok(queryResult.map(toModel)[0]);
-      return ok;
+
+      const articleDetail = queryResult.map(toModel)[0];
+      return Ok(articleDetail);
     } catch (e) {
-      if (e instanceof Error) {
-        return Err(new UnknownStoreError("未知错误", e));
-      }
-      return Err(new UnknownStoreError(`未知错误，无法确认捕获类型：${e}`));
+      return Err(
+        e instanceof Error
+          ? new UnknownStoreError("未知错误", e)
+          : new UnknownStoreError(`未知错误，无法确认捕获类型：${e}`),
+      );
     }
   };
 }

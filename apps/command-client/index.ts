@@ -1,6 +1,7 @@
 import { readdir } from "node:fs/promises";
 
 import { type ArticleService, createArticleService } from "backend";
+import { readConfig } from "backend/src/shared/domain/config/index.ts";
 import {
   type Config,
   type Created,
@@ -17,7 +18,8 @@ Config example: {
   format: FileFormat.plain,
 };
  */
-const articlesService: ArticleService = createArticleService();
+const config = readConfig();
+const articlesService: ArticleService = createArticleService(config);
 const save = (failures: string[]) => async (data: Created) => {
   const r = await articlesService.create(data);
   const handleResult = r.match({

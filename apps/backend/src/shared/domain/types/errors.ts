@@ -1,7 +1,7 @@
 export enum DomainErrorTag {
   NotFound = "Not Found",
   Invalidation = "Invalidation",
-  Unknown = "Unknown"
+  Unknown = "Unknown",
 }
 
 export class DomainError extends Error {

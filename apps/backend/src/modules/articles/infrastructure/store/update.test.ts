@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { StoreErrorType } from "@shared/domain/interfaces/store.error";
+import { StoreErrorTag } from "@shared/domain/interfaces/store.error";
 import type * as schema from "@shared/infrastructure/store/schema";
 import { findArticleById } from "@shared/infrastructure/store/test/query";
 import { expectError, withTestDb } from "@utils/test";
@@ -40,7 +40,7 @@ describe("Article Update", () => {
           const updater = new DrizzleUpdater(trx);
           const result = await updater.update(c.input.id, c.input);
           if (c.error) {
-            expectError(Promise.reject(result), StoreErrorType.ValidationError);
+            expectError(Promise.reject(result), StoreErrorTag.UnknownError);
           } else {
             const article = findArticleById(db)(c.input.id);
             expect(article).toMatchObject({

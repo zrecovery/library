@@ -1,18 +1,11 @@
-import type { ArticleDetail } from "@articles/domain/types/detail.ts";
+import { ArticleDetail } from "@articles/domain/types/detail.ts";
 import type { ArticleMeta } from "@articles/domain/types/list.ts";
-import {
-  StoreError,
-  StoreErrorType,
-} from "@shared/domain/interfaces/store.error.ts";
+import { Value } from "@sinclair/typebox/value";
 
 export type FindResult = {
-  article: { id: number; title: string; body: string };
-  author: { id: number; name: string } | null;
-  chapter: {
-    id: number | null;
-    title: string | null;
-    order: number | null;
-  };
+  article: { id: number | null; title: string | null; body: string | null };
+  author: { id: number | null; name: string | null };
+  chapter: { id: number | null; title: string | null; order: number | null };
 };
 
 export type MetaResult = {
@@ -28,12 +21,6 @@ export type MetaResult = {
 export const toModel = <T extends MetaResult | FindResult>(
   r: T,
 ): T extends FindResult ? ArticleDetail : ArticleMeta => {
-  if (!r.author) {
-    throw new StoreError(
-      `脏数据：缺少author，article_id=${r.article.id}`,
-      StoreErrorType.ValidationError,
-    );
-  }
   const chapter =
     r.chapter.id && r.chapter.order && r.chapter.title
       ? {
@@ -43,11 +30,10 @@ export const toModel = <T extends MetaResult | FindResult>(
         }
       : undefined;
 
-  // @ts-ignore
-  // 注意：此处Typescript语法检查没法判断 body在不同输入类型下的对应输出类型，须人工形式化证明。
-  return {
+  const result = {
     ...r.article,
     author: r.author,
     chapter: chapter,
   };
+  return Value.Parse(ArticleDetail, result);
 };

@@ -2,12 +2,15 @@ import type { Updater } from "@articles/domain/interfaces/store";
 import { ArticleUpdate } from "@articles/domain/types/update";
 import { InvalidationError, NotFoundError, UnknownError } from "@shared/domain";
 import type { Logger } from "@shared/domain/interfaces/logger";
-import { StoreErrorTag, type StoreError } from "@shared/domain/interfaces/store.error";
+import {
+  StoreErrorTag,
+  type StoreError,
+} from "@shared/domain/interfaces/store.error";
 import type { Id } from "@shared/domain/types/common";
 import { Value } from "@sinclair/typebox/value";
 import { Err, type Result } from "result";
 
-const ErrorHandler = (id: Id) => (error: StoreError) => {
+const handlerError = (id: Id) => (error: StoreError) => {
   switch (error._tag) {
     case StoreErrorTag.NotFound:
       return new NotFoundError(`Not found article: ${id}`);
@@ -28,9 +31,8 @@ export const edit =
     Result<null, InvalidationError | NotFoundError | UnknownError>
   > => {
     if (!Value.Check(ArticleUpdate, data)) {
-      return Err(new InvalidationError(`输入异常：${data}`));
+      return Err(new InvalidationError(`Invalid input: ${data}`));
     }
     const result = await store.update(id, data);
-    const response = result.mapErr(ErrorHandler(id));
-    return response;
+    return result.mapErr(handlerError(id));
   };

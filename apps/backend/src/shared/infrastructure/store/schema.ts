@@ -85,6 +85,7 @@ export const chaptersRelations = relations(chapters, ({ one }) => ({
 export const libraryView = pgView("library", {
   id: integer("id"),
   title: text("title"),
+  body: text("body"),
   chapter_id: integer("chapter_id"),
   chapter_order: real("chapter_order"),
   series_id: integer("series_id"),

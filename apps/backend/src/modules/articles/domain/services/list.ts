@@ -7,7 +7,7 @@ import type { StoreError } from "@shared/domain/interfaces/store.error";
 import { Value } from "@sinclair/typebox/value";
 import { Err, type Result } from "result";
 
-const handleQuery = (error: StoreError) => {
+const handleError = (error: StoreError) => {
   switch (error._tag) {
     default:
       console.error(error);
@@ -21,8 +21,8 @@ export const findMany =
     query: ArticleQuery,
   ): Promise<Result<ArticleListResponse, UnknownError | InvalidationError>> => {
     if (!Value.Check(ArticleQuery, query)) {
-      return Err(new InvalidationError(`输入不符合要求：${query} `));
+      return Err(new InvalidationError(`Invalid input: ${query} `));
     }
     const result = await store.findMany(query);
-    return result.mapErr(handleQuery);
+    return result.mapErr(handleError);
   };

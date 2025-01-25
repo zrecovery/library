@@ -5,7 +5,7 @@
 - [Bun](https://bun.sh/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [Drizzle ORM](https://drizzle-orm.netlify.app/)
-- [SolidJS](https://www.solidjs.com/)
+- [Solid](https://docs.solidjs.com/)
 
 ## 设计目标
 ### 文章管理
@@ -23,3 +23,10 @@
 ### 系列管理
 - 根据系列id获取系列信息，包含系列的文章和作者信息，带分页。
 - 删除系列，系列下的文章和作者都会被删除。
+
+### 配置管理
+- 读取环境变量，配置信息
+
+### 日志管理
+- 分级日志
+- 日志文件

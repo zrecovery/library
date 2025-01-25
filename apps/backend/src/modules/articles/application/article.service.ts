@@ -5,14 +5,12 @@ import { edit } from "@articles/domain/services/edit";
 import { findMany } from "@articles/domain/services/list";
 import { remove } from "@articles/domain/services/remove";
 import { createArticleStore } from "@articles/infrastructure/store";
+import type { Config } from "@shared/domain/config";
 import { connectDb } from "@shared/infrastructure/store/connect";
 import { createContextLogger } from "@utils/logger";
 
-export const createArticleService = (): ArticleService => {
-  const uri = process.env.DATABASE_URI;
-  if (uri === undefined) {
-    throw new Error("No database uri provided");
-  }
+export const createArticleService = (config: Config): ArticleService => {
+  const uri = config.database.URI;
 
   const db = connectDb(uri);
   const store = createArticleStore(db);

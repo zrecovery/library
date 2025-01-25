@@ -22,7 +22,9 @@
     "noPropertyAccessFromIndexSignature": false,
     "composite": true
   },
-  "references": [{
-    "path": "../backend"
-  }]
+  "references": [
+    {
+      "path": "../backend"
+    }
+  ]
 }

@@ -3,8 +3,7 @@ import { type Id, UnknownError } from "@shared/domain";
 import {
   NotFoundStoreError,
   StoreError,
-  StoreErrorType,
-  type UnknownStoreError,
+  UnknownStoreError,
 } from "@shared/domain/interfaces/store.error";
 import {
   articles,
@@ -48,10 +47,7 @@ export class DrizzleUpdater implements Updater {
 
       const isExistedNewAuthor = query.length === 1;
       if (!viewResult.author_id) {
-        throw new StoreError(
-          "脏数据：未查找到关联作者",
-          StoreErrorType.ValidationError,
-        );
+        throw new UnknownStoreError("脏数据：未查找到关联作者");
       }
       const isExistedRelation = viewResult.author_id !== null;
 

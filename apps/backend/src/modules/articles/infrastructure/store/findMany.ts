@@ -12,7 +12,7 @@ import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { Err, Ok, type Result } from "result";
 
 const toModel = (result: {
-  article: { id: number; title: string };
+  article: { id: number | null; title: string | null };
   author: { id: number | null; name: string | null };
   chapter: {
     id: number | null;
@@ -20,6 +20,12 @@ const toModel = (result: {
     order: number | null;
   };
 }): ArticleMeta => {
+  if (result.article.id === null) {
+    throw new Error("文章ID不能为空");
+  }
+  if (result.article.title === null) {
+    throw new Error("文章标题不能为空");
+  }
   return {
     id: result.article.id,
     title: result.article.title,
@@ -69,7 +75,7 @@ export class DrizzleLister implements Lister {
         },
         author: {
           id: libraryView.people_id,
-          author: libraryView.people_name,
+          name: libraryView.people_name,
         },
         chapter: {
           id: libraryView.series_id,

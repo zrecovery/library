@@ -1,5 +1,5 @@
 import { swagger } from "@elysiajs/swagger";
-import { cors } from '@elysiajs/cors'
+import { cors } from "@elysiajs/cors";
 import { createArticleService } from "backend";
 import { Elysia } from "elysia";
 import { createArticlesController } from "./src/modules/articles/articles.controller";

@@ -86,6 +86,7 @@ CREATE INDEX pgroonga_content_index ON articles USING pgroonga (title,body);
 CREATE VIEW library AS
 SELECT articles.id AS id,
 	articles.title AS title,
+	articles.body AS body,
 	chapters.id AS chapter_id,
   chapters.order AS chapter_order,
   chapters.series_id AS series_id,
