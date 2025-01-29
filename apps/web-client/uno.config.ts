@@ -19,6 +19,11 @@ export default defineConfig({
   ],
   transformers: [transformerVariantGroup(), transformerDirectives()],
   theme: {
+    breakpoints: {
+      sm: `${20 * 16}px`,
+      md: `${40 * 16}px`,
+      lg: `${80 * 16}px`,
+    },
     colors: {
       border: "hsl(var(--border))",
       input: "hsl(var(--input))",

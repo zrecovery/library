@@ -1,11 +1,12 @@
 import { A } from "@solidjs/router";
 import {
-  Accessor,
+  type Accessor,
   For,
   Show,
   createEffect,
   createResource,
   createSignal,
+  mergeProps,
 } from "solid-js";
 import {
   Card,
@@ -29,20 +30,6 @@ function usePagination() {
   const [page, setPage] = createSignal(1);
   const [size, setSize] = createSignal(10);
 
-  createEffect(() => {
-    const savedPage = localStorage.getItem("page");
-    const savedSize = localStorage.getItem("size");
-    setPage(savedPage ? Number(savedPage) : 1);
-    setSize(savedSize ? Number(savedSize) : 10);
-  });
-
-  createEffect(() => {
-    if (page() !== 1 || size() !== 10) {
-      localStorage.setItem("page", page().toString());
-      localStorage.setItem("size", size().toString());
-    }
-  });
-
   return { page, setPage, size, setSize };
 }
 
@@ -54,6 +41,55 @@ function useArticleData(
   return createResource(
     () => ({ page: page(), size: size(), keyword: keyword() }),
     articleRepository.list,
+  );
+}
+
+type ArticleMeta = {
+  chapter?:
+    | {
+        title: string;
+        order: number;
+      }
+    | undefined;
+  id: number;
+  title: string;
+  author: {
+    name: string;
+  };
+};
+
+function ArticleCard(props: { meta: ArticleMeta }) {
+  const { meta } = props;
+  return (
+    <Card class="w-md max-w-full h-32">
+      <CardHeader>
+        <A href={`/articles/${meta.id}`}>
+          <CardTitle class="truncate leading-normal">{meta.title}</CardTitle>
+        </A>
+        <Show when={meta.chapter}>
+          <A href={`/books/${meta.id}`}>
+            <CardDescription class="truncate leading-normal">
+              {meta.chapter?.title}
+            </CardDescription>
+          </A>
+        </Show>
+      </CardHeader>
+      <CardFooter>
+        <p>{meta.author?.name}</p>
+      </CardFooter>
+    </Card>
+  );
+}
+
+function ArticleGrid(props: { articles: ArticleMeta[] }) {
+  const { articles } = props;
+  return (
+    <div
+      class="grid grid-cols-1 lg:grid-cols-2 gap-2 h-md justify-center align-center justify-items-center items-center overflow-auto"
+      style="grid-area: main;height: calc(100vh - 12rem);"
+    >
+      <For each={articles}>{(meta) => <ArticleCard meta={meta} />}</For>
+    </div>
   );
 }
 
@@ -71,34 +107,7 @@ export default function ArticleList() {
             class="grid"
             style="height:100%;grid-template-areas: 'main' 'pagination'; grid-gap:1rem;grid-template-rows: 1fr 8rem;"
           >
-            <div
-              class="grid grid-cols-1 lg:grid-cols-2 gap-2 h-md justify-center align-center justify-items-center items-center"
-              style="grid-area: main"
-            >
-              <For each={result()?.data}>
-                {(meta) => (
-                  <Card class="w-sm max-w-full h-32">
-                    <CardHeader>
-                      <A href={`/articles/${meta.id}`}>
-                        <CardTitle class="truncate leading-normal">
-                          {meta.title}
-                        </CardTitle>
-                      </A>
-                      <Show when={meta.chapter}>
-                        <A href={`/books/${meta.id}`}>
-                          <CardDescription class="truncate leading-normal">
-                            {meta.chapter?.title}
-                          </CardDescription>
-                        </A>
-                      </Show>
-                    </CardHeader>
-                    <CardFooter>
-                      <p>{meta.author?.name}</p>
-                    </CardFooter>
-                  </Card>
-                )}
-              </For>
-            </div>
+            <ArticleGrid articles={result()?.data} />
             <div
               class="justify-center max-w-full"
               style="grid-area: pagination; align-content: center;"

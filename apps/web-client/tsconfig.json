@@ -16,5 +16,13 @@
     "paths": {
       "~/*": ["./src/*"]
     }
-  }
+  },
+  "references": [
+    {
+      "path": "../backend"
+    },
+    {
+      "path": "../web-api"
+    }
+  ]
 }

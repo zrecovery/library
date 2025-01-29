@@ -18,10 +18,5 @@
     "@elysiajs/swagger": "^1.2.0",
     "backend": "workspace:*",
     "elysia": "^1.2.10"
-  },
-  "overwrite": {
-    "devDependencies": {
-      "@sinclair/typebox": "^0.34.13"
-    }
   }
 }

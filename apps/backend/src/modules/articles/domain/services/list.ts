@@ -21,6 +21,7 @@ export const findMany =
     query: ArticleQuery,
   ): Promise<Result<ArticleListResponse, UnknownError | InvalidationError>> => {
     if (!Value.Check(ArticleQuery, query)) {
+      logger.error(query);
       return Err(new InvalidationError(`Invalid input: ${query} `));
     }
     const result = await store.findMany(query);

@@ -63,6 +63,8 @@
 * {
   @apply border-border;
 }
+
 body {
+  overflow: clip;
   @apply bg-background text-foreground;
 }

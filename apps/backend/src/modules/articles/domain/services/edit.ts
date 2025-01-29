@@ -3,8 +3,8 @@ import { ArticleUpdate } from "@articles/domain/types/update";
 import { InvalidationError, NotFoundError, UnknownError } from "@shared/domain";
 import type { Logger } from "@shared/domain/interfaces/logger";
 import {
-  StoreErrorTag,
   type StoreError,
+  StoreErrorTag,
 } from "@shared/domain/interfaces/store.error";
 import type { Id } from "@shared/domain/types/common";
 import { Value } from "@sinclair/typebox/value";
@@ -31,7 +31,8 @@ export const edit =
     Result<null, InvalidationError | NotFoundError | UnknownError>
   > => {
     if (!Value.Check(ArticleUpdate, data)) {
-      return Err(new InvalidationError(`Invalid input: ${data}`));
+      logger.debug(data);
+      return Err(new InvalidationError("Invalid input."));
     }
     const result = await store.update(id, data);
     return result.mapErr(handlerError(id));

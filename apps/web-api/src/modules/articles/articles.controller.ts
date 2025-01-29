@@ -12,7 +12,7 @@ import Elysia, { error, t } from "elysia";
 const ArticleModel = new Elysia().model({
   "findMany.request": t.Object({
     page: t.Optional(t.Numeric({ minimum: 0, default: 1 })),
-    size: t.Optional(t.Numeric({ minimum: 0, default: 1 })),
+    size: t.Optional(t.Numeric({ minimum: 0, default: 10 })),
     keywords: t.Optional(t.String()),
   }),
   "findMany.response": ArticleListResponse,
@@ -46,7 +46,12 @@ export const createArticlesController = (articlesService: ArticleService) =>
         });
       },
       {
-        query: "findMany.request",
+        // Todo: 由于Elysia的Bug，在使用标签的情况下，无法将文本数字转化为数字，只能重复内嵌
+        query: t.Object({
+          page: t.Optional(t.Numeric({ minimum: 0, default: 1 })),
+          size: t.Optional(t.Numeric({ minimum: 0, default: 10 })),
+          keywords: t.Optional(t.String()),
+        }),
         response: {
           200: "findMany.response",
           400: t.String(),
@@ -55,7 +60,6 @@ export const createArticlesController = (articlesService: ArticleService) =>
         },
       },
     )
-
     .get(
       "/:id",
       async ({ params: { id } }) => {

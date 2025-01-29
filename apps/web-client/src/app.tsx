@@ -11,7 +11,7 @@ export default function App() {
     <Router
       root={(props) => (
         <>
-          <div class="p-4" style="height: 96vh">
+          <div class="p-4 h-screen">
             <Nav />
 
             <Suspense>{props.children}</Suspense>

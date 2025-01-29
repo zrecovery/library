@@ -1,5 +1,6 @@
 import { treaty } from "@elysiajs/eden";
-import { ArticleCreateSchema } from "backend";
+import { ArticleCreate } from "backend";
+import type { Server } from "web-api";
 const repository = treaty<Server>("localhost:3001");
 
 enum RepositoryStatusType {
