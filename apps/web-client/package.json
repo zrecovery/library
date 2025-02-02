@@ -20,7 +20,8 @@
     "tailwind-merge": "^2.6.0",
     "unocss": "^0.59.4",
     "unocss-preset-animations": "^1.1.1",
-    "vinxi": "^0.4.3"
+    "vinxi": "^0.4.3",
+    "web-api": "workspace:*"
   },
   "engines": {
     "node": ">=18"

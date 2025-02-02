@@ -93,6 +93,34 @@ function ArticleGrid(props: { articles: ArticleMeta[] }) {
   );
 }
 
+function ArticleListPagination(props: {
+  page: Accessor<number>;
+  setPage: (page: number) => void;
+  count: Accessor<number>;
+}) {
+  const { page, setPage, count } = mergeProps(props);
+  return (
+    <div
+      class="justify-center max-w-full"
+      style="grid-area: pagination; align-content: center;"
+    >
+      <Pagination
+        page={page()}
+        onPageChange={setPage}
+        count={count()}
+        itemComponent={(props) => (
+          <PaginationItem page={props.page}>{props.page}</PaginationItem>
+        )}
+        ellipsisComponent={() => <PaginationEllipsis />}
+      >
+        <PaginationPrevious />
+        <PaginationItems />
+        <PaginationNext />
+      </Pagination>
+    </div>
+  );
+}
+
 export default function ArticleList() {
   const { page, setPage, size } = usePagination();
   const [keyword, setKeyword] = createSignal<string>("");
@@ -108,26 +136,11 @@ export default function ArticleList() {
             style="height:100%;grid-template-areas: 'main' 'pagination'; grid-gap:1rem;grid-template-rows: 1fr 8rem;"
           >
             <ArticleGrid articles={result()?.data} />
-            <div
-              class="justify-center max-w-full"
-              style="grid-area: pagination; align-content: center;"
-            >
-              <Pagination
-                page={page()}
-                onPageChange={setPage}
-                count={result()?.pagination.pages || 1}
-                itemComponent={(props) => (
-                  <PaginationItem page={props.page}>
-                    {props.page}
-                  </PaginationItem>
-                )}
-                ellipsisComponent={() => <PaginationEllipsis />}
-              >
-                <PaginationPrevious />
-                <PaginationItems />
-                <PaginationNext />
-              </Pagination>
-            </div>
+            <ArticleListPagination
+              page={page}
+              setPage={setPage}
+              count={result()?.pagination?.pages || 1}
+            />
           </div>
           <div />
         </div>
