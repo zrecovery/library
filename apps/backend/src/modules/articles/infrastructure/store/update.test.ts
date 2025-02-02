@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { StoreErrorTag } from "@shared/domain/interfaces/store.error";
-import type * as schema from "@shared/infrastructure/store/schema";
 import { findArticleById } from "@shared/infrastructure/store/test/query";
 import { expectError, withTestDb } from "@utils/test";
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+
+import type { Database } from "@shared/infrastructure/store/db";
 import { DrizzleUpdater } from "./update";
 
 describe("Article Update", () => {
@@ -35,7 +35,7 @@ describe("Article Update", () => {
   cases.map((c) => {
     test(
       c.title,
-      withTestDb(async (db: PostgresJsDatabase<typeof schema>) => {
+      withTestDb(async (db: Database) => {
         db.transaction(async (trx) => {
           const updater = new DrizzleUpdater(trx);
           const result = await updater.update(c.input.id, c.input);

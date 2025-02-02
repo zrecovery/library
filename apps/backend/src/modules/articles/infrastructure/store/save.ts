@@ -2,6 +2,7 @@ import type { Saver } from "@articles/domain/interfaces/store";
 import type { ArticleCreate } from "@articles/domain/types/create";
 import type { Id } from "@shared/domain";
 import { UnknownStoreError } from "@shared/domain/interfaces/store.error";
+import type { Database } from "@shared/infrastructure/store/db";
 import {
   articles,
   authors,
@@ -9,21 +10,18 @@ import {
   people,
   series,
 } from "@shared/infrastructure/store/schema";
-import type * as schema from "@shared/infrastructure/store/schema";
 import { eq } from "drizzle-orm";
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { Err, Ok, type Result } from "result";
 
 export class DrizzleSaver implements Saver {
-  readonly #db: PostgresJsDatabase<typeof schema>;
+  readonly #db: Database;
 
-  constructor(db: PostgresJsDatabase<typeof schema>) {
+  constructor(db: Database) {
     this.#db = db;
   }
 
   #createArticle =
-    (trx: PostgresJsDatabase<typeof schema>) =>
-    async (data: { title: string; body: string }) => {
+    (trx: Database) => async (data: { title: string; body: string }) => {
       const articlesEntity = await trx
         .insert(articles)
         .values({ title: data.title.trim(), body: data.body.trim() })
@@ -37,8 +35,7 @@ export class DrizzleSaver implements Saver {
     };
 
   #handleAuthor =
-    (trx: PostgresJsDatabase<typeof schema>) =>
-    async (articleId: Id, author: { name: string }) => {
+    (trx: Database) => async (articleId: Id, author: { name: string }) => {
       await trx
         .insert(people)
         .values({ name: author.name.trim() })
@@ -66,7 +63,7 @@ export class DrizzleSaver implements Saver {
     };
 
   #handleChapter =
-    (trx: PostgresJsDatabase<typeof schema>) =>
+    (trx: Database) =>
     async (articleId: Id, chapter: { title: string; order?: number }) => {
       await trx
         .insert(series)

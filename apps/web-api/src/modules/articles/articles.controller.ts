@@ -112,11 +112,31 @@ export const createArticlesController = (articlesService: ArticleService) =>
     )
     .delete(
       "/:id",
-      ({ params: { id }, set }) => {
-        articlesService.remove(id);
-        set.status = "No Content";
+      async ({ params: { id }, set }) => {
+        const result = await articlesService.remove(id);
+
+        const handleError = (err: DomainError) => {
+          switch (err._tag) {
+            case DomainErrorTag.NotFound:
+              return error(404, "Not Found");
+
+            default:
+              return error(500, "Internal Server Error");
+          }
+        };
+        return result.match({
+          ok: (val) => {
+            set.status = "No Content";
+            return val;
+          },
+          err: (e) => handleError(e),
+        });
       },
       {
         params: t.Object({ id: t.Numeric() }),
+        response: {
+          204: t.Null(),
+          404: t.String(),
+        },
       },
     );

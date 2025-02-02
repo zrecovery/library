@@ -1,5 +1,4 @@
 import { eq } from "drizzle-orm";
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import type { Finder } from "@articles/domain/interfaces/store/finder.ts";
 import type { ArticleDetail } from "@articles/domain/types/detail.ts";
@@ -8,14 +7,14 @@ import {
   UnknownStoreError,
 } from "@shared/domain/interfaces/store.error";
 import type { Id } from "@shared/domain/types/common";
+import type { Database } from "@shared/infrastructure/store/db.ts";
 import { libraryView } from "@shared/infrastructure/store/schema.ts";
-import type * as schema from "@shared/infrastructure/store/schema.ts";
 import { Err, Ok, type Result } from "result";
 import { type FindResult, toModel } from "./dto.ts";
 
 export class DrizzleFinder implements Finder {
-  readonly #db: PostgresJsDatabase<typeof schema>;
-  constructor(readonly db: PostgresJsDatabase<typeof schema>) {
+  readonly #db: Database;
+  constructor(readonly db: Database) {
     this.#db = db;
   }
 

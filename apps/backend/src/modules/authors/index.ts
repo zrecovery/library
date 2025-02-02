@@ -1,2 +1,3 @@
 export { createAuthorService } from "./application/author.service";
-export * from "./domain";
+export { AuthorDetail } from "./domain";
+export type { AuthorService } from "./domain";

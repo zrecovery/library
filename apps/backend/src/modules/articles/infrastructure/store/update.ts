@@ -5,6 +5,7 @@ import {
   StoreError,
   UnknownStoreError,
 } from "@shared/domain/interfaces/store.error";
+import type { Database } from "@shared/infrastructure/store/db";
 import {
   articles,
   authors,
@@ -13,9 +14,8 @@ import {
   people,
   series,
 } from "@shared/infrastructure/store/schema.ts";
-import type * as schema from "@shared/infrastructure/store/schema.ts";
 import { eq } from "drizzle-orm";
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+
 import { Err, Ok, type Result } from "result";
 
 type viewResult = {
@@ -31,14 +31,14 @@ type viewResult = {
 };
 
 export class DrizzleUpdater implements Updater {
-  readonly #db: PostgresJsDatabase<typeof schema>;
+  readonly #db: Database;
 
-  constructor(db: PostgresJsDatabase<typeof schema>) {
+  constructor(db: Database) {
     this.#db = db;
   }
 
   #updateAuthorRelated =
-    (trx: PostgresJsDatabase<typeof schema>) =>
+    (trx: Database) =>
     async (viewResult: viewResult, author: { name: string }) => {
       const query = await trx
         .select({ id: people.id })

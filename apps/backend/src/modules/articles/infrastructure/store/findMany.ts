@@ -5,10 +5,9 @@ import type {
 } from "@articles/domain/types/list.ts";
 import { UnknownStoreError } from "@shared/domain/interfaces/store.error.ts";
 import type { Pagination } from "@shared/domain/types/common";
+import type { Database } from "@shared/infrastructure/store/db";
 import { articles, libraryView } from "@shared/infrastructure/store/schema.ts";
-import type * as schema from "@shared/infrastructure/store/schema.ts";
 import { type SQL, count, like } from "drizzle-orm";
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { Err, Ok, type Result } from "result";
 
 const toModel = (result: {
@@ -44,7 +43,7 @@ const toModel = (result: {
 
 // 获取文章列表
 export class DrizzleLister implements Lister {
-  constructor(private readonly db: PostgresJsDatabase<typeof schema>) {}
+  constructor(private readonly db: Database) {}
 
   /**
    * 构造搜索条件，如无关键字则返回 undefined。

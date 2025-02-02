@@ -4,17 +4,16 @@ import {
   chapters,
 } from "@shared/infrastructure/store/schema";
 import { eq } from "drizzle-orm";
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 
 import type { Remover } from "@articles/domain";
 import { type Id, UnknownError } from "@shared/domain";
-import type * as schema from "@shared/infrastructure/store/schema";
+import type { Database } from "@shared/infrastructure/store/db";
 import { Err, Ok } from "result";
 
 export class DrizzleRemover implements Remover {
-  #db: PostgresJsDatabase<typeof schema>;
+  #db: Database;
 
-  constructor(db: PostgresJsDatabase<typeof schema>) {
+  constructor(db: Database) {
     this.#db = db;
   }
 

@@ -7,13 +7,13 @@ import {
 import { ArticleSchema } from "@shared/domain/types/article";
 import { AuthorSchema } from "@shared/domain/types/author";
 import { ChapterSchema } from "@shared/domain/types/chapter";
+import type { Database } from "@shared/infrastructure/store/db";
 import * as schema from "@shared/infrastructure/store/schema";
 import { Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import { and, eq, isNotNull } from "drizzle-orm";
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { Err, Ok, type Result } from "result";
-import { toAuthorModel, toChapterMetaModel, toModel } from "./dto";
+import { toAuthorModel, toChapterMetaModel } from "./dto";
 
 type Entity = {
   article: { id: number | null; title: string | null };
@@ -22,9 +22,9 @@ type Entity = {
 };
 
 export class Finder {
-  #db: PostgresJsDatabase<typeof schema>;
+  #db: Database;
 
-  constructor(db: PostgresJsDatabase<typeof schema>) {
+  constructor(db: Database) {
     this.#db = db;
   }
 
