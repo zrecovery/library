@@ -1,30 +1,25 @@
-import { A } from "@solidjs/router";
 import {
   type Accessor,
-  For,
+  type JSX,
+  type Setter,
   Show,
-  createEffect,
   createResource,
   createSignal,
   mergeProps,
 } from "solid-js";
-import {
-  Card,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
-import {
-  Pagination,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationItems,
-  PaginationNext,
-  PaginationPrevious,
-} from "~/components/ui/pagination";
-import { articleRepository } from "~/libs/api";
+
+import { articleRepository } from "~/libs/repository";
 import "./index.css";
+import type { ArticleListResponse } from "backend";
+import { ArticleGrid } from "~/components/article-grid";
+import { HolyGrailLayout } from "~/components/holy-grail-layout";
+import { ListPagination } from "~/components/list-pagination";
+import { PaginationLayout } from "~/components/pagination-layout";
+import { ResultHandler } from "~/components/result-handler";
+import {
+  type WebRepositoryError,
+  WebRepositoryErrorTag,
+} from "~/libs/repository/error";
 
 function usePagination() {
   const [page, setPage] = createSignal(1);
@@ -33,118 +28,67 @@ function usePagination() {
   return { page, setPage, size, setSize };
 }
 
-function useArticleData(
+const useArticleData = (
   page: Accessor<number>,
   size: Accessor<number>,
   keyword: Accessor<string>,
-) {
+) => {
   return createResource(
     () => ({ page: page(), size: size(), keyword: keyword() }),
     articleRepository.list,
   );
-}
-
-type ArticleMeta = {
-  chapter?:
-    | {
-        title: string;
-        order: number;
-      }
-    | undefined;
-  id: number;
-  title: string;
-  author: {
-    name: string;
-  };
 };
 
-function ArticleCard(props: { meta: ArticleMeta }) {
-  const { meta } = props;
-  return (
-    <Card class="w-md max-w-full h-32">
-      <CardHeader>
-        <A href={`/articles/${meta.id}`}>
-          <CardTitle class="truncate leading-normal">{meta.title}</CardTitle>
-        </A>
-        <Show when={meta.chapter}>
-          <A href={`/books/${meta.id}`}>
-            <CardDescription class="truncate leading-normal">
-              {meta.chapter?.title}
-            </CardDescription>
-          </A>
-        </Show>
-      </CardHeader>
-      <CardFooter>
-        <p>{meta.author?.name}</p>
-      </CardFooter>
-    </Card>
-  );
-}
+const okNode =
+  (props1: { page: Accessor<number>; setPage: Setter<number> }) =>
+  (props: {
+    value: ArticleListResponse;
+  }): JSX.Element => {
+    const { page, setPage } = mergeProps(props1);
+    const { value } = mergeProps(props);
 
-function ArticleGrid(props: { articles: ArticleMeta[] }) {
-  const { articles } = props;
-  return (
-    <div
-      class="grid grid-cols-1 lg:grid-cols-2 gap-2 h-md justify-center align-center justify-items-center items-center overflow-auto"
-      style="grid-area: main;height: calc(100vh - 12rem);"
-    >
-      <For each={articles}>{(meta) => <ArticleCard meta={meta} />}</For>
-    </div>
-  );
-}
+    return (
+      <>
+        {/* 确保传入正确的数据 */}
+        <ArticleGrid articles={value.data} />
+        <ListPagination
+          page={page}
+          setPage={setPage}
+          count={value.pagination.pages}
+        />
+      </>
+    );
+  };
 
-function ArticleListPagination(props: {
-  page: Accessor<number>;
-  setPage: (page: number) => void;
-  count: Accessor<number>;
-}) {
-  const { page, setPage, count } = mergeProps(props);
-  return (
-    <div
-      class="justify-center max-w-full"
-      style="grid-area: pagination; align-content: center;"
-    >
-      <Pagination
-        page={page()}
-        onPageChange={setPage}
-        count={count()}
-        itemComponent={(props) => (
-          <PaginationItem page={props.page}>{props.page}</PaginationItem>
-        )}
-        ellipsisComponent={() => <PaginationEllipsis />}
-      >
-        <PaginationPrevious />
-        <PaginationItems />
-        <PaginationNext />
-      </Pagination>
-    </div>
-  );
-}
+const errNode = (props: {
+  error: WebRepositoryError;
+}): JSX.Element => {
+  const { error } = mergeProps(props);
+
+  switch (error.tag) {
+    case WebRepositoryErrorTag.NotFound:
+      return <h1>Not Found</h1>;
+    default:
+      return <div>Unknown Error</div>;
+  }
+};
 
 export default function ArticleList() {
   const { page, setPage, size } = usePagination();
-  const [keyword, setKeyword] = createSignal<string>("");
+  const [keyword] = createSignal<string>("");
   const [result] = useArticleData(page, size, keyword);
-
+  console.log(result);
   return (
-    <Show when={!result.loading} fallback={<div>No fetch</div>}>
-      <Show when={result()}>
-        <div id="layout">
-          <div />
-          <div
-            class="grid"
-            style="height:100%;grid-template-areas: 'main' 'pagination'; grid-gap:1rem;grid-template-rows: 1fr 8rem;"
-          >
-            <ArticleGrid articles={result()?.data} />
-            <ArticleListPagination
-              page={page}
-              setPage={setPage}
-              count={result()?.pagination?.pages || 1}
-            />
-          </div>
-          <div />
-        </div>
-      </Show>
-    </Show>
+    <HolyGrailLayout>
+      <PaginationLayout>
+        <Show when={result()}>
+          {ResultHandler({
+            result,
+            children: okNode({ page, setPage }),
+            fallback: errNode,
+          })}
+        </Show>
+      </PaginationLayout>
+    </HolyGrailLayout>
   );
 }

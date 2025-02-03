@@ -1,3 +1,4 @@
+import { cors } from "@elysiajs/cors";
 import {
   createArticleService,
   createAuthorService,
@@ -5,6 +6,7 @@ import {
 } from "backend";
 import { readConfig } from "backend/src/shared/domain/config";
 import { Elysia } from "elysia";
+
 import { createArticlesController } from "./src/modules/articles/articles.controller";
 import { createAuthorController } from "./src/modules/authors/authors.controller";
 import { createChapterController } from "./src/modules/chapters/chapters.controller";
@@ -20,6 +22,7 @@ const chapterService = createChapterService(config);
 const chapterController = createChapterController(chapterService);
 
 export const app = new Elysia()
+  .use(cors())
   .group("/api", (api) =>
     api.use(articleController).use(authorController).use(chapterController),
   )

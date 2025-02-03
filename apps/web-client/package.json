@@ -21,12 +21,13 @@
     "unocss": "^0.59.4",
     "unocss-preset-animations": "^1.1.1",
     "vinxi": "^0.4.3",
-    "web-api": "workspace:*"
+    "web-api": "workspace:*",
+    "tag-error": "workspace:*"
   },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
-    "elysia": "^1.2.10"
+    "elysia": "^1.2.11"
   }
 }

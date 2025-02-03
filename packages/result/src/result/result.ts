@@ -16,7 +16,7 @@ import {
  * Type representing any value except 'undefined'.
  * This is useful when working with strict null checks, ensuring that a value can be null but not undefined.
  */
-type NonUndefined = NonNullable<unknown> | null;
+export type NonUndefined = NonNullable<unknown> | null | undefined;
 
 /**
  * Enum-like object to represent the type of a Result (Ok or Err).

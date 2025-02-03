@@ -8,7 +8,7 @@ Copyright (c) 2024 Thames Technology <slavo@thames.technology>
  * Type representing any value except 'undefined'.
  * This is useful when working with strict null checks, ensuring that a value can be null but not undefined.
  */
-type NonUndefined = {} | null; // eslint-disable-line @typescript-eslint/ban-types
+type NonUndefined = {} | null | undefined; // eslint-disable-line @typescript-eslint/ban-types
 
 /**
  * Enum-like object to represent the type of an Option (Some or None).

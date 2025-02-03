@@ -19,3 +19,17 @@ export interface CreatedSchema {
     name: string;
   };
 }
+
+export type ArticleMeta = {
+  chapter?:
+    | {
+        title: string;
+        order: number;
+      }
+    | undefined;
+  id: number;
+  title: string;
+  author: {
+    name: string;
+  };
+};

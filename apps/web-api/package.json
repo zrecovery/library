@@ -16,7 +16,7 @@
     "@elysiajs/cors": "^1.2.0",
     "@elysiajs/opentelemetry": "^1.2.0",
     "@elysiajs/swagger": "^1.2.0",
-    "elysia": "^1.2.10",
+    "elysia": "^1.2.11",
     "backend": "workspace:*"
   }
 }

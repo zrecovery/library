@@ -1,0 +1,25 @@
+@media screen and (min-width: 32rem) {
+  #layout {
+    @apply grid;
+    @apply bg-gray-100;
+    height: calc(100vh - 4rem);
+    overflow: clip;
+    grid-template: 1fr / 1fr 64rem 1fr;
+  }
+}
+
+@media screen and (max-width: 32rem) {
+  #layout {
+    height: calc(100vh - 3rem);
+    grid-template: 1fr / 1fr 1fr;
+    overflow: clip;
+    max-width: 30rem;
+  }
+}
+
+.list-c {
+  height: 100%;
+  grid-template-areas: "main" "pagination";
+  grid-gap: 1rem;
+  grid-template-rows: 1fr 8rem;
+}
