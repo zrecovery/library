@@ -1,6 +1,5 @@
 import {
   type Accessor,
-  type JSX,
   type Setter,
   Show,
   createResource,
@@ -9,7 +8,7 @@ import {
 } from "solid-js";
 
 import { articleRepository } from "~/libs/repository";
-import "./index.css";
+
 import type { ArticleListResponse } from "backend";
 import { ArticleGrid } from "~/components/article-grid";
 import { HolyGrailLayout } from "~/components/holy-grail-layout";
@@ -39,17 +38,16 @@ const useArticleData = (
   );
 };
 
-const okNode =
+const ArticleListWithPagination =
   (props1: { page: Accessor<number>; setPage: Setter<number> }) =>
   (props: {
     value: ArticleListResponse;
-  }): JSX.Element => {
+  }) => {
     const { page, setPage } = mergeProps(props1);
     const { value } = mergeProps(props);
 
     return (
       <>
-        {/* 确保传入正确的数据 */}
         <ArticleGrid articles={value.data} />
         <ListPagination
           page={page}
@@ -60,9 +58,9 @@ const okNode =
     );
   };
 
-const errNode = (props: {
+const ErrorHandler = (props: {
   error: WebRepositoryError;
-}): JSX.Element => {
+}) => {
   const { error } = mergeProps(props);
 
   switch (error.tag) {
@@ -77,15 +75,15 @@ export default function ArticleList() {
   const { page, setPage, size } = usePagination();
   const [keyword] = createSignal<string>("");
   const [result] = useArticleData(page, size, keyword);
-  console.log(result);
+
   return (
     <HolyGrailLayout>
       <PaginationLayout>
         <Show when={result()}>
           {ResultHandler({
             result,
-            children: okNode({ page, setPage }),
-            fallback: errNode,
+            children: ArticleListWithPagination({ page, setPage }),
+            fallback: ErrorHandler,
           })}
         </Show>
       </PaginationLayout>

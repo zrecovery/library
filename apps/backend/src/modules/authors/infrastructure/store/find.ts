@@ -2,9 +2,8 @@ import type { AuthorDetail } from "@authors/domain/types";
 import { type Id, IdSchema } from "@shared/domain";
 import {
   NotFoundStoreError,
-  UnknownStoreError,
+  type UnknownStoreError,
 } from "@shared/domain/interfaces/store.error";
-import { ArticleSchema } from "@shared/domain/types/article";
 import { AuthorSchema } from "@shared/domain/types/author";
 import { ChapterSchema } from "@shared/domain/types/chapter";
 import type { Database } from "@shared/infrastructure/store/db";
@@ -30,7 +29,7 @@ export class Finder {
 
   #toModel = (entity: Entity) => {
     const article = Value.Parse(
-      Type.Composite([IdSchema, ArticleSchema]),
+      Type.Composite([IdSchema, Type.Object({ title: Type.String() })]),
       entity.article,
     );
     const author = Value.Parse(
@@ -38,7 +37,7 @@ export class Finder {
       entity.author,
     );
     const chapter =
-      entity.chapter.id === null
+      entity.chapter.id !== null
         ? Value.Parse(Type.Composite([IdSchema, ChapterSchema]), entity.chapter)
         : undefined;
     return {
@@ -74,7 +73,7 @@ export class Finder {
 
   #findChapter = async (id: Id) => {
     const result = await this.#db
-      .select({
+      .selectDistinct({
         id: schema.libraryView.series_id,
         title: schema.libraryView.series_title,
       })
@@ -106,17 +105,12 @@ export class Finder {
       return Err(new NotFoundStoreError(`Not found author, id is ${id}`));
     }
 
-    if (result.length > 1) {
-      return Err(new UnknownStoreError(`Not found author, id is ${id}`));
-    }
-
-    const articles = await this.#findArticles(id);
-
     const chapters = await this.#findChapter(id);
 
-    const author = result.map(toAuthorModel).filter((a) => a !== undefined);
+    const author = result.map(toAuthorModel).filter((a) => a !== undefined)[0];
+    const articles = await this.#findArticles(id);
     return Ok({
-      ...author[0],
+      ...author,
       articles,
       chapters,
     });

@@ -17,12 +17,12 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "solid-js": "^1.9.4",
+    "tag-error": "workspace:*",
     "tailwind-merge": "^2.6.0",
     "unocss": "^0.59.4",
     "unocss-preset-animations": "^1.1.1",
     "vinxi": "^0.4.3",
-    "web-api": "workspace:*",
-    "tag-error": "workspace:*"
+    "web-api": "workspace:*"
   },
   "engines": {
     "node": ">=18"

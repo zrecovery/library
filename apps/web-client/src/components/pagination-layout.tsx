@@ -5,8 +5,8 @@ export const PaginationLayout = (props: { children: JSX.Element }) => {
   return (
     <>
       <div
-        class="grid"
-        style="height:100%;grid-template-areas: 'main' 'pagination'; grid-gap:1rem;grid-template-rows: 1fr 8rem;"
+        class="grid h-100"
+        style="grid-template-areas: 'main' 'pagination'; grid-gap:1rem; grid-template-rows: 1fr 6rem;"
       >
         {Children()}
       </div>

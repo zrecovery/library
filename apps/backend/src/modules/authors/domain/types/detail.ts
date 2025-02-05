@@ -13,7 +13,10 @@ export const AuthorDetail = Type.Composite([
         IdSchema,
         ArticleMetaSchema,
         Type.Object({
-          chapters: Type.Optional(Type.Composite([IdSchema, ChapterSchema])),
+          author: Type.Composite([IdSchema, AuthorSchema]),
+        }),
+        Type.Object({
+          chapter: Type.Optional(Type.Composite([IdSchema, ChapterSchema])),
         }),
       ]),
     ),

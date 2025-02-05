@@ -2,7 +2,7 @@ import { ChapterDetail, type ChapterService, DomainErrorTag } from "backend";
 import Elysia, { error, t } from "elysia";
 
 const ChapterModel = new Elysia().model({
-  "detail.response": ChapterDetail,
+  "chapter.detail.response": ChapterDetail,
 });
 
 export const createChapterController = (service: ChapterService) => {
@@ -28,7 +28,7 @@ export const createChapterController = (service: ChapterService) => {
     {
       params: t.Object({ id: t.Numeric() }),
       response: {
-        200: "detail.response",
+        200: "chapter.detail.response",
         404: t.String(),
         500: t.String(),
       },

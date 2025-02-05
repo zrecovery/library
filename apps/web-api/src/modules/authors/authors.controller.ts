@@ -1,4 +1,4 @@
-import { AuthorDetail, DomainErrorTag, type AuthorService } from "backend";
+import { AuthorDetail, type AuthorService, DomainErrorTag } from "backend";
 import Elysia, { error, t } from "elysia";
 
 const AuthorModel = new Elysia().model({
@@ -17,9 +17,11 @@ export const createAuthorController = (service: AuthorService) => {
         err: (err) => {
           switch (err._tag) {
             case DomainErrorTag.NotFound:
+              console.error(err);
               return error(404, "Not Found");
 
             default:
+              console.error(err);
               return error(500, "Internal Server Error");
           }
         },

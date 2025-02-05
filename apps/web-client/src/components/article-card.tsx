@@ -18,7 +18,7 @@ export const ArticleCard = (props: { meta: ArticleMeta }) => {
           <CardTitle class="truncate leading-normal">{meta.title}</CardTitle>
         </A>
         <Show when={meta.chapter}>
-          <A href={`/books/${meta.id}`}>
+          <A href={`/chapters/${meta.chapter?.id}`}>
             <CardDescription class="truncate leading-normal">
               {meta.chapter?.title}
             </CardDescription>
@@ -26,7 +26,9 @@ export const ArticleCard = (props: { meta: ArticleMeta }) => {
         </Show>
       </CardHeader>
       <CardFooter>
-        <p>{meta.author?.name}</p>
+        <A href={`/authors/${meta.author.id}`}>
+          <p>{meta.author?.name}</p>
+        </A>
       </CardFooter>
     </Card>
   );

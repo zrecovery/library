@@ -20,16 +20,21 @@ export interface CreatedSchema {
   };
 }
 
+export type ChapterMeta = {
+  id: number;
+  title: string;
+};
+
 export type ArticleMeta = {
-  chapter?:
-    | {
-        title: string;
-        order: number;
-      }
-    | undefined;
+  chapter?: {
+    id: number;
+    title: string;
+    order: number;
+  };
   id: number;
   title: string;
   author: {
+    id: number;
     name: string;
   };
 };

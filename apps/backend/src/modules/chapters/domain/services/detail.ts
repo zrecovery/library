@@ -1,4 +1,4 @@
-import type { Find } from "@chapters/domain/interfaces/store/find";
+import type { Finder } from "@chapters/domain/interfaces/store/find";
 import { type Id, NotFoundError, UnknownError } from "@shared/domain";
 import type { Logger } from "@shared/domain/interfaces/logger";
 import {
@@ -23,7 +23,7 @@ const handlerError = (logger: Logger) => (id: Id) => (error: StoreError) => {
 };
 
 export const detail =
-  (logger: Logger, store: Find) =>
+  (logger: Logger, store: Finder) =>
   async (
     id: Id,
   ): Promise<Result<ChapterDetail, NotFoundError | UnknownError>> => {

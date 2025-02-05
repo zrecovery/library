@@ -29,11 +29,13 @@ const toModel = (result: {
     id: result.article.id,
     title: result.article.title,
     author: {
+      id: result.author.id ?? 0,
       name: result.author.name ?? "", // 若为null则采用空字符串
     },
     chapter:
       result.chapter.id !== null
         ? {
+            id: result.chapter.id,
             title: result.chapter.title ?? "", // 若为null则采用空字符串
             order: result.chapter.order ?? 0, // 若为null则采用0
           }

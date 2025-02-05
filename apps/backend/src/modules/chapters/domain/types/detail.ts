@@ -6,8 +6,8 @@ import { type Static, Type } from "@sinclair/typebox";
 export const ArticleMeta = Type.Object({
   id: Type.Number(),
   title: Type.String(),
-  author: AuthorSchema,
-  chapter: Type.Optional(ChapterSchema),
+  author: Type.Composite([IdSchema, AuthorSchema]),
+  chapter: Type.Optional(Type.Composite([IdSchema, ChapterSchema])),
 });
 
 export const ChapterDetail = Type.Composite([

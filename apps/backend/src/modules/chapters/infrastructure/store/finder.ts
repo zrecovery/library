@@ -26,15 +26,20 @@ const toModel = (result: {
   if (result.article.title === null) {
     throw new Error("文章标题不能为空");
   }
+  if (result.author.id === null) {
+    throw new Error("作者不能为空");
+  }
   return {
     id: result.article.id,
     title: result.article.title,
     author: {
+      id: result.author.id,
       name: result.author.name ?? "", // 若为null则采用空字符串
     },
     chapter:
       result.chapter.id !== null
         ? {
+            id: result.chapter.id,
             title: result.chapter.title ?? "", // 若为null则采用空字符串
             order: result.chapter.order ?? 0, // 若为null则采用0
           }
@@ -95,7 +100,6 @@ export class DrizzleFinder implements Finder {
         ...chapter[0],
       });
     } catch (error) {
-      console.error(error);
       return Err(new UnknownStoreError(`未知错误：${String(error)}`));
     }
   };
