@@ -1,11 +1,5 @@
 {
   "name": "mockdata",
   "type": "module",
-  "module": "index.ts",
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "latest"
-  }
+  "module": "index.ts"
 }

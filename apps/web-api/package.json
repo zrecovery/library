@@ -8,15 +8,7 @@
   "scripts": {
     "dev": "bun --watch run index.ts"
   },
-  "peerDependencies": {
-    "typescript": "latest"
-  },
   "dependencies": {
-    "@bogeychan/elysia-logger": "^0.1.8",
-    "@elysiajs/cors": "^1.2.0",
-    "@elysiajs/opentelemetry": "^1.2.0",
-    "@elysiajs/swagger": "^1.2.2",
-    "elysia": "^1.2.22",
     "backend": "workspace:*"
   }
 }

@@ -3,22 +3,12 @@
   "main": "./index.ts",
   "module": "./index.ts",
   "devDependencies": {
-    "@types/bun": "latest",
-    "drizzle-kit": "^0.24.2",
-    "elysia": "^1.2.22",
-    "mockdata": "workspace:*",
-    "pino-pretty": "^13.0.0",
-    "supports-color": "^9.4.0"
+    "mockdata": "workspace:*"
   },
   "scripts": {
     "dev": "bun --watch run index.ts"
   },
-  "peerDependencies": {
-    "typescript": "latest"
-  },
   "dependencies": {
-    "drizzle-orm": "^0.39.3",
-    "postgres": "^3.4.5",
     "result": "workspace:*"
   }
 }
