@@ -17,23 +17,12 @@ export const createArticleService = (config: Config): ArticleService => {
 
   const logger = createContextLogger("ArticleService");
 
-  const articleCreateService = create(logger, store);
-
-  const articleUpdateService = edit(logger, store);
-
-  const articleFindService = detail(logger, store);
-
-  const articleFindManyService = findMany(logger, store);
-
-  const articleRemoveService = remove(logger, store);
-
-  const articleService = {
-    create: articleCreateService,
-    edit: articleUpdateService,
-    detail: articleFindService,
-    list: articleFindManyService,
-    remove: articleRemoveService,
+  return {
+    create: create(logger, store),
+    edit: edit(logger, store),
+    detail: detail(logger, store),
+    list: findMany(logger, store),
+    remove: remove(logger, store),
   };
 
-  return articleService;
 };

@@ -1,4 +1,4 @@
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+
 import { DrizzleFinder } from "./find";
 import { DrizzleLister } from "./findMany";
 
@@ -9,13 +9,13 @@ import type {
   Saver,
   Updater,
 } from "@articles/domain/interfaces/store";
-import type * as schema from "@shared/infrastructure/store/schema";
 import { DrizzleRemover } from "./remove";
 import { DrizzleSaver } from "./save";
 import { DrizzleUpdater } from "./update";
+import type { Database } from "@shared/infrastructure/store/db";
 
 export const createArticleStore = (
-  db: PostgresJsDatabase<typeof schema>,
+  db: Database,
 ): Saver & Lister & Finder & Updater & Remover => {
   const lister = new DrizzleLister(db);
   return {

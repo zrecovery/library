@@ -15,11 +15,14 @@ const handlerError = (error: StoreError) => {
   }
 };
 
+const loger = <A, F>(logger: Logger, f: (a: A) => F) => {
+  logger.info("Starting the article creation process");
+  logger.debug(`Received data for article creation ${a}`);
+  return f;
+};
 export const create =
   (logger: Logger, store: Saver) =>
-  async (data: ArticleCreate): Promise<Result<null, UnknownError>> => {
-    logger.info("Starting the article creation process");
-    logger.debug(`Received data for article creation ${data}`);
-    const result = await store.save(data);
-    return result.mapErr(handlerError);
-  };
+    async (data: ArticleCreate): Promise<Result<null, UnknownError>> => {
+      const result = await store.save(data);
+      return result.mapErr(handlerError);
+    };

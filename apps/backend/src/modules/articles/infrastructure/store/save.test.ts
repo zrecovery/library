@@ -6,8 +6,6 @@ import { withTestDb } from "@utils/test";
 import { eq } from "drizzle-orm";
 import { DrizzleSaver } from "./save";
 
-const logger = createContextLogger("ArticleCreateTest");
-
 beforeEach(() => {});
 afterEach(() => {});
 
