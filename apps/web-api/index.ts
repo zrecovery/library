@@ -6,7 +6,7 @@ import {
 } from "backend";
 import { readConfig } from "backend/src/shared/domain/config";
 import { Elysia } from "elysia";
-
+import { staticPlugin } from "@elysiajs/static";
 import { createArticlesController } from "./src/modules/articles/articles.controller";
 import { createAuthorController } from "./src/modules/authors/authors.controller";
 import { createChapterController } from "./src/modules/chapters/chapters.controller";
@@ -23,6 +23,7 @@ const chapterController = createChapterController(chapterService);
 
 export const app = new Elysia()
   .use(cors())
+  .use(staticPlugin({ "prefix": "/" }))
   .group("/api", (api) =>
     api.use(articleController).use(authorController).use(chapterController),
   )

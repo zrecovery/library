@@ -24,16 +24,16 @@ const handlerError = (id: Id) => (error: StoreError) => {
 };
 export const edit =
   (logger: Logger, store: Updater) =>
-    async (
-      id: Id,
-      data: ArticleUpdate,
-    ): Promise<
-      Result<null, InvalidationError | NotFoundError | UnknownError>
-    > => {
-      if (!Value.Check(ArticleUpdate, data)) {
-        logger.debug(data);
-        return Err(new InvalidationError("Invalid input."));
-      }
-      const result = await store.update(id, data);
-      return result.mapErr(handlerError(id));
-    };
+  async (
+    id: Id,
+    data: ArticleUpdate,
+  ): Promise<
+    Result<null, InvalidationError | NotFoundError | UnknownError>
+  > => {
+    if (!Value.Check(ArticleUpdate, data)) {
+      logger.debug(data);
+      return Err(new InvalidationError("Invalid input."));
+    }
+    const result = await store.update(id, data);
+    return result.mapErr(handlerError(id));
+  };

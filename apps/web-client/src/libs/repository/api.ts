@@ -10,7 +10,7 @@ import type {
   NotFoundWebRepositoryError,
   UnknownWebRepositoryError,
 } from "./error";
-import type { CreatedSchema, ListQuery } from "./schema";
+import type { CreatedSchema, ListQuery } from "../schema";
 
 export interface ArticleRepository {
   create: (

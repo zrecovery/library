@@ -22,7 +22,7 @@ const loger = <A, F>(logger: Logger, f: (a: A) => F) => {
 };
 export const create =
   (logger: Logger, store: Saver) =>
-    async (data: ArticleCreate): Promise<Result<null, UnknownError>> => {
-      const result = await store.save(data);
-      return result.mapErr(handlerError);
-    };
+  async (data: ArticleCreate): Promise<Result<null, UnknownError>> => {
+    const result = await store.save(data);
+    return result.mapErr(handlerError);
+  };
