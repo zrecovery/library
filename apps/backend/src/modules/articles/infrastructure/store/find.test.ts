@@ -1,8 +1,7 @@
-import { afterEach, beforeEach, describe, expect, test } from "bun:test";
-import type { Id } from "@shared/domain";
+import { describe, expect, test } from "bun:test";
 import { withTestDb } from "@utils/test";
 
-import { articles, chapters } from "@shared/infrastructure/store/schema";
+import { articles } from "@shared/infrastructure/store/schema";
 import { eq } from "drizzle-orm";
 import { DrizzleFinder } from "./find";
 

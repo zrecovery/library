@@ -5,5 +5,10 @@ export default defineConfig({
   vite: {
     plugins: [UnoCSS()],
   },
-  ssr: false,
+  server: {
+    prerender: {
+      crawlLinks: true
+    },
+
+  }
 });

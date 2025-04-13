@@ -8,7 +8,7 @@ export const ChapterCard = (props: { meta: ChapterMeta }) => {
   return (
     <Card class="w-md max-w-full h-32">
       <CardHeader>
-        <A href={`/books/${meta.id}`}>
+        <A href={`/chapters/${meta.id}`}>
           <CardTitle class="truncate leading-normal">{meta.title}</CardTitle>
         </A>
       </CardHeader>

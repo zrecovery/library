@@ -10,6 +10,8 @@ import { articles, libraryView } from "@shared/infrastructure/store/schema.ts";
 import { type SQL, count, like } from "drizzle-orm";
 import { Err, Ok, type Result } from "result";
 
+export const spliteKeyword = (keyword: string): string[] => keyword.split("|");
+
 const toModel = (result: {
   article: { id: number | null; title: string | null };
   author: { id: number | null; name: string | null };
@@ -43,6 +45,8 @@ const toModel = (result: {
   };
 };
 
+type Condition = (keyword?: string) => SQL | undefined;
+
 // 获取文章列表
 export class DrizzleLister implements Lister {
   constructor(private readonly db: Database) {}
@@ -50,7 +54,7 @@ export class DrizzleLister implements Lister {
   /**
    * 构造搜索条件，如无关键字则返回 undefined。
    */
-  private buildCondition = (keyword?: string): SQL | undefined => {
+  #buildCondition = (keyword?: string): SQL | undefined => {
     const trimmed = keyword?.trim();
     return trimmed ? like(articles.body, `%${trimmed}%`) : undefined;
   };
@@ -61,10 +65,10 @@ export class DrizzleLister implements Lister {
    * @param page 当前分页页码
    * @param size 每页显示的数量
    */
-  buildListQuery = (
+  #buildListQuery = (
     page: number,
     size: number,
-    condition: ReturnType<typeof this.buildCondition>,
+    condition: ReturnType<Condition>,
   ) => {
     const offset = (page - 1) * size;
 
@@ -100,12 +104,12 @@ export class DrizzleLister implements Lister {
    * 构建统计记录总数的查询。
    * @param condition 过滤条件，可为空
    */
-  private buildCountQuery(condition: ReturnType<typeof this.buildCondition>) {
+  #buildCountQuery = (condition: ReturnType<Condition>) => {
     return this.db
       .select({ value: count(articles.id).as("total") })
       .from(articles)
       .where(condition);
-  }
+  };
 
   /**
    * 对外提供的主要查询方法，将拆分好的辅助函数组合起来完成逻辑。
@@ -119,12 +123,12 @@ export class DrizzleLister implements Lister {
 
     try {
       // 1. 查询列表数据
-      const listQuery = this.buildListQuery(page, size, condition);
+      const listQuery = this.#buildListQuery(page, size, condition);
       const rows = await listQuery;
       const list: ArticleMeta[] = rows.map(toModel);
 
       // 2. 查询总数
-      const countQuery = this.buildCountQuery(condition);
+      const countQuery = this.#buildCountQuery(condition);
       const countResult = await countQuery;
       const totalItems = countResult[0]?.value ?? 0;
       const totalPages = Math.ceil(totalItems / (size ?? 10));

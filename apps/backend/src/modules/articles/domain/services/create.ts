@@ -9,6 +9,7 @@ export class ArticleCreatorService {
   #logger: Logger;
   #saver: Saver;
 
+<<<<<<< HEAD
   constructor(logger: Logger, saver: Saver) {
     this.#logger = logger;
     this.#saver = saver;
@@ -30,3 +31,16 @@ export class ArticleCreatorService {
     return result.mapErr(this.#handlerError);
   };
 }
+=======
+const loger = <A, F>(logger: Logger, f: (a: A) => F) => {
+  logger.info("Starting the article creation process");
+  logger.debug(`Received data for article creation ${a}`);
+  return f;
+};
+export const create =
+  (logger: Logger, store: Saver) =>
+  async (data: ArticleCreate): Promise<Result<null, UnknownError>> => {
+    const result = await store.save(data);
+    return result.mapErr(handlerError);
+  };
+>>>>>>> ec567777ddbca86f4439fe1db34431c7aede2b9d

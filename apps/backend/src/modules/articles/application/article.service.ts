@@ -22,5 +22,4 @@ export const createArticleService = (config: Config): ArticleService => {
     list: findMany(logger, store),
     remove: remove(logger, store),
   };
-
 };

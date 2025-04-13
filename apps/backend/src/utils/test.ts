@@ -1,11 +1,10 @@
 import { expect } from "bun:test";
 import {
   StoreError,
-  type StoreErrorType,
+  StoreErrorTag,
 } from "@shared/domain/interfaces/store.error";
+import { drizzle } from "drizzle-orm/bun-sql";
 import { sql } from "drizzle-orm";
-import { type PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
 import * as schema from "../shared/infrastructure/store/schema";
 
 const logger = createContextLogger("TestUtils");
@@ -13,18 +12,17 @@ const logger = createContextLogger("TestUtils");
 const TEST_DB_URI =
   process.env.DATABASE_URI ||
   "postgres://postgres:postgres@localhost:5432/test";
-const queryClient = postgres(TEST_DB_URI);
 
-export const createTestDb = () => {
+export const createTestDb = (): Database => {
   try {
-    return drizzle(queryClient, { schema: schema });
+    return drizzle(TEST_DB_URI, { schema: schema });
   } catch (error) {
     logger.error({ error }, "Failed to create test database connection");
     throw error;
   }
 };
 
-export const clearTestData = async (db: ReturnType<typeof drizzle>) => {
+export const clearTestData = async (db: Database) => {
   try {
     await db.execute(sql`
       TRUNCATE TABLE articles, people, authors, series, chapters CASCADE;
@@ -38,7 +36,7 @@ export const clearTestData = async (db: ReturnType<typeof drizzle>) => {
 
 export const expectError = async <T>(
   promise: Promise<T>,
-  errorType: StoreErrorType,
+  errorType: StoreErrorTag,
   message?: string,
 ) => {
   try {
@@ -56,9 +54,7 @@ export const expectError = async <T>(
   }
 };
 
-export const withTestDb = (
-  testFn: (db: PostgresJsDatabase<typeof schema>) => Promise<void>,
-) => {
+export const withTestDb = (testFn: (db: Database) => Promise<void>) => {
   return async () => {
     const db = createTestDb();
     db.transaction(async (trx) => {
