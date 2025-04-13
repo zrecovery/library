@@ -7,7 +7,6 @@ import { sql } from "drizzle-orm";
 import { type PostgresJsDatabase, drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import * as schema from "../shared/infrastructure/store/schema";
-import { createContextLogger } from "./logger";
 
 const logger = createContextLogger("TestUtils");
 
@@ -47,7 +46,7 @@ export const expectError = async <T>(
     expect().fail("Expected an error but none was thrown");
   } catch (error: unknown) {
     if (error instanceof StoreError) {
-      expect(error.type).toBe(errorType);
+      expect(error._tag).toBe(errorType);
       if (message) {
         expect(error.message).toContain(message);
       }

@@ -7,7 +7,6 @@ import { remove } from "@articles/domain/services/remove";
 import { createArticleStore } from "@articles/infrastructure/store";
 import type { Config } from "@shared/domain/config";
 import { connectDb } from "@shared/infrastructure/store/connect";
-import { createContextLogger } from "@utils/logger";
 
 export const createArticleService = (config: Config): ArticleService => {
   const uri = config.database.URI;
@@ -15,8 +14,7 @@ export const createArticleService = (config: Config): ArticleService => {
   const db = connectDb(uri);
   const store = createArticleStore(db);
 
-  const logger = createContextLogger("ArticleService");
-
+  const logger = console;
   return {
     create: create(logger, store),
     edit: edit(logger, store),

@@ -1,10 +1,9 @@
 import type { Find } from "@authors/domain/interfaces/store";
-import type * as schema from "@shared/infrastructure/store/schema";
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { Finder } from "./find";
+import type { Database } from "@shared/infrastructure/store/db";
 
 export const createAuthorStore = (
-  db: PostgresJsDatabase<typeof schema>,
+  db: Database,
 ): Find => {
   return {
     find: new Finder(db).find,

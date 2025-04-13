@@ -3,7 +3,6 @@ import { detail } from "@chapters/domain/services/detail";
 import { createChapterStore } from "@chapters/infrastructure/store";
 import type { Config } from "@shared/domain/config";
 import { connectDb } from "@shared/infrastructure/store/connect";
-import { createContextLogger } from "@utils/logger";
 
 export const createChapterService = (config: Config): ChapterService => {
   const uri = config.database.URI;
@@ -11,7 +10,7 @@ export const createChapterService = (config: Config): ChapterService => {
   const db = connectDb(uri);
   const store = createChapterStore(db);
 
-  const logger = createContextLogger("ChapterService");
+  const logger = console;
 
   const chapterFindService = detail(logger, store);
 
