@@ -25,7 +25,6 @@ const save = (failures: string[]) => async (data: Created) => {
   const handleResult = r.match({
     ok: (val) => val,
     err: (e) => {
-      console.error(e);
       failures.push(data.filename);
       return e;
     },
@@ -55,7 +54,7 @@ export const localInput = async (config: Config) => {
         return typeof r !== "undefined";
       })
       .map(format)
-      .map(save(failures)),
+    .map(save(failures)),
   );
 
   console.log(`${failures.length}/${tasks.length}`);
@@ -64,7 +63,7 @@ export const localInput = async (config: Config) => {
 };
 
 localInput({
-  root: "/home/dev/下载/epub",
-  reg: /(\[\d{6}]\/)?(?<id>(\d*))_\((?<author_id>\d*)\)(_\[(?<series>.*)\((?<order>\d*)\)\]_)?\((?<author>(.*))\)(?<title>.*).epub/,
-  format: FileFormat.epub,
+  root: "/home/enjoy/Downloads/txt",
+  reg:/\[\d{6}\]\/(?<id>\d*)_\((?<author_id>\d*)\)_?(\[(?<series>.*)\(#?(?<order>\d*)\)\]_)?\((?<author>(.*))\)(?<title>.*).txt/,
+  format: FileFormat.plain,
 });

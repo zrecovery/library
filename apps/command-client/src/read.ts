@@ -37,7 +37,7 @@ export const readArticle =
 
     if (!re) {
       console.error(filename);
-      //throw new Error(`正则匹配失败${filename}`);
+      throw new Error(`正则匹配失败${filename}`);
     } else {
       const groups = re.groups;
       if (!groups) {
