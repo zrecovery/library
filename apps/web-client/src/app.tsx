@@ -5,23 +5,21 @@ import { Router } from "@solidjs/router";
 import { FileRoutes } from "@solidjs/start/router";
 import { Suspense } from "solid-js";
 import Nav from "~/components/Nav";
+import { BaseLayout } from "~/components/base-layout";
 
 export default function App() {
+
+  const footer = <footer class="bg-gray-800 text-white p-4">Footer</footer>;
   return (
     <Router
       root={(props) => (
         <>
-          <div class="h-screen">
-            <Nav />
+          {BaseLayout({ header: Nav(), main:<Suspense>{props.children}</Suspense>, footer:footer})}
 
-            <Suspense>{props.children}</Suspense>
-          </div>
         </>
       )}
     >
-      <Suspense>
-        <FileRoutes />
-      </Suspense>
+<FileRoutes />
     </Router>
   );
 }

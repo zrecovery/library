@@ -7,7 +7,7 @@ export const ArticleGrid = (props: { articles?: ArticleMeta[] }) => {
   return (
     <div
       class="grid grid-cols-1 lg:grid-cols-2 gap-1 h-md justify-center align-center justify-items-center items-center overflow-auto"
-      style="grid-area: main;height: calc(100vh - 12rem);"
+      style="grid-area: main;height: calc(100vh - 16rem);"
     >
       <For each={articles}>{(meta) => <ArticleCard meta={meta} />}</For>
     </div>
