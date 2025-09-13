@@ -84,21 +84,19 @@ export class DrizzleSaver implements Saver {
       await trx.insert(chapters).values({
         article_id: articleId,
         series_id: s.id,
-        order: chapter.order ?? 1.0,
+        order: chapter.order ?? 1,
       });
     };
 
   save = async (
     data: ArticleCreate,
   ): Promise<Result<null, UnknownStoreError>> => {
-    const { title, body, author, chapter } = data;
-
-    await this.#db.transaction(async (trx) => {
-      try {
+    try {
+      await this.#db.transaction(async (trx) => {
         // Create article
         const article = await this.#createArticle(trx)({ title, body });
 
-        const author_handled = await this.#handleAuthor(trx)(
+        await this.#handleAuthor(trx)(
           article.id,
           author,
         );
@@ -107,18 +105,17 @@ export class DrizzleSaver implements Saver {
         if (chapter) {
           await this.#handleChapter(trx)(article.id, chapter);
         }
-      } catch (e) {
-        trx.rollback();
-        if (e instanceof Error) {
-          return Err(new UnknownStoreError("Failed to create article", e));
-        }
-        return Err(
-          new UnknownStoreError(
-            `Failed to create article, and can not parse error. ${e}`,
-          ),
-        );
+      });
+      return Ok(null);
+    } catch (e) {
+      if (e instanceof Error) {
+        return Err(new UnknownStoreError("Failed to create article", e));
       }
-    });
-    return Ok(null);
+      return Err(
+        new UnknownStoreError(
+          `Failed to create article, and can not parse error. ${e}`,
+        ),
+      );
+    }
   };
 }

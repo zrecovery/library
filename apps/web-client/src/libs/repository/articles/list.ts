@@ -7,21 +7,23 @@ import { UnknownWebRepositoryError } from "../error";
 export const list = async (
   query: ListQuery,
 ): Promise<Result<ArticleListResponse, UnknownWebRepositoryError>> => {
-  const { data, error } = await edenServer.api.articles.index.get({
+  const { data, error } = await edenServer.api.articles.get({
     query: { page: query.page ?? 1, size: query.size ?? 10 },
   });
-  switch (error?.status) {
-    case undefined:
-      break;
-    default:
-      return Err(
-        new UnknownWebRepositoryError(
-          `Unknown Error, statuc code: ${error?.status}`,
-        ),
-      );
+
+  if (error) {
+
+    return Err(
+      new UnknownWebRepositoryError(
+        `Failed to fetch articles: ${error.value} || Status code: ${error.status}`,
+        error as unknown as Error
+      ),
+    );
   }
+
   if (!data) {
-    return Err(new UnknownWebRepositoryError("Unknown Error"));
+    return Err(new UnknownWebRepositoryError("No data received when fetching articles"));
   }
+
   return Ok(data);
 };

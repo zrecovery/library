@@ -18,7 +18,7 @@ const handleError = (logger: Logger) => (id: Id) => (error: StoreError) => {
     default:
       logger.trace(error);
       return new UnknownError(
-        `Unknown Store Error When find article: ${id}`,
+        `Unknown Store Error When find article: ${id}, ${error.message}`,
         error,
       );
   }

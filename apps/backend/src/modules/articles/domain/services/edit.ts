@@ -17,11 +17,12 @@ const handlerError = (id: Id) => (error: StoreError) => {
 
     default:
       return new UnknownError(
-        `Unknown Store Error When find article: ${id}`,
+        `Unknown Store Error When updating article: ${id}, ${error.message}`,
         error,
       );
   }
 };
+
 export const edit =
   (logger: Logger, store: Updater) =>
   async (
@@ -30,10 +31,12 @@ export const edit =
   ): Promise<
     Result<null, InvalidationError | NotFoundError | UnknownError>
   > => {
+    // 验证输入数据
     if (!Value.Check(ArticleUpdate, data)) {
-      logger.debug(data);
-      return Err(new InvalidationError("Invalid input."));
+      logger.debug("Invalid input data", data);
+      return Err(new InvalidationError("Invalid input data."));
     }
+    
     const result = await store.update(id, data);
     return result.mapErr(handlerError(id));
   };

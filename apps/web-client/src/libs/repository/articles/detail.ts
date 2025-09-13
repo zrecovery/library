@@ -12,20 +12,24 @@ export const detail = async (
   Result<ArticleDetail, NotFoundWebRepositoryError | UnknownWebRepositoryError>
 > => {
   const { data, error } = await edenServer.api.articles({ id }).get();
-  switch (error?.status) {
-    case undefined:
-      break;
-    case 404:
-      return Err(new NotFoundWebRepositoryError(`Not Found, Id: ${id}`));
-    default:
-      return Err(
-        new UnknownWebRepositoryError(
-          `Unknown Error, statuc code: ${error?.status}`,
-        ),
-      );
+  
+  if (error) {
+    switch (error.status) {
+      case 404:
+        return Err(new NotFoundWebRepositoryError(`Article not found, Id: ${id}`));
+      default:
+        return Err(
+          new UnknownWebRepositoryError(
+            `Failed to fetch article: ${error.value || `Status code: ${error.status}`}`,
+            error as unknown as Error
+          ),
+        );
+    }
   }
+  
   if (!data) {
-    return Err(new UnknownWebRepositoryError("Unknown Error"));
+    return Err(new UnknownWebRepositoryError("No data received when fetching article"));
   }
+  
   return Ok(data);
 };

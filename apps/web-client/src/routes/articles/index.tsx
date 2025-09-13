@@ -65,9 +65,9 @@ const ErrorHandler = (props: {
 
   switch (error.tag) {
     case WebRepositoryErrorTag.NotFound:
-      return <h1>Not Found</h1>;
+      return <h1>未找到文章</h1>;
     default:
-      return <div>Unknown Error</div>;
+      return <div>发生未知错误: {error.message}</div>;
   }
 };
 

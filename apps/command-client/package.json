@@ -8,7 +8,8 @@
     "mockdata": "workspace:*"
   },
   "scripts": {
-    "dev": "bun run src/application/app.ts"
+    "dev": "bun run src/application/app.ts",
+    "test": "bun test"
   },
   "dependencies": {
     "@xmldom/xmldom": "^0.9.8",

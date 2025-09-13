@@ -1,6 +1,7 @@
 export enum WebRepositoryErrorTag {
   NotFound = "NotFound",
   Invalidate = "Invalidate",
+  Unknown = "Unknown"
 }
 
 export class WebRepositoryError extends Error {
@@ -22,7 +23,7 @@ export class NotFoundWebRepositoryError extends WebRepositoryError {
 
 export class UnknownWebRepositoryError extends WebRepositoryError {
   constructor(message: string, raw?: Error) {
-    super(message, WebRepositoryErrorTag.NotFound, raw);
+    super(message, WebRepositoryErrorTag.Unknown, raw);
   }
 }
 

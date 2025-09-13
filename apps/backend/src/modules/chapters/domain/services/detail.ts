@@ -11,12 +11,12 @@ import type { ChapterDetail } from "../types";
 const handlerError = (logger: Logger) => (id: Id) => (error: StoreError) => {
   switch (error._tag) {
     case StoreErrorTag.NotFound:
-      return new NotFoundError(`Not found chapters: ${id}`);
+      return new NotFoundError(`Not found chapter: ${id}`);
 
     default:
       logger.trace(error);
       return new UnknownError(
-        `Unknown Store Error When find chapters: ${id}`,
+        `Unknown Store Error When find chapter: ${id}, ${error.message}`,
         error,
       );
   }
@@ -27,7 +27,7 @@ export const detail =
   async (
     id: Id,
   ): Promise<Result<ChapterDetail, NotFoundError | UnknownError>> => {
-    logger.info("Finding author");
+    logger.info(`Finding chapter ${id}`);
     const result = await store.find(id);
     return result.mapErr(handlerError(logger)(id));
   };

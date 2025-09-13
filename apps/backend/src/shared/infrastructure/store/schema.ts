@@ -6,21 +6,28 @@ import {
   real,
   serial,
   text,
+  timestamp,
 } from "drizzle-orm/pg-core";
 
 export const articles = pgTable("articles", {
   id: serial("id").primaryKey().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
   title: text("title").notNull(),
   body: text("body").notNull(),
 });
 
 export const people = pgTable("people", {
   id: serial("id").primaryKey().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
   name: text("name").notNull(),
 });
 
 export const authors = pgTable("authors", {
   id: serial("id").primaryKey().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
   person_id: integer("person_id")
     .references(() => people.id)
     .notNull(),
@@ -51,12 +58,16 @@ export const authorsRelations = relations(authors, ({ one }) => ({
 
 export const series = pgTable("series", {
   id: serial("id").primaryKey().notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
   title: text("title").unique().notNull(),
 });
 
 export const chapters = pgTable("chapters", {
   id: serial("id").primaryKey().notNull(),
-  order: real("order").default(1.0).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  order: integer("order").default(1).notNull(),
   article_id: integer("article_id")
     .references(() => articles.id)
     .notNull()

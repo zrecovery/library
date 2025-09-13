@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "vinxi dev --port 3002",
     "build": "vinxi build",
-    "start": "vinxi start"
+    "start": "vinxi start",
+    "test": "bun test"
   },
   "dependencies": {
     "tag-error": "workspace:*",

@@ -39,53 +39,39 @@ export class DrizzleUpdater implements Updater {
 
   #updateAuthorRelated =
     (trx: Database) =>
-    async (viewResult: viewResult, author: { name: string }) => {
-      const query = await trx
+    async (articleId: Id, author: { name: string }) => {
+      // 查找或创建作者
+      await trx
+        .insert(people)
+        .values({ name: author.name.trim() })
+        .onConflictDoNothing({ target: people.name });
+
+      const [person] = await trx
         .select({ id: people.id })
         .from(people)
-        .where(eq(people.name, author.name));
+        .where(eq(people.name, author.name.trim()));
 
-      const isExistedNewAuthor = query.length === 1;
-      if (!viewResult.author_id) {
-        throw new UnknownStoreError("脏数据：未查找到关联作者");
+      if (!person) {
+        throw new UnknownStoreError(`Failed to find or create person: ${author.name}`);
       }
-      const isExistedRelation = viewResult.author_id !== null;
 
-      if (isExistedNewAuthor && isExistedRelation) {
-        const a = query[0];
+      // 查找是否已存在作者关联
+      const [existingAuthor] = await trx
+        .select({ id: authors.id })
+        .from(authors)
+        .where(eq(authors.article_id, articleId));
+
+      if (existingAuthor) {
+        // 更新现有作者关联
         await trx
           .update(authors)
-          .set({ person_id: a.id })
-          .where(eq(authors.id, viewResult.author_id));
-      }
-
-      // article存在已有作者关系，但待新增author不存在people表中
-      if (!isExistedNewAuthor && isExistedRelation) {
-        const person = await trx
-          .insert(people)
-          .values({ name: author.name })
-          .returning();
-        await trx
-          .update(authors)
-          .set({ person_id: person[0].id })
-          .where(eq(authors.id, viewResult.author_id));
-      }
-
-      if (isExistedNewAuthor && !isExistedRelation) {
-        const a = query[0];
+          .set({ person_id: person.id })
+          .where(eq(authors.id, existingAuthor.id));
+      } else {
+        // 创建新的作者关联
         await trx
           .insert(authors)
-          .values({ person_id: a.id, article_id: viewResult.id });
-      }
-
-      if (!isExistedNewAuthor && !isExistedRelation) {
-        const person = await trx
-          .insert(people)
-          .values({ name: author.name })
-          .returning();
-        await trx
-          .insert(authors)
-          .values({ person_id: person[0].id, article_id: viewResult.id });
+          .values({ person_id: person.id, article_id: articleId });
       }
     };
 
@@ -98,12 +84,20 @@ export class DrizzleUpdater implements Updater {
       chapter?: Partial<{ title: string; order: number }>;
     },
   ): Promise<Result<null, NotFoundStoreError | UnknownStoreError>> => {
-    const { title, body, author, chapter } = data;
-    await this.#db.transaction(async (trx) => {
-      try {
-        const article = (
-          await trx.select().from(libraryView).where(eq(libraryView.id, id))
-        )[0];
+    try {
+      await this.#db.transaction(async (trx) => {
+        // 检查文章是否存在
+        const [existingArticle] = await trx
+          .select({ id: articles.id })
+          .from(articles)
+          .where(eq(articles.id, id));
+
+        if (!existingArticle) {
+          throw new NotFoundStoreError(`Article not found: ${id}`);
+        }
+
+        // 更新文章标题和内容
+        const { title, body, author, chapter } = data;
         if (title || body) {
           await trx
             .update(articles)
@@ -111,79 +105,75 @@ export class DrizzleUpdater implements Updater {
             .where(eq(articles.id, id));
         }
 
-        if (author) {
-          if (author.name) {
-            const name = author.name;
-            await this.#updateAuthorRelated(trx)(article, { name });
-          }
+        // 更新作者信息
+        if (author?.name) {
+          await this.#updateAuthorRelated(trx)(id, { name: author.name });
         }
 
+        // 更新章节信息
         if (chapter) {
-          const relation = await trx
-            .select({ id: chapters.id })
-            .from(chapters)
-            .where(eq(chapters.article_id, id));
+          // 查找或创建系列
           if (chapter.title) {
-            const query = await trx
+            await trx
+              .insert(series)
+              .values({ title: chapter.title.trim() })
+              .onConflictDoNothing({ target: series.title });
+
+            const [s] = await trx
               .select({ id: series.id })
               .from(series)
-              .where(eq(series.title, chapter.title));
-            if (query.length === 1 && relation.length === 1) {
+              .where(eq(series.title, chapter.title.trim()));
+
+            if (!s) {
+              throw new UnknownStoreError(`Failed to find or create series: ${chapter.title}`);
+            }
+
+            // 查找是否已存在章节关联
+            const [existingChapter] = await trx
+              .select({ id: chapters.id })
+              .from(chapters)
+              .where(eq(chapters.article_id, id));
+
+            if (existingChapter) {
+              // 更新现有章节关联
               await trx
                 .update(chapters)
-                .set({ series_id: query[0].id })
-                .where(eq(chapters.article_id, id));
-            }
-            if (query.length === 0 && relation.length === 1) {
-              const created = await trx
-                .insert(series)
-                .values({ title: chapter.title })
-                .returning();
-              await trx
-                .update(chapters)
-                .set({ series_id: created[0].id })
-                .where(eq(chapters.article_id, id));
-            }
-            if (query.length === 1 && relation.length === 0) {
+                .set({
+                  series_id: s.id,
+                  order: chapter.order ?? 1
+                })
+                .where(eq(chapters.id, existingChapter.id));
+            } else {
+              // 创建新的章节关联
               await trx
                 .insert(chapters)
                 .values({
                   article_id: id,
-                  series_id: query[0].id,
-                  order: chapter.order,
-                })
-                .returning();
+                  series_id: s.id,
+                  order: chapter.order ?? 1
+                });
             }
-            if (query.length === 0 && relation.length === 0) {
-              const created = await trx
-                .insert(series)
-                .values({ title: chapter.title })
-                .returning();
-              await trx
-                .insert(chapters)
-                .values({
-                  article_id: id,
-                  series_id: created[0].id,
-                  order: chapter.order,
-                })
-                .returning();
-            }
-          }
-          if (chapter.order) {
+          } else if (chapter.order !== undefined) {
+            // 只更新章节顺序
             await trx
               .update(chapters)
               .set({ order: chapter.order })
               .where(eq(chapters.article_id, id));
           }
         }
-      } catch (e) {
-        trx.rollback();
-        if (e instanceof StoreError) {
-          return Err(new NotFoundStoreError(e.message));
+      });
+      return Ok(null);
+    } catch (e) {
+      if (e instanceof StoreError) {
+        if (e instanceof NotFoundStoreError) {
+          return Err(e);
         }
-        return Err(new UnknownError(`${e}`));
+        return Err(new UnknownStoreError(e.message, e));
       }
-    });
-    return Ok(null);
+      if (e instanceof Error) {
+        return Err(new UnknownStoreError(e.message, e));
+      }
+      return Err(new UnknownStoreError(`Unknown error: ${e}`));
+    }
   };
 }

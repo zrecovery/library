@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import type { ArticleCreate } from "@articles/domain/types/create";
 import { articles, series } from "@shared/infrastructure/store/schema";
-import { createContextLogger } from "@utils/logger";
 import { withTestDb } from "@utils/test";
 import { eq } from "drizzle-orm";
 import { DrizzleSaver } from "./save";

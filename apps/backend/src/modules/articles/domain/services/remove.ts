@@ -14,7 +14,7 @@ const handlerError = (id: Id) => (error: StoreError) => {
 
     default:
       return new UnknownError(
-        `Unknown Store Error When find article: ${id}`,
+        `Unknown Store Error When removing article: ${id}, ${error.message}`,
         error,
       );
   }
@@ -23,6 +23,7 @@ const handlerError = (id: Id) => (error: StoreError) => {
 export const remove =
   (logger: Logger, store: Remover) =>
   async (id: Id): Promise<Result<null, NotFoundError | UnknownError>> => {
+    logger.debug(`Removing article ${id}`);
     const result = await store.remove(id);
     return result.mapErr(handlerError(id));
   };

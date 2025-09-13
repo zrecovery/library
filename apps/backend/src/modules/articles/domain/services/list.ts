@@ -10,8 +10,7 @@ import { Err, type Result } from "result";
 const handleError = (error: StoreError) => {
   switch (error._tag) {
     default:
-      console.error(error);
-      return new UnknownError("Unknown error", error);
+      return new UnknownError(`Unknown error: ${error.message}`, error);
   }
 };
 
@@ -20,10 +19,12 @@ export const findMany =
   async (
     query: ArticleQuery,
   ): Promise<Result<ArticleListResponse, UnknownError | InvalidationError>> => {
+    // 验证查询参数
     if (!Value.Check(ArticleQuery, query)) {
-      logger.error(query);
-      return Err(new InvalidationError(`Invalid input: ${query} `));
+      logger.error("Invalid query parameters", query);
+      return Err(new InvalidationError(`Invalid input: ${JSON.stringify(query)} `));
     }
+    
     const result = await store.findMany(query);
     return result.mapErr(handleError);
   };

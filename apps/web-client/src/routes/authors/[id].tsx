@@ -27,8 +27,8 @@ const AuthorDetailList = (props: { value: AuthorDetail }) => {
     <>
       <Tabs defaultValue={"articles"}>
         <TabsList>
-          <TabsTrigger value="articles">Article</TabsTrigger>
-          <TabsTrigger value="chapters">Chapter</TabsTrigger>
+          <TabsTrigger value="articles">文章</TabsTrigger>
+          <TabsTrigger value="chapters">章节</TabsTrigger>
           <TabsIndicator />
         </TabsList>
         <TabsContent value="articles">
@@ -49,9 +49,9 @@ const AuthorDetailErrorHandler = (props: {
 
   switch (error.tag) {
     case WebRepositoryErrorTag.NotFound:
-      return <h1>Not Found</h1>;
+      return <h1>作者未找到</h1>;
     default:
-      return <div>Unknown Error</div>;
+      return <div>发生未知错误: {error.message}</div>;
   }
 };
 

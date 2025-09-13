@@ -12,17 +12,19 @@ export const create = async (
   Result<null, InvalidateWebRepositoryError | UnknownWebRepositoryError>
 > => {
   const { error } = await edenServer.api.articles.index.post(data);
-  switch (error?.status) {
-    case undefined:
-      break;
-    case 422:
-      return Err(new InvalidateWebRepositoryError("Invalidate Request"));
-    default:
-      return Err(
-        new UnknownWebRepositoryError(
-          `Unknown Error, statuc code: ${error?.status}`,
-        ),
-      );
+  
+  if (error) {
+    switch (error.status) {
+      case 422:
+        return Err(new InvalidateWebRepositoryError("Invalid request data"));
+      default:
+        return Err(
+          new UnknownWebRepositoryError(
+            `Failed to create article: ${error.value || `Status code: ${error.status}`}`,
+            error as unknown as Error
+          ),
+        );
+    }
   }
 
   return Ok(null);

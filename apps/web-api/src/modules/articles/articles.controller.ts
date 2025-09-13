@@ -7,7 +7,7 @@ import {
   type DomainError,
   DomainErrorTag,
 } from "backend";
-import Elysia, { error, t } from "elysia";
+import Elysia, { status, t } from "elysia";
 
 const ArticleModel = new Elysia().model({
   "findMany.request": t.Object({
@@ -31,11 +31,12 @@ export const createArticlesController = (articlesService: ArticleService) =>
         const handleError = (err: DomainError) => {
           switch (err._tag) {
             case DomainErrorTag.NotFound:
-              return error(404, "Not Found");
+              return status(404, "Not Found");
             case DomainErrorTag.Invalidation:
-              return error(400, "Bad Request");
+              return status(400, "Bad Request");
             default:
-              return error(500, "Internal Server Error");
+              console.error("Articles list error:", err);
+              return status(500, "Internal Server Error");
           }
         };
         return result.match({
@@ -67,10 +68,11 @@ export const createArticlesController = (articlesService: ArticleService) =>
         const handleError = (err: DomainError) => {
           switch (err._tag) {
             case DomainErrorTag.NotFound:
-              return error(404, "Not Found");
+              return status(404, "Not Found");
 
             default:
-              return error(500, "Internal Server Error");
+              console.error("Article detail error:", err);
+              return status(500, "Internal Server Error");
           }
         };
         return result.match({
@@ -91,23 +93,66 @@ export const createArticlesController = (articlesService: ArticleService) =>
     )
     .post(
       "/",
-      ({ body, set }) => {
-        articlesService.create(body);
-        set.status = "Created";
+      async ({ body, set }) => {
+        const result = await articlesService.create(body);
+        const handleError = (err: DomainError) => {
+          switch (err._tag) {
+            case DomainErrorTag.Invalidation:
+              return status(400, "Bad Request");
+            default:
+              console.error("Article create error:", err);
+              return status(500, "Internal Server Error");
+          }
+        };
+        return result.match({
+          ok: () => {
+            set.status = "Created";
+            return "Created";
+          },
+          err: (e) => handleError(e),
+        });
       },
       {
         body: "create.request",
+        response: {
+          201: t.String(),
+          400: t.String(),
+          500: t.String(),
+        },
       },
     )
     .put(
       "/:id",
-      ({ body, params: { id }, set }) => {
-        articlesService.edit(id, body);
-        set.status = "No Content";
+      async ({ body, params: { id }, set }) => {
+        const result = await articlesService.edit(id, body);
+        const handleError = (err: DomainError) => {
+          switch (err._tag) {
+            case DomainErrorTag.NotFound:
+              return status(404, "Not Found");
+            case DomainErrorTag.Invalidation:
+              return status(400, "Bad Request");
+            default:
+              console.error("Article update error:", err);
+              return status(500, "Internal Server Error");
+          }
+        };
+        return result.match({
+          ok: () => {
+            set.status = "No Content";
+            return "";
+          },
+          err: (e) => handleError(e),
+        });
       },
       {
         params: t.Object({ id: t.Numeric() }),
         body: "update.request",
+        response: {
+          204: t.String(),
+          400: t.String(),
+          404: t.String(),
+          500: t.String(),
+        },
       },
     )
     .delete(
@@ -118,16 +163,17 @@ export const createArticlesController = (articlesService: ArticleService) =>
         const handleError = (err: DomainError) => {
           switch (err._tag) {
             case DomainErrorTag.NotFound:
-              return error(404, "Not Found");
+              return status(404, "Not Found");
 
             default:
-              return error(500, "Internal Server Error");
+              console.error("Article delete error:", err);
+              return status(500, "Internal Server Error");
           }
         };
         return result.match({
-          ok: (val) => {
+          ok: () => {
             set.status = "No Content";
-            return val;
+            return "";
           },
           err: (e) => handleError(e),
         });
@@ -135,8 +181,9 @@ export const createArticlesController = (articlesService: ArticleService) =>
       {
         params: t.Object({ id: t.Numeric() }),
         response: {
-          204: t.Null(),
+          204: t.String(),
           404: t.String(),
+          500: t.String(),
         },
       },
     );

@@ -6,8 +6,9 @@ import {
 import { drizzle } from "drizzle-orm/bun-sql";
 import { sql } from "drizzle-orm";
 import * as schema from "../shared/infrastructure/store/schema";
+import type { Database } from "@shared/infrastructure/store/db";
 
-const logger = createContextLogger("TestUtils");
+const logger = console;
 
 const TEST_DB_URI =
   process.env.DATABASE_URI ||

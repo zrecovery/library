@@ -12,17 +12,19 @@ export const remove = async (
   Result<null, InvalidateWebRepositoryError | UnknownWebRepositoryError>
 > => {
   const { error } = await edenServer.api.articles({ id }).delete();
-  switch (error?.status) {
-    case undefined:
-      break;
-    case 404:
-      return Err(new NotFoundWebRepositoryError(`Not Found, Id: ${id}`));
-    default:
-      return Err(
-        new UnknownWebRepositoryError(
-          `Unknown Error, statuc code: ${error?.status}`,
-        ),
-      );
+  
+  if (error) {
+    switch (error.status) {
+      case 404:
+        return Err(new NotFoundWebRepositoryError(`Article not found, Id: ${id}`));
+      default:
+        return Err(
+          new UnknownWebRepositoryError(
+            `Failed to delete article: ${error.value || `Status code: ${error.status}`}`,
+            error as unknown as Error
+          ),
+        );
+    }
   }
 
   return Ok(null);

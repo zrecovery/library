@@ -10,16 +10,16 @@ CREATE TABLE people (
   id SERIAL PRIMARY KEY,
   created_at TIMESTAMP NOT NULL DEFAULT now(),
   updated_at TIMESTAMP NOT NULL DEFAULT now(),
-  name TEXT NOT NULL unique
+  name TEXT NOT NULL
 );
 
 -- 关系表，表示文章作者
 CREATE TABLE authors (
   id SERIAL PRIMARY KEY,
-  created_at TIMESTAMP NOT NULL DEFAULT now() ,
+  created_at TIMESTAMP NOT NULL DEFAULT now(),
   updated_at TIMESTAMP NOT NULL DEFAULT now(),
   person_id INTEGER REFERENCES people(id) ON DELETE CASCADE,
-  article_id INTEGER REFERENCES articles(id) UNIQUE ON DELETE CASCADE
+  article_id INTEGER REFERENCES articles(id) ON DELETE CASCADE
 );
 
 -- 表示系列
@@ -35,9 +35,9 @@ CREATE TABLE chapters (
   id SERIAL PRIMARY KEY,
   created_at TIMESTAMP NOT NULL DEFAULT now(),
   updated_at TIMESTAMP NOT NULL DEFAULT now(),
-  article_id INTEGER REFERENCES articles(id) UNIQUE ON DELETE CASCADE,
+  article_id INTEGER REFERENCES articles(id) ON DELETE CASCADE,
   series_id INTEGER REFERENCES series(id) ON DELETE CASCADE,
-  "order" REAL NOT NULL DEFAULT 1.0
+  "order" INTEGER NOT NULL DEFAULT 1
 );
 
 CREATE OR REPLACE FUNCTION update_timestamps()

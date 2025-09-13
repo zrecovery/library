@@ -92,23 +92,27 @@ export class Finder {
   find = async (
     id: Id,
   ): Promise<Result<AuthorDetail, NotFoundStoreError | UnknownStoreError>> => {
+    // 通过 people.id 查找作者
     const result = await this.#db
       .select({
-        id: schema.authors.id,
+        id: schema.people.id,
         name: schema.people.name,
       })
-      .from(schema.authors)
-      .leftJoin(schema.people, eq(schema.authors.person_id, schema.people.id))
+      .from(schema.people)
       .where(eq(schema.people.id, id));
 
     if (result.length === 0) {
       return Err(new NotFoundStoreError(`Not found author, id is ${id}`));
     }
 
-    const chapters = await this.#findChapter(id);
+    const author = toAuthorModel(result[0]);
+    if (!author) {
+      return Err(new UnknownStoreError(`Invalid author data for id: ${id}`));
+    }
 
-    const author = result.map(toAuthorModel).filter((a) => a !== undefined)[0];
+    const chapters = await this.#findChapter(id);
     const articles = await this.#findArticles(id);
+    
     return Ok({
       ...author,
       articles,

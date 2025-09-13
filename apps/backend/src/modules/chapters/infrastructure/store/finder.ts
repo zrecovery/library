@@ -20,6 +20,7 @@ const toModel = (result: {
     order: number | null;
   };
 }) => {
+  // 检查必要的字段
   if (result.article.id === null) {
     throw new Error("文章ID不能为空");
   }
@@ -27,8 +28,9 @@ const toModel = (result: {
     throw new Error("文章标题不能为空");
   }
   if (result.author.id === null) {
-    throw new Error("作者不能为空");
+    throw new Error("作者ID不能为空");
   }
+  
   return {
     id: result.article.id,
     title: result.article.title,
@@ -52,7 +54,7 @@ export class DrizzleFinder implements Finder {
   constructor(private readonly db: Database) {}
 
   buildListQuery = (id: Id) => {
-    const baseQuery = this.db
+    return this.db
       .select({
         article: {
           id: libraryView.id,
@@ -69,12 +71,12 @@ export class DrizzleFinder implements Finder {
         },
       })
       .from(libraryView)
+      .where(eq(libraryView.series_id, id))
       .orderBy(
         libraryView.people_id,
         libraryView.series_id,
         libraryView.chapter_order,
       );
-    return baseQuery.where(eq(libraryView.series_id, id));
   };
 
   /**
@@ -82,24 +84,29 @@ export class DrizzleFinder implements Finder {
    */
   find = async (id: Id): Promise<Result<ChapterDetail, UnknownStoreError>> => {
     try {
-      const chapter = await this.db
+      // 查找系列信息
+      const [chapter] = await this.db
         .select({ id: series.id, title: series.title })
         .from(series)
         .where(eq(series.id, id));
 
-      if (chapter.length === 0) {
+      if (!chapter) {
         return Err(new NotFoundStoreError(`未找到章节：${id}`));
       }
 
-      const listQuery = this.buildListQuery(id);
-      const rows = await listQuery;
-      const list = rows.map(toModel);
+      // 获取该系列下的所有文章
+      const rows = await this.buildListQuery(id);
+      const articles = rows.map(toModel);
 
       return Ok({
-        articles: list,
-        ...chapter[0],
+        id: chapter.id,
+        title: chapter.title,
+        articles,
       });
     } catch (error) {
+      if (error instanceof Error) {
+        return Err(new UnknownStoreError(`未知错误：${error.message}`, error));
+      }
       return Err(new UnknownStoreError(`未知错误：${String(error)}`));
     }
   };

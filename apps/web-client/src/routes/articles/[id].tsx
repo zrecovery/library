@@ -34,23 +34,26 @@ const ArticleDisplayErrorHandler = (props: {
 
   switch (error.tag) {
     case WebRepositoryErrorTag.NotFound:
-      return <h1>Not Found</h1>;
+      return <h1>文章未找到</h1>;
     default:
-      return <div>Unknown Error</div>;
+      return <div>发生未知错误: {error.message}</div>;
   }
 };
 
-const DeleteButtuon = (props: { id: number }) => {
+const DeleteButton = (props: { id: number }) => {
   const remove = async () => {
     const result = await articleRepository.remove(props.id);
     if (result.isErr()) {
       const error = result.unwrapErr();
       switch (error.tag) {
         case WebRepositoryErrorTag.NotFound:
-          return alert("Not Found");
+          return alert("文章未找到");
         default:
-          return alert("未知错误，删除失败");
+          return alert(`删除失败: ${error.message}`);
       }
+    } else {
+      alert("删除成功");
+      // 这里可以添加页面跳转逻辑
     }
   };
   return <Button onClick={remove}>删除</Button>;
@@ -68,7 +71,7 @@ export default function ArticleReader() {
         children: ArticleDisplay,
         fallback: ArticleDisplayErrorHandler,
       })}
-      <DeleteButtuon id={ID} />
+      <DeleteButton id={ID} />
     </Show>
   );
 }

@@ -1,5 +1,5 @@
 import { ChapterDetail, type ChapterService, DomainErrorTag } from "backend";
-import Elysia, { error, t } from "elysia";
+import Elysia, { status, t } from "elysia";
 
 const ChapterModel = new Elysia().model({
   "chapter.detail.response": ChapterDetail,
@@ -17,10 +17,11 @@ export const createChapterController = (service: ChapterService) => {
         err: (err) => {
           switch (err._tag) {
             case DomainErrorTag.NotFound:
-              return error(404, "Not Found");
+              return status(404, "Not Found");
 
             default:
-              return error(500, "Internal Server Error");
+              console.error("Chapter detail error:", err);
+              return status(500, "Internal Server Error");
           }
         },
       });

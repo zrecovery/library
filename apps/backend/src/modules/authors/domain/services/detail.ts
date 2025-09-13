@@ -16,7 +16,7 @@ const handlerError = (logger: Logger) => (id: Id) => (error: StoreError) => {
 
     default:
       return new UnknownError(
-        `Unknown Store Error When find author: ${id}`,
+        `Unknown Store Error When find author: ${id}, ${error.message}`,
         error,
       );
   }
@@ -27,7 +27,7 @@ export const detail =
   async (
     id: Id,
   ): Promise<Result<AuthorDetail, NotFoundError | UnknownError>> => {
-    logger.info("Finding author");
+    logger.info(`Finding author ${id}`);
     const result = await store.find(id);
     return result.mapErr(handlerError(logger)(id));
   };
