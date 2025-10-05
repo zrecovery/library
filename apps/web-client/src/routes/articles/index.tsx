@@ -48,7 +48,9 @@ const ArticleListWithPagination =
 
     return (
       <>
-        <ArticleGrid articles={value.data} />
+        <div class="grid h-[100%] min-h-0">
+          <ArticleGrid articles={value.data} />
+        </div>
         <ListPagination
           page={page}
           setPage={setPage}
@@ -78,7 +80,7 @@ export default function ArticleList() {
 
   return (
     <HolyGrailLayout>
-      <PaginationLayout>
+      <PaginationLayout >
         <Show when={result()}>
           {ResultHandler({
             result,

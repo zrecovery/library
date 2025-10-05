@@ -64,6 +64,7 @@ export const localInput = async (config: Config) => {
 
 localInput({
   root: "/home/enjoy/Downloads/txt",
-  reg:/\[\d{6}\]\/(?<id>\d*)_\((?<author_id>\d*)\)_?(\[(?<series>.*)\(#?(?<order>\d*)\)\]_)?\((?<author>(.*))\)(?<title>.*).txt/,
+
+  reg:/\[\d{6}\]\/(?<id>\d*)_\((?<author_id>\d*)\)_{0,2}(\[(?<series>.*)\(#?(?<order>\d*)\)\]_{0,2})?\((?<author>(.*))\)(?<title>.*).txt/,
   format: FileFormat.plain,
 });

@@ -2,7 +2,7 @@
   #layout {
     @apply grid;
     @apply bg-gray-100;
-    height: calc(100vh - 8rem);
+    height: 100%;
     overflow: clip;
     grid-template: 1fr / 1fr 64rem 1fr;
   }
@@ -10,7 +10,7 @@
 
 @media screen and (max-width: 32rem) {
   #layout {
-    height: calc(100vh - 8rem);
+    height: 100%;
     grid-template: 1fr / 1fr 1fr;
     overflow: clip;
     max-width: 30rem;
