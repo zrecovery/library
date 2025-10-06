@@ -38,8 +38,7 @@ export class DrizzleUpdater implements Updater {
   }
 
   #updateAuthorRelated =
-    (trx: Database) =>
-    async (articleId: Id, author: { name: string }) => {
+    (trx: Database) => async (articleId: Id, author: { name: string }) => {
       // 查找或创建作者
       await trx
         .insert(people)
@@ -52,7 +51,9 @@ export class DrizzleUpdater implements Updater {
         .where(eq(people.name, author.name.trim()));
 
       if (!person) {
-        throw new UnknownStoreError(`Failed to find or create person: ${author.name}`);
+        throw new UnknownStoreError(
+          `Failed to find or create person: ${author.name}`,
+        );
       }
 
       // 查找是否已存在作者关联
@@ -125,7 +126,9 @@ export class DrizzleUpdater implements Updater {
               .where(eq(series.title, chapter.title.trim()));
 
             if (!s) {
-              throw new UnknownStoreError(`Failed to find or create series: ${chapter.title}`);
+              throw new UnknownStoreError(
+                `Failed to find or create series: ${chapter.title}`,
+              );
             }
 
             // 查找是否已存在章节关联
@@ -140,18 +143,16 @@ export class DrizzleUpdater implements Updater {
                 .update(chapters)
                 .set({
                   series_id: s.id,
-                  order: chapter.order ?? 1
+                  order: chapter.order ?? 1,
                 })
                 .where(eq(chapters.id, existingChapter.id));
             } else {
               // 创建新的章节关联
-              await trx
-                .insert(chapters)
-                .values({
-                  article_id: id,
-                  series_id: s.id,
-                  order: chapter.order ?? 1
-                });
+              await trx.insert(chapters).values({
+                article_id: id,
+                series_id: s.id,
+                order: chapter.order ?? 1,
+              });
             }
           } else if (chapter.order !== undefined) {
             // 只更新章节顺序

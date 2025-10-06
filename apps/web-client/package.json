@@ -8,6 +8,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@kobalte/core": "^0.13.11",
     "tag-error": "workspace:*",
     "web-api": "workspace:*"
   },

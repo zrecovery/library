@@ -3,7 +3,10 @@ import { remove } from "../remove";
 import { NotFoundError, UnknownError } from "@shared/domain/types/errors";
 import type { Remover } from "@articles/domain/interfaces/store";
 import { Ok, Err } from "result";
-import { NotFoundStoreError, UnknownStoreError } from "@shared/domain/interfaces/store.error";
+import {
+  NotFoundStoreError,
+  UnknownStoreError,
+} from "@shared/domain/interfaces/store.error";
 
 // Mock logger
 const mockLogger = {
@@ -48,7 +51,7 @@ describe("Article Service - Remove", () => {
 
     // Mock store remove to return not found error
     const notFoundError = new NotFoundStoreError("Article not found");
-    
+
     mockStore.remove = vi.fn().mockResolvedValue(Err(notFoundError));
 
     const removeFn = remove(mockLogger, mockStore);
@@ -71,9 +74,9 @@ describe("Article Service - Remove", () => {
     // Mock store remove to return unknown error
     const unknownError = new UnknownStoreError(
       "Database connection failed",
-      new Error("Connection timeout")
+      new Error("Connection timeout"),
     );
-    
+
     mockStore.remove = vi.fn().mockResolvedValue(Err(unknownError));
 
     const removeFn = remove(mockLogger, mockStore);
@@ -84,7 +87,9 @@ describe("Article Service - Remove", () => {
       // Get the error value from the Err result
       const error = result.unwrapErr();
       expect(error).toBeInstanceOf(UnknownError);
-      expect(error.message).toContain("Unknown Store Error When removing article");
+      expect(error.message).toContain(
+        "Unknown Store Error When removing article",
+      );
       expect(error.message).toContain("Database connection failed");
       // The raw error is embedded in the UnknownError
       expect(error.raw).toBeDefined();

@@ -8,12 +8,12 @@ describe("ArticleCard", () => {
     title: "Test Article",
     author: {
       id: 1,
-      name: "Test Author"
+      name: "Test Author",
     },
     chapter: {
       id: 1,
-      title: "Test Chapter"
-    }
+      title: "Test Chapter",
+    },
   };
 
   test("should render article title, author and chapter", () => {

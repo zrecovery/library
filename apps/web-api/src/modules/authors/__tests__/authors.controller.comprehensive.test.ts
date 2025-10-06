@@ -55,15 +55,17 @@ describe("Authors Controller - Comprehensive Tests", () => {
       };
 
       // Mock the service to return Ok result
-      (mockAuthorService.detail as jest.Mock).mockImplementation(async (id: number) => {
-        return Ok(mockResponse);
-      });
+      (mockAuthorService.detail as jest.Mock).mockImplementation(
+        async (id: number) => {
+          return Ok(mockResponse);
+        },
+      );
 
       const response = await app.handle(
         new Request("http://localhost/api/authors/1", {
           method: "GET",
           headers: { "content-type": "application/json" },
-        })
+        }),
       );
 
       expect(response.status).toBe(200);
@@ -73,15 +75,17 @@ describe("Authors Controller - Comprehensive Tests", () => {
 
     test("should handle not found error", async () => {
       // Mock the service to return Err result with NotFoundError
-      (mockAuthorService.detail as jest.Mock).mockImplementation(async (id: number) => {
-        return Err(new NotFoundError("Author not found"));
-      });
+      (mockAuthorService.detail as jest.Mock).mockImplementation(
+        async (id: number) => {
+          return Err(new NotFoundError("Author not found"));
+        },
+      );
 
       const response = await app.handle(
         new Request("http://localhost/api/authors/1", {
           method: "GET",
           headers: { "content-type": "application/json" },
-        })
+        }),
       );
 
       expect(response.status).toBe(404);
@@ -90,15 +94,17 @@ describe("Authors Controller - Comprehensive Tests", () => {
 
     test("should handle unknown error", async () => {
       // Mock the service to return Err result with UnknownError
-      (mockAuthorService.detail as jest.Mock).mockImplementation(async (id: number) => {
-        return Err(new UnknownError("Database error"));
-      });
+      (mockAuthorService.detail as jest.Mock).mockImplementation(
+        async (id: number) => {
+          return Err(new UnknownError("Database error"));
+        },
+      );
 
       const response = await app.handle(
         new Request("http://localhost/api/authors/1", {
           method: "GET",
           headers: { "content-type": "application/json" },
-        })
+        }),
       );
 
       expect(response.status).toBe(500);

@@ -96,10 +96,7 @@ export class DrizzleSaver implements Saver {
         // Create article
         const article = await this.#createArticle(trx)({ title, body });
 
-        await this.#handleAuthor(trx)(
-          article.id,
-          author,
-        );
+        await this.#handleAuthor(trx)(article.id, author);
 
         // Handle chapter if provided
         if (chapter) {

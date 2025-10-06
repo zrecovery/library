@@ -23,7 +23,7 @@ const chapterController = createChapterController(chapterService);
 
 export const app = new Elysia()
   .use(cors())
-  .use(staticPlugin({ "prefix": "/" }))
+  .use(staticPlugin({ prefix: "/" }))
   .group("/api", (api) =>
     api.use(articleController).use(authorController).use(chapterController),
   )

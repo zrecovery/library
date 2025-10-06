@@ -1,7 +1,7 @@
 export enum WebRepositoryErrorTag {
   NotFound = "NotFound",
   Invalidate = "Invalidate",
-  Unknown = "Unknown"
+  Unknown = "Unknown",
 }
 
 export class WebRepositoryError extends Error {

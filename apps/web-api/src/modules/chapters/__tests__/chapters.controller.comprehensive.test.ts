@@ -51,12 +51,14 @@ describe("Chapters Controller - Comprehensive Tests", () => {
       };
 
       // Mock the service to return Ok result
-      (mockChapterService.detail as jest.Mock).mockImplementation(async (id: number) => {
-        return Ok(mockResponse);
-      });
+      (mockChapterService.detail as jest.Mock).mockImplementation(
+        async (id: number) => {
+          return Ok(mockResponse);
+        },
+      );
 
       const response = await app.handle(
-        new Request("http://localhost/api/chapters/1")
+        new Request("http://localhost/api/chapters/1"),
       );
 
       expect(response.status).toBe(200);
@@ -66,12 +68,14 @@ describe("Chapters Controller - Comprehensive Tests", () => {
 
     test("should handle not found error", async () => {
       // Mock the service to return Err result with NotFoundError
-      (mockChapterService.detail as jest.Mock).mockImplementation(async (id: number) => {
-        return Err(new NotFoundError("Chapter not found"));
-      });
+      (mockChapterService.detail as jest.Mock).mockImplementation(
+        async (id: number) => {
+          return Err(new NotFoundError("Chapter not found"));
+        },
+      );
 
       const response = await app.handle(
-        new Request("http://localhost/api/chapters/1")
+        new Request("http://localhost/api/chapters/1"),
       );
 
       expect(response.status).toBe(404);
@@ -80,12 +84,14 @@ describe("Chapters Controller - Comprehensive Tests", () => {
 
     test("should handle unknown error", async () => {
       // Mock the service to return Err result with UnknownError
-      (mockChapterService.detail as jest.Mock).mockImplementation(async (id: number) => {
-        return Err(new UnknownError("Database error"));
-      });
+      (mockChapterService.detail as jest.Mock).mockImplementation(
+        async (id: number) => {
+          return Err(new UnknownError("Database error"));
+        },
+      );
 
       const response = await app.handle(
-        new Request("http://localhost/api/chapters/1")
+        new Request("http://localhost/api/chapters/1"),
       );
 
       expect(response.status).toBe(500);

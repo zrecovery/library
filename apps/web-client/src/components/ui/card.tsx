@@ -5,15 +5,7 @@ import { splitProps } from "solid-js";
 export const Card = (props: ComponentProps<"div">) => {
   const [local, rest] = splitProps(props, ["class"]);
 
-  return (
-    <div
-      class={cn(
-        "text-card-foreground",
-        local.class,
-      )}
-      {...rest}
-    />
-  );
+  return <div class={cn("text-card-foreground", local.class)} {...rest} />;
 };
 
 export const CardHeader = (props: ComponentProps<"div">) => {

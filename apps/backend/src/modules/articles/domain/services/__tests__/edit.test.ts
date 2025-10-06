@@ -1,10 +1,17 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "bun:test";
 import { edit } from "../edit";
-import { NotFoundError, UnknownError, InvalidationError } from "@shared/domain/types/errors";
+import {
+  NotFoundError,
+  UnknownError,
+  InvalidationError,
+} from "@shared/domain/types/errors";
 import type { Updater } from "@articles/domain/interfaces/store";
 import { Ok, Err } from "result";
 import type { ArticleUpdate } from "@articles/domain/types/update";
-import { NotFoundStoreError, UnknownStoreError } from "@shared/domain/interfaces/store.error";
+import {
+  NotFoundStoreError,
+  UnknownStoreError,
+} from "@shared/domain/interfaces/store.error";
 
 // Mock logger
 const mockLogger = {
@@ -37,13 +44,13 @@ describe("Article Service - Edit", () => {
       body: "Updated Body",
       author: {
         id: 1,
-        name: "Updated Author"
+        name: "Updated Author",
       },
       chapter: {
         id: 1,
         title: "Updated Chapter",
-        order: 2
-      }
+        order: 2,
+      },
     };
 
     // Mock store update to return success
@@ -63,7 +70,7 @@ describe("Article Service - Edit", () => {
     // Invalid update data - missing title
     const invalidUpdate: ArticleUpdate = {
       id: 1,
-      body: "Updated Body"
+      body: "Updated Body",
     } as any;
 
     const editFn = edit(mockLogger, mockStore);
@@ -85,12 +92,12 @@ describe("Article Service - Edit", () => {
     const articleUpdate: ArticleUpdate = {
       id: 999,
       title: "Non-existent Article",
-      body: "Non-existent Body"
+      body: "Non-existent Body",
     };
 
     // Mock store update to return not found error
     const notFoundError = new NotFoundStoreError("Article not found");
-    
+
     mockStore.update = vi.fn().mockResolvedValue(Err(notFoundError));
 
     const editFn = edit(mockLogger, mockStore);
@@ -111,15 +118,15 @@ describe("Article Service - Edit", () => {
     const articleUpdate: ArticleUpdate = {
       id: 1,
       title: "Updated Article",
-      body: "Updated Body"
+      body: "Updated Body",
     };
 
     // Mock store update to return unknown error
     const unknownError = new UnknownStoreError(
       "Database connection failed",
-      new Error("Connection timeout")
+      new Error("Connection timeout"),
     );
-    
+
     mockStore.update = vi.fn().mockResolvedValue(Err(unknownError));
 
     const editFn = edit(mockLogger, mockStore);
@@ -130,7 +137,9 @@ describe("Article Service - Edit", () => {
       // Get the error value from the Err result
       const error = result.unwrapErr();
       expect(error).toBeInstanceOf(UnknownError);
-      expect(error.message).toContain("Unknown Store Error When updating article");
+      expect(error.message).toContain(
+        "Unknown Store Error When updating article",
+      );
       expect(error.message).toContain("Database connection failed");
       // The raw error is embedded in the UnknownError
       expect(error.raw).toBeDefined();
@@ -143,7 +152,7 @@ describe("Article Service - Edit", () => {
     const articleUpdate: ArticleUpdate = {
       id: 1,
       title: "Updated Article",
-      body: "Updated Body"
+      body: "Updated Body",
       // No author or chapter
     };
 

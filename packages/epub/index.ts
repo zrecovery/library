@@ -27,7 +27,10 @@ export class Epub {
     this.opf = this.#readXmlDocument(opfPath, "text/xml");
     const contentPath = this.opf.getElementById("t1")?.getAttribute("href");
     if (contentPath) {
-      this.content = this.#readXmlDocument2(`EPUB/${contentPath}`, "application/xhtml+xml");
+      this.content = this.#readXmlDocument2(
+        `EPUB/${contentPath}`,
+        "application/xhtml+xml",
+      );
     }
   }
 
@@ -39,7 +42,7 @@ export class Epub {
   #readXmlDocument2 = (path: string, format: string) => {
     const buffer = this.#package[path];
     const text = this.#decoder.decode(buffer);
-    const result =  this.#parser.parseFromString(text, format);
+    const result = this.#parser.parseFromString(text, format);
     return result;
   };
 
@@ -97,13 +100,13 @@ export class Epub {
     const s = new XMLSerializer();
     const r = /<section\sxmlns:epub=.*\n.*\s*<h2><\/h2>/gm;
 
-    const bodyNode = this.content
-      ?.getElementsByTagName("section")[0];
+    const bodyNode = this.content?.getElementsByTagName("section")[0];
     if (!bodyNode) {
       throw new Error("未成功获取body节点");
     }
 
-      const body = bodyNode.textContent.replaceAll("<br/>", "\n")
+    const body = bodyNode.textContent
+      .replaceAll("<br/>", "\n")
       .replaceAll("</section>", "")
       .replaceAll(r, "");
     return {

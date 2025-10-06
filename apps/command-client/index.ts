@@ -54,7 +54,7 @@ export const localInput = async (config: Config) => {
         return typeof r !== "undefined";
       })
       .map(format)
-    .map(save(failures)),
+      .map(save(failures)),
   );
 
   console.log(`${failures.length}/${tasks.length}`);
@@ -65,6 +65,6 @@ export const localInput = async (config: Config) => {
 localInput({
   root: "/home/enjoy/Downloads/txt",
 
-  reg:/\[\d{6}\]\/(?<id>\d*)_\((?<author_id>\d*)\)_{0,2}(\[(?<series>.*)\(#?(?<order>\d*)\)\]_{0,2})?\((?<author>(.*))\)(?<title>.*).txt/,
+  reg: /\[\d{6}\]\/(?<id>\d*)_\((?<author_id>\d*)\)_{0,2}(\[(?<series>.*)\(#?(?<order>\d*)\)\]_{0,2})?\((?<author>(.*))\)(?<title>.*).txt/,
   format: FileFormat.plain,
 });

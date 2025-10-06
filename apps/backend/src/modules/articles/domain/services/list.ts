@@ -22,9 +22,11 @@ export const findMany =
     // 验证查询参数
     if (!Value.Check(ArticleQuery, query)) {
       logger.error("Invalid query parameters", query);
-      return Err(new InvalidationError(`Invalid input: ${JSON.stringify(query)} `));
+      return Err(
+        new InvalidationError(`Invalid input: ${JSON.stringify(query)} `),
+      );
     }
-    
+
     const result = await store.findMany(query);
     return result.mapErr(handleError);
   };

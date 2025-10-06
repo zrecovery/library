@@ -1,7 +1,5 @@
 @media screen and (min-width: 32rem) {
   #layout {
-    @apply grid;
-    @apply bg-gray-100;
     height: 100%;
     overflow: clip;
     grid-template: 1fr / 1fr 64rem 1fr;

@@ -62,10 +62,12 @@ describe("Articles Controller - Comprehensive Tests", () => {
         },
       };
 
-      (mockArticleService.list as jest.Mock).mockResolvedValue(Ok(mockResponse));
+      (mockArticleService.list as jest.Mock).mockResolvedValue(
+        Ok(mockResponse),
+      );
 
       const response = await app.handle(
-        new Request("http://localhost/api/articles?page=1&size=10")
+        new Request("http://localhost/api/articles?page=1&size=10"),
       );
 
       expect(response.status).toBe(200);
@@ -78,11 +80,11 @@ describe("Articles Controller - Comprehensive Tests", () => {
 
     test("should handle validation error", async () => {
       (mockArticleService.list as jest.Mock).mockResolvedValue(
-        Err(new InvalidationError("Invalid query"))
+        Err(new InvalidationError("Invalid query")),
       );
 
       const response = await app.handle(
-        new Request("http://localhost/api/articles?page=-1&size=-1")
+        new Request("http://localhost/api/articles?page=-1&size=-1"),
       );
 
       // Elysia automatically returns 422 for validation errors in query parameters
@@ -92,11 +94,11 @@ describe("Articles Controller - Comprehensive Tests", () => {
 
     test("should handle unknown error", async () => {
       (mockArticleService.list as jest.Mock).mockResolvedValue(
-        Err(new UnknownError("Database error"))
+        Err(new UnknownError("Database error")),
       );
 
       const response = await app.handle(
-        new Request("http://localhost/api/articles?page=1&size=10")
+        new Request("http://localhost/api/articles?page=1&size=10"),
       );
 
       expect(response.status).toBe(500);
@@ -115,11 +117,11 @@ describe("Articles Controller - Comprehensive Tests", () => {
       };
 
       (mockArticleService.detail as jest.Mock).mockResolvedValue(
-        Ok(mockResponse)
+        Ok(mockResponse),
       );
 
       const response = await app.handle(
-        new Request("http://localhost/api/articles/1")
+        new Request("http://localhost/api/articles/1"),
       );
 
       expect(response.status).toBe(200);
@@ -129,11 +131,11 @@ describe("Articles Controller - Comprehensive Tests", () => {
 
     test("should handle not found error", async () => {
       (mockArticleService.detail as jest.Mock).mockResolvedValue(
-        Err(new NotFoundError("Article not found"))
+        Err(new NotFoundError("Article not found")),
       );
 
       const response = await app.handle(
-        new Request("http://localhost/api/articles/1")
+        new Request("http://localhost/api/articles/1"),
       );
 
       expect(response.status).toBe(404);
@@ -142,11 +144,11 @@ describe("Articles Controller - Comprehensive Tests", () => {
 
     test("should handle unknown error", async () => {
       (mockArticleService.detail as jest.Mock).mockResolvedValue(
-        Err(new UnknownError("Database error"))
+        Err(new UnknownError("Database error")),
       );
 
       const response = await app.handle(
-        new Request("http://localhost/api/articles/1")
+        new Request("http://localhost/api/articles/1"),
       );
 
       expect(response.status).toBe(500);
@@ -169,7 +171,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify(mockRequest),
-        })
+        }),
       );
 
       expect(response.status).toBe(201);
@@ -184,7 +186,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
       };
 
       (mockArticleService.create as jest.Mock).mockResolvedValue(
-        Err(new InvalidationError("Invalid input"))
+        Err(new InvalidationError("Invalid input")),
       );
 
       const response = await app.handle(
@@ -192,7 +194,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify(invalidRequest),
-        })
+        }),
       );
 
       // Elysia automatically returns 422 for validation errors in request body
@@ -208,7 +210,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
       };
 
       (mockArticleService.create as jest.Mock).mockResolvedValue(
-        Err(new UnknownError("Database error"))
+        Err(new UnknownError("Database error")),
       );
 
       const response = await app.handle(
@@ -216,7 +218,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify(mockRequest),
-        })
+        }),
       );
 
       expect(response.status).toBe(500);
@@ -239,7 +241,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
           method: "PUT",
           headers: { "content-type": "application/json" },
           body: JSON.stringify(mockRequest),
-        })
+        }),
       );
 
       // Request is now valid, so it should return 204
@@ -255,7 +257,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
       };
 
       (mockArticleService.edit as jest.Mock).mockResolvedValue(
-        Err(new NotFoundError("Article not found"))
+        Err(new NotFoundError("Article not found")),
       );
 
       const response = await app.handle(
@@ -263,7 +265,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
           method: "PUT",
           headers: { "content-type": "application/json" },
           body: JSON.stringify(mockRequest),
-        })
+        }),
       );
 
       // Elysia automatically returns 422 for validation errors in request body
@@ -278,7 +280,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
       };
 
       (mockArticleService.edit as jest.Mock).mockResolvedValue(
-        Err(new InvalidationError("Invalid input"))
+        Err(new InvalidationError("Invalid input")),
       );
 
       const response = await app.handle(
@@ -286,7 +288,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
           method: "PUT",
           headers: { "content-type": "application/json" },
           body: JSON.stringify(invalidRequest),
-        })
+        }),
       );
 
       // Elysia automatically returns 422 for validation errors in request body
@@ -301,7 +303,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
       };
 
       (mockArticleService.edit as jest.Mock).mockResolvedValue(
-        Err(new UnknownError("Database error"))
+        Err(new UnknownError("Database error")),
       );
 
       const response = await app.handle(
@@ -309,7 +311,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
           method: "PUT",
           headers: { "content-type": "application/json" },
           body: JSON.stringify(mockRequest),
-        })
+        }),
       );
 
       // Elysia automatically returns 422 for validation errors in request body
@@ -325,7 +327,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
       const response = await app.handle(
         new Request("http://localhost/api/articles/1", {
           method: "DELETE",
-        })
+        }),
       );
 
       expect(response.status).toBe(204);
@@ -335,13 +337,13 @@ describe("Articles Controller - Comprehensive Tests", () => {
 
     test("should handle not found error", async () => {
       (mockArticleService.remove as jest.Mock).mockResolvedValue(
-        Err(new NotFoundError("Article not found"))
+        Err(new NotFoundError("Article not found")),
       );
 
       const response = await app.handle(
         new Request("http://localhost/api/articles/1", {
           method: "DELETE",
-        })
+        }),
       );
 
       expect(response.status).toBe(404);
@@ -350,13 +352,13 @@ describe("Articles Controller - Comprehensive Tests", () => {
 
     test("should handle unknown error", async () => {
       (mockArticleService.remove as jest.Mock).mockResolvedValue(
-        Err(new UnknownError("Database error"))
+        Err(new UnknownError("Database error")),
       );
 
       const response = await app.handle(
         new Request("http://localhost/api/articles/1", {
           method: "DELETE",
-        })
+        }),
       );
 
       expect(response.status).toBe(500);

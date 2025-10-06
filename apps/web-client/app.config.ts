@@ -5,5 +5,5 @@ export default defineConfig({
   ssr: false,
   vite: {
     plugins: [UnoCSS()],
-  }
+  },
 });

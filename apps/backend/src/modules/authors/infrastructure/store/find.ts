@@ -112,7 +112,7 @@ export class Finder {
 
     const chapters = await this.#findChapter(id);
     const articles = await this.#findArticles(id);
-    
+
     return Ok({
       ...author,
       articles,

@@ -34,7 +34,7 @@ describe("Article Service - List", () => {
     const query: ArticleQuery = {
       page: 1,
       size: 10,
-      keyword: "test"
+      keyword: "test",
     };
 
     const listResponse: ArticleListResponse = {
@@ -42,7 +42,7 @@ describe("Article Service - List", () => {
         page: 1,
         size: 10,
         total: 2,
-        pages: 1
+        pages: 1,
       },
       data: [
         {
@@ -50,23 +50,23 @@ describe("Article Service - List", () => {
           title: "Test Article 1",
           author: {
             id: 1,
-            name: "Test Author 1"
+            name: "Test Author 1",
           },
           chapter: {
             id: 1,
             title: "Test Chapter 1",
-            order: 1
-          }
+            order: 1,
+          },
         },
         {
           id: 2,
           title: "Test Article 2",
           author: {
             id: 2,
-            name: "Test Author 2"
-          }
-        }
-      ]
+            name: "Test Author 2",
+          },
+        },
+      ],
     };
 
     // Mock store findMany to return success
@@ -88,7 +88,7 @@ describe("Article Service - List", () => {
     // Invalid query - negative page number
     const invalidQuery: ArticleQuery = {
       page: -1,
-      size: 10
+      size: 10,
     } as any;
 
     const listFn = findMany(mockLogger, mockStore);
@@ -108,15 +108,15 @@ describe("Article Service - List", () => {
   test("should handle unknown store error", async () => {
     const query: ArticleQuery = {
       page: 1,
-      size: 10
+      size: 10,
     };
 
     // Mock store findMany to return unknown error
     const unknownError = new UnknownStoreError(
       "Database connection failed",
-      new Error("Connection timeout")
+      new Error("Connection timeout"),
     );
-    
+
     mockStore.findMany = vi.fn().mockResolvedValue(Err(unknownError));
 
     const listFn = findMany(mockLogger, mockStore);
@@ -138,7 +138,7 @@ describe("Article Service - List", () => {
   test("should handle query with only page and size", async () => {
     const query: ArticleQuery = {
       page: 2,
-      size: 5
+      size: 5,
     };
 
     const listResponse: ArticleListResponse = {
@@ -146,9 +146,9 @@ describe("Article Service - List", () => {
         page: 2,
         size: 5,
         total: 10,
-        pages: 2
+        pages: 2,
       },
-      data: []
+      data: [],
     };
 
     mockStore.findMany = vi.fn().mockResolvedValue(Ok(listResponse));
@@ -162,7 +162,7 @@ describe("Article Service - List", () => {
 
   test("should handle query with only keyword", async () => {
     const query: ArticleQuery = {
-      keyword: "javascript"
+      keyword: "javascript",
     };
 
     const listResponse: ArticleListResponse = {
@@ -170,7 +170,7 @@ describe("Article Service - List", () => {
         page: 1,
         size: 10,
         total: 1,
-        pages: 1
+        pages: 1,
       },
       data: [
         {
@@ -178,10 +178,10 @@ describe("Article Service - List", () => {
           title: "JavaScript Guide",
           author: {
             id: 1,
-            name: "JS Expert"
-          }
-        }
-      ]
+            name: "JS Expert",
+          },
+        },
+      ],
     };
 
     mockStore.findMany = vi.fn().mockResolvedValue(Ok(listResponse));

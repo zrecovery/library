@@ -10,7 +10,7 @@ describe("format", () => {
       author: "Test Author",
       author_id: "123",
       series: "Test Series",
-      order: "1"
+      order: "1",
     };
 
     const result = format(raw);
@@ -21,12 +21,12 @@ describe("format", () => {
       body: "Test Body",
       author: {
         name: "Test Author",
-        author_id: 123
+        author_id: 123,
       },
       chapter: {
         title: "Test Series",
-        order: 1
-      }
+        order: 1,
+      },
     });
   });
 
@@ -37,7 +37,7 @@ describe("format", () => {
       body: "Test Body",
       author: "Test Author",
       author_id: "123",
-      order: "1"
+      order: "1",
     };
 
     const result = format(raw);
@@ -48,9 +48,9 @@ describe("format", () => {
       body: "Test Body",
       author: {
         name: "Test Author",
-        author_id: 123
+        author_id: 123,
       },
-      chapter: undefined
+      chapter: undefined,
     });
   });
 });

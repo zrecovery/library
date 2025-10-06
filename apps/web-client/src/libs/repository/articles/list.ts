@@ -12,17 +12,18 @@ export const list = async (
   });
 
   if (error) {
-
     return Err(
       new UnknownWebRepositoryError(
         `Failed to fetch articles: ${error.value} || Status code: ${error.status}`,
-        error as unknown as Error
+        error as unknown as Error,
       ),
     );
   }
 
   if (!data) {
-    return Err(new UnknownWebRepositoryError("No data received when fetching articles"));
+    return Err(
+      new UnknownWebRepositoryError("No data received when fetching articles"),
+    );
   }
 
   return Ok(data);

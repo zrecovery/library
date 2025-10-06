@@ -30,7 +30,7 @@ const toModel = (result: {
   if (result.author.id === null) {
     throw new Error("作者ID不能为空");
   }
-  
+
   return {
     id: result.article.id,
     title: result.article.title,

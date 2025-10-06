@@ -36,7 +36,7 @@ export const edit =
       logger.debug("Invalid input data", data);
       return Err(new InvalidationError("Invalid input data."));
     }
-    
+
     const result = await store.update(id, data);
     return result.mapErr(handlerError(id));
   };

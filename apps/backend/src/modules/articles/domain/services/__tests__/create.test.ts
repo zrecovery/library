@@ -34,12 +34,12 @@ describe("Article Service - Create", () => {
       title: "Test Article",
       body: "Test Body",
       author: {
-        name: "Test Author"
+        name: "Test Author",
       },
       chapter: {
         title: "Test Chapter",
-        order: 1
-      }
+        order: 1,
+      },
     };
 
     // Mock store save to return success
@@ -58,16 +58,16 @@ describe("Article Service - Create", () => {
       title: "Test Article",
       body: "Test Body",
       author: {
-        name: "Test Author"
-      }
+        name: "Test Author",
+      },
     };
 
     // Mock store save to return error
     const storeError = new UnknownStoreError(
       "Database connection failed",
-      new Error("Connection timeout")
+      new Error("Connection timeout"),
     );
-    
+
     mockStore.save = vi.fn().mockResolvedValue(Err(storeError));
 
     const createFn = create(mockLogger, mockStore);
@@ -78,7 +78,9 @@ describe("Article Service - Create", () => {
       // Get the error value from the Err result
       const error = result.unwrapErr();
       expect(error).toBeInstanceOf(UnknownError);
-      expect(error.message).toContain("Unknown Store Error When create article");
+      expect(error.message).toContain(
+        "Unknown Store Error When create article",
+      );
       expect(error.message).toContain("Database connection failed");
       // The raw error is embedded in the UnknownError
       expect(error.raw).toBeDefined();
@@ -91,8 +93,8 @@ describe("Article Service - Create", () => {
       title: "Another Test Article",
       body: "Another Test Body",
       author: {
-        name: "Another Test Author"
-      }
+        name: "Another Test Author",
+      },
     };
 
     mockStore.save = vi.fn().mockResolvedValue(Ok(null));
@@ -104,8 +106,8 @@ describe("Article Service - Create", () => {
       title: "Another Test Article",
       body: "Another Test Body",
       author: {
-        name: "Another Test Author"
-      }
+        name: "Another Test Author",
+      },
     });
   });
 });

@@ -4,7 +4,10 @@ import { NotFoundError, UnknownError } from "@shared/domain/types/errors";
 import type { Finder } from "@articles/domain/interfaces/store";
 import { Ok, Err } from "result";
 import type { ArticleDetail } from "@articles/domain/types/detail";
-import { NotFoundStoreError, UnknownStoreError } from "@shared/domain/interfaces/store.error";
+import {
+  NotFoundStoreError,
+  UnknownStoreError,
+} from "@shared/domain/interfaces/store.error";
 
 // Mock logger
 const mockLogger = {
@@ -37,13 +40,13 @@ describe("Article Service - Detail", () => {
       body: "Test Body",
       author: {
         id: 1,
-        name: "Test Author"
+        name: "Test Author",
       },
       chapter: {
         id: 1,
         title: "Test Chapter",
-        order: 1
-      }
+        order: 1,
+      },
     };
 
     // Mock store find to return success
@@ -66,7 +69,7 @@ describe("Article Service - Detail", () => {
 
     // Mock store find to return not found error
     const notFoundError = new NotFoundStoreError("Article not found");
-    
+
     mockStore.find = vi.fn().mockResolvedValue(Err(notFoundError));
 
     const detailFn = detail(mockLogger, mockStore);
@@ -89,9 +92,9 @@ describe("Article Service - Detail", () => {
     // Mock store find to return unknown error
     const unknownError = new UnknownStoreError(
       "Database connection failed",
-      new Error("Connection timeout")
+      new Error("Connection timeout"),
     );
-    
+
     mockStore.find = vi.fn().mockResolvedValue(Err(unknownError));
 
     const detailFn = detail(mockLogger, mockStore);
