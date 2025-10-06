@@ -19,6 +19,7 @@ import {
   type WebRepositoryError,
   WebRepositoryErrorTag,
 } from "~/libs/repository/error";
+import { SearchButton } from "~/components/search-button";
 
 function usePagination() {
   const [page, setPage] = createSignal(1);
@@ -75,11 +76,13 @@ const ErrorHandler = (props: {
 
 export default function ArticleList() {
   const { page, setPage, size } = usePagination();
-  const [keyword] = createSignal<string>("");
-  const [result] = useArticleData(page, size, keyword);
+  const [keyword, setKeyword] = createSignal<string>("");
+  const [query, setQuery] = createSignal<string>("");
+  const [native, setNative] = createSignal<string>("");
+  const [result] = useArticleData(page, size, query);
 
   return (
-    <HolyGrailLayout>
+    <HolyGrailLayout search={{ enable: true, body: <SearchButton keyword={setKeyword} native={setNative} click={() => {setQuery(keyword())}} /> }}>
       <PaginationLayout>
         <Show when={result()}>
           {ResultHandler({

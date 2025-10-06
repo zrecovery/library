@@ -106,8 +106,8 @@ export class DrizzleLister implements Lister {
    */
   #buildCountQuery = (condition: ReturnType<Condition>) => {
     return this.db
-      .select({ value: count(articles.id).as("total") })
-      .from(articles)
+      .select({ value: count(libraryView.id).as("total") })
+      .from(libraryView)
       .where(condition);
   };
 
@@ -119,8 +119,8 @@ export class DrizzleLister implements Lister {
   ): Promise<Result<ArticleListResponse, UnknownStoreError>> => {
     const { page, size, keyword } = query;
     const trimmed = keyword?.trim();
-    const condition = trimmed ? like(articles.body, `%${trimmed}%`) : undefined;
-
+    const condition = trimmed ? like(libraryView.body, `%${trimmed}%`) : undefined;
+    console.log(keyword)
     try {
       // 1. 查询列表数据
       const listQuery = this.#buildListQuery(page, size, condition);

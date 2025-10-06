@@ -7,8 +7,10 @@ import { UnknownWebRepositoryError } from "../error";
 export const list = async (
   query: ListQuery,
 ): Promise<Result<ArticleListResponse, UnknownWebRepositoryError>> => {
+  const queryCondition = (query.keyword !== "" && query.keyword) ? { page: query.page ?? 1, size: query.size ?? 10 ,keyword: query.keyword } : { page: query.page ?? 1, size: query.size ?? 10 };
+  console.log(queryCondition)
   const { data, error } = await edenServer.api.articles.get({
-    query: { page: query.page ?? 1, size: query.size ?? 10 },
+    query: queryCondition,
   });
 
   if (error) {

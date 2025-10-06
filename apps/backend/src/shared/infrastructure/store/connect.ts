@@ -16,7 +16,7 @@ export const connectDb = (uri: string): Database => {
   try {
     console.info("Connecting to database:", uri);
 
-    dbInstance = drizzle(uri, { schema: schema, logger: false });
+    dbInstance = drizzle(uri, { schema: schema, logger: true });
     console.info("Database connection established");
     return dbInstance;
   } catch (e) {

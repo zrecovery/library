@@ -13,7 +13,7 @@ const ArticleModel = new Elysia().model({
   "findMany.request": t.Object({
     page: t.Optional(t.Numeric({ minimum: 0, default: 1 })),
     size: t.Optional(t.Numeric({ minimum: 0, default: 10 })),
-    keywords: t.Optional(t.String()),
+    keyword: t.Optional(t.String()),
   }),
   "findMany.response": ArticleListResponse,
   "find.response": ArticleDetail,
@@ -27,6 +27,7 @@ export const createArticlesController = (articlesService: ArticleService) =>
     .get(
       "/",
       async ({ query }) => {
+        console.log(query)
         const result = await articlesService.list(query);
         const handleError = (err: DomainError) => {
           switch (err._tag) {
@@ -51,7 +52,7 @@ export const createArticlesController = (articlesService: ArticleService) =>
         query: t.Object({
           page: t.Optional(t.Numeric({ minimum: 0, default: 1 })),
           size: t.Optional(t.Numeric({ minimum: 0, default: 10 })),
-          keywords: t.Optional(t.String()),
+          keyword: t.Optional(t.String()),
         }),
         response: {
           200: "findMany.response",
