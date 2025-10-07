@@ -82,7 +82,20 @@ export default function ArticleList() {
   const [result] = useArticleData(page, size, query);
 
   return (
-    <HolyGrailLayout search={{ enable: true, body: <SearchButton keyword={setKeyword} native={setNative} click={() => {setQuery(keyword())}} /> }}>
+    <HolyGrailLayout
+      search={{
+        enable: true,
+        body: (
+          <SearchButton
+            keyword={setKeyword}
+            native={setNative}
+            click={() => {
+              setQuery(keyword());
+            }}
+          />
+        ),
+      }}
+    >
       <PaginationLayout>
         <Show when={result()}>
           {ResultHandler({

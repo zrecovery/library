@@ -87,6 +87,7 @@ export class DrizzleLister implements Lister {
           title: libraryView.series_title,
           order: libraryView.chapter_order,
         },
+        total: sql<number>`count(*) OVER()`,
       })
       .from(libraryView)
       .orderBy(
@@ -101,17 +102,6 @@ export class DrizzleLister implements Lister {
   };
 
   /**
-   * 构建统计记录总数的查询。
-   * @param condition 过滤条件，可为空
-   */
-  #buildCountQuery = (condition: ReturnType<Condition>) => {
-    return this.db
-      .select({ value: count(libraryView.id).as("total") })
-      .from(libraryView)
-      .where(condition);
-  };
-
-  /**
    * 对外提供的主要查询方法，将拆分好的辅助函数组合起来完成逻辑。
    */
   findMany = async (
@@ -119,22 +109,22 @@ export class DrizzleLister implements Lister {
   ): Promise<Result<ArticleListResponse, UnknownStoreError>> => {
     const { page, size, keyword } = query;
     const trimmed = keyword?.trim();
-    //const condition = trimmed ? like(libraryView.body, `%${trimmed}%`) : undefined;
-    const condition = trimmed ? sql`${libraryView.body} &@ ${`${trimmed}`}` : undefined;
-    console.log(keyword)
+    const condition = trimmed
+      ? sql`${libraryView.body} &@ ${`${trimmed}`}`
+      : undefined;
     try {
       // 1. 查询列表数据
       const listQuery = this.#buildListQuery(page, size, condition);
+
       const rows = await listQuery;
       const list: ArticleMeta[] = rows.map(toModel);
 
-      // 2. 查询总数
-      const countQuery = this.#buildCountQuery(condition);
-      const countResult = await countQuery;
-      const totalItems = countResult[0]?.value ?? 0;
-      const totalPages = Math.ceil(totalItems / (size ?? 10));
+      const totalItems = Number(rows[0].total);
+      const totalPages = Math.ceil(totalItems / size);
 
-      // 3. 构造并返回
+      console.log(totalItems);
+      console.log(list);
+      // 2. 构造并返回
       return Ok({
         data: list,
         pagination: {

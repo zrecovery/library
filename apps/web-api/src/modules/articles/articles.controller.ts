@@ -27,7 +27,7 @@ export const createArticlesController = (articlesService: ArticleService) =>
     .get(
       "/",
       async ({ query }) => {
-        console.log(query)
+        console.log(query);
         const result = await articlesService.list(query);
         const handleError = (err: DomainError) => {
           switch (err._tag) {

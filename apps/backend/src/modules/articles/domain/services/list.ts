@@ -27,7 +27,7 @@ export const findMany =
       );
     }
 
-    console.log(query)
+    console.log(query);
     const result = await store.findMany(query);
     return result.mapErr(handleError);
   };

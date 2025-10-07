@@ -1,4 +1,4 @@
-import type {  Setter } from "solid-js";
+import type { Setter } from "solid-js";
 import { Button } from "./ui/button";
 import {
   Popover,
@@ -9,7 +9,11 @@ import {
 } from "./ui/popover";
 import { TextFieldRoot, TextFieldLabel, TextField } from "./ui/textfield";
 
-export const SearchButton = (props: {keyword: Setter<string>, native: Setter<string>, click: () => void}) => {
+export const SearchButton = (props: {
+  keyword: Setter<string>;
+  native: Setter<string>;
+  click: () => void;
+}) => {
   return (
     <Popover>
       <PopoverTrigger>Open</PopoverTrigger>
@@ -21,7 +25,10 @@ export const SearchButton = (props: {keyword: Setter<string>, native: Setter<str
           <PopoverDescription class="grid gap-2">
             <TextFieldRoot class="grid grid-cols-3 items-center gap-4">
               <TextFieldLabel class="text-right">关键词</TextFieldLabel>
-              <TextField onInput={val =>props.keyword(val.target.value)} class="col-span-2 h-8" />
+              <TextField
+                onInput={(val) => props.keyword(val.target.value)}
+                class="col-span-2 h-8"
+              />
             </TextFieldRoot>
             <TextFieldRoot class="grid grid-cols-3 items-center gap-4">
               <TextFieldLabel class="text-right">不包含</TextFieldLabel>
