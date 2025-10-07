@@ -1,37 +1,78 @@
 import type { Finder } from "@articles/domain/interfaces/store";
 import type { ArticleDetail } from "@articles/domain/types/detail";
-
+import { NotFoundError, UnknownError, type Logger } from "@shared/domain";
 import {
   type StoreError,
   StoreErrorTag,
 } from "@shared/domain/interfaces/store.error";
-
-import type { Logger } from "@shared/domain/interfaces/logger";
 import type { Id } from "@shared/domain/types/common";
-import { NotFoundError, UnknownError } from "@shared/domain/types/errors";
 import type { Result } from "result";
 
-const handleError = (logger: Logger) => (id: Id) => (error: StoreError) => {
-  switch (error._tag) {
-    case StoreErrorTag.NotFound:
-      return new NotFoundError(`Not found article: ${id}`);
-    default:
-      logger.trace(error);
-      return new UnknownError(
-        `Unknown Store Error When find article: ${id}, ${error.message}`,
-        error,
-      );
-  }
+// ============================================================================
+// Pure Functions - Error Handling
+// ============================================================================
+
+/**
+ * Transforms a store error into a domain error
+ */
+const transformStoreError =
+  (id: Id) =>
+  (error: StoreError): NotFoundError | UnknownError => {
+    switch (error._tag) {
+      case StoreErrorTag.NotFound:
+        return new NotFoundError(`Article not found: ${id}`);
+
+      default:
+        return new UnknownError(
+          `Failed to retrieve article ${id}: ${error.message}`,
+          error,
+        );
+    }
+  };
+
+// ============================================================================
+// Logging Functions
+// ============================================================================
+
+/**
+ * Logs the search attempt
+ */
+const logSearchAttempt = (logger: Logger) => (id: Id): void => {
+  logger.debug(`Searching for article with id: ${id}`);
 };
 
-export const detail =
+// ============================================================================
+// Orchestration Functions
+// ============================================================================
+
+/**
+ * Executes article search by ID
+ */
+const executeDetail =
   (logger: Logger, store: Finder) =>
   async (
     id: Id,
   ): Promise<Result<ArticleDetail, NotFoundError | UnknownError>> => {
-    logger.debug(`Finding article ${id}`);
+    logSearchAttempt(logger)(id);
 
     const result = await store.find(id);
 
-    return result.mapErr(handleError(logger)(id));
+    return result.mapErr(transformStoreError(id));
   };
+
+// ============================================================================
+// Public API
+// ============================================================================
+
+/**
+ * Creates an article detail service
+ *
+ * This service coordinates article search by ID,
+ * delegating to the store and transforming errors to the appropriate domain.
+ *
+ * @param logger - Logger for recording operations
+ * @param store - Store for searching articles
+ * @returns Function that searches articles by ID
+ */
+export const detail = (logger: Logger, store: Finder) =>
+  executeDetail(logger, store);

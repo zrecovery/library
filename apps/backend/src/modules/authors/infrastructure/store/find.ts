@@ -2,7 +2,7 @@ import type { AuthorDetail } from "@authors/domain/types";
 import { type Id, IdSchema } from "@shared/domain";
 import {
   NotFoundStoreError,
-  type UnknownStoreError,
+  UnknownStoreError,
 } from "@shared/domain/interfaces/store.error";
 import { AuthorSchema } from "@shared/domain/types/author";
 import { ChapterSchema } from "@shared/domain/types/chapter";
@@ -92,7 +92,7 @@ export class Finder {
   find = async (
     id: Id,
   ): Promise<Result<AuthorDetail, NotFoundStoreError | UnknownStoreError>> => {
-    // 通过 people.id 查找作者
+    // Find author by people.id
     const result = await this.#db
       .select({
         id: schema.people.id,

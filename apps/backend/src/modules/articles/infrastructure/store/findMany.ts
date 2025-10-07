@@ -10,9 +10,11 @@ import { libraryView } from "@shared/infrastructure/store/schema.ts";
 import { type SQL, sql } from "drizzle-orm";
 import { Err, Ok, type Result } from "result";
 
-export const spliteKeyword = (keyword: string): string[] => keyword.split("|");
+// ============================================================================
+// Types
+// ============================================================================
 
-const toModel = (result: {
+type QueryRow = {
   article: { id: number | null; title: string | null };
   author: { id: number | null; name: string | null };
   chapter: {
@@ -20,129 +22,307 @@ const toModel = (result: {
     title: string | null;
     order: number | null;
   };
-}): ArticleMeta => {
+  total: number;
+};
+
+type KeywordParts = {
+  readonly positive: ReadonlyArray<string>;
+  readonly negative: ReadonlyArray<string>;
+};
+
+// ============================================================================
+// Pure Functions - Data Transformation
+// ============================================================================
+
+/**
+ * Converts query result to ArticleMeta
+ */
+const toArticleMeta = (result: QueryRow): ArticleMeta => {
   if (result.article.id === null) {
-    throw new Error("文章ID不能为空");
+    throw new Error("Article ID cannot be null");
   }
   if (result.article.title === null) {
-    throw new Error("文章标题不能为空");
+    throw new Error("Article title cannot be null");
   }
+
   return {
     id: result.article.id,
     title: result.article.title,
     author: {
       id: result.author.id ?? 0,
-      name: result.author.name ?? "", // 若为null则采用空字符串
+      name: result.author.name ?? "",
     },
     chapter:
       result.chapter.id !== null
         ? {
             id: result.chapter.id,
-            title: result.chapter.title ?? "", // 若为null则采用空字符串
-            order: result.chapter.order ?? 0, // 若为null则采用0
+            title: result.chapter.title ?? "",
+            order: result.chapter.order ?? 0,
           }
         : undefined,
   };
 };
 
-type Condition = (keyword?: string) => SQL | undefined;
+/**
+ * Transforms array of results to ArticleMeta list
+ */
+const transformToArticleMetaList = (
+  rows: ReadonlyArray<QueryRow>,
+): ArticleMeta[] => {
+  try {
+    return rows.map(toArticleMeta);
+  } catch (error) {
+    throw new UnknownStoreError(
+      "Failed to transform query results",
+      error instanceof Error ? error : undefined,
+    );
+  }
+};
 
-// 获取文章列表
-export class DrizzleLister implements Lister {
-  constructor(private readonly db: Database) {}
+/**
+ * Extracts pagination information from results
+ */
+const extractPaginationInfo = (
+  rows: ReadonlyArray<QueryRow>,
+  page: number,
+  size: number,
+) => {
+  const totalItems = rows.length > 0 ? Number(rows[0].total) : 0;
+  const totalPages = totalItems > 0 ? Math.ceil(totalItems / size) : 0;
 
-  /**
-   * 构建列表查询。
-   * @param condition 过滤条件，可为空
-   * @param page 当前分页页码
-   * @param size 每页显示的数量
-   */
-  #buildListQuery = (
+  return {
+    current: page,
+    pages: totalPages,
+    size,
+    items: totalItems,
+  };
+};
+
+/**
+ * Builds the complete list response
+ */
+const buildListResponse = (
+  rows: ReadonlyArray<QueryRow>,
+  page: number,
+  size: number,
+): ArticleListResponse => ({
+  data: transformToArticleMetaList(rows),
+  pagination: extractPaginationInfo(rows, page, size),
+});
+
+// ============================================================================
+// Pure Functions - Keyword Processing
+// ============================================================================
+
+/**
+ * Filters positive keywords (with + prefix)
+ */
+const extractPositiveKeywords = (parts: ReadonlyArray<string>): string[] =>
+  parts
+    .filter((part) => part.startsWith("+"))
+    .map((part) => part.slice(1))
+    .filter((keyword) => keyword.length > 0);
+
+/**
+ * Filters negative keywords (with - prefix)
+ */
+const extractNegativeKeywords = (parts: ReadonlyArray<string>): string[] =>
+  parts
+    .filter((part) => part.startsWith("-"))
+    .map((part) => part.slice(1))
+    .filter((keyword) => keyword.length > 0);
+
+/**
+ * Parses keyword string into positive and negative parts
+ */
+const parseKeywordParts = (keyword: string): KeywordParts => {
+  const parts = keyword.trim().split(" ").filter(Boolean);
+
+  return {
+    positive: extractPositiveKeywords(parts),
+    negative: extractNegativeKeywords(parts),
+  };
+};
+
+/**
+ * Builds the query string for full-text search
+ */
+const buildSearchQuery = (parts: KeywordParts): string => {
+  const positiveQuery = parts.positive.join("  ");
+  const negativeQuery = parts.negative
+    .map((keyword) => `-${keyword}`)
+    .join("  ");
+
+  return [positiveQuery, negativeQuery]
+    .filter(Boolean)
+    .join("  ")
+    .trim();
+};
+
+/**
+ * Verifies if keyword parts are valid
+ */
+const hasValidKeywordParts = (parts: KeywordParts): boolean =>
+  parts.positive.length > 0 || parts.negative.length > 0;
+
+/**
+ * Builds the SQL condition for keyword search
+ */
+const buildKeywordCondition = (keyword: string): SQL | undefined => {
+  const parts = parseKeywordParts(keyword);
+
+  if (!hasValidKeywordParts(parts)) {
+    return undefined;
+  }
+
+  const searchQuery = buildSearchQuery(parts);
+  return sql`${libraryView.body} &@~ ${searchQuery}`;
+};
+
+// ============================================================================
+// Pure Functions - Pagination
+// ============================================================================
+
+/**
+ * Calculates the offset for pagination
+ */
+const calculateOffset = (page: number, size: number): number =>
+  (page - 1) * size;
+
+// ============================================================================
+// Database Operations
+// ============================================================================
+
+/**
+ * Builds the base query for listing articles
+ */
+const buildListQuery = (
+  db: Database,
+  page: number,
+  size: number,
+  condition?: SQL,
+) => {
+  const offset = calculateOffset(page, size);
+
+  const baseQuery = db
+    .select({
+      article: {
+        id: libraryView.id,
+        title: libraryView.title,
+      },
+      author: {
+        id: libraryView.people_id,
+        name: libraryView.people_name,
+      },
+      chapter: {
+        id: libraryView.series_id,
+        title: libraryView.series_title,
+        order: libraryView.chapter_order,
+      },
+      total: sql<number>`count(*) OVER()`,
+    })
+    .from(libraryView)
+    .orderBy(
+      libraryView.people_id,
+      libraryView.series_id,
+      libraryView.chapter_order,
+    )
+    .limit(size)
+    .offset(offset);
+
+  return condition ? baseQuery.where(condition) : baseQuery;
+};
+
+/**
+ * Executes the query and returns results
+ */
+const executeListQuery =
+  (db: Database) =>
+  async (
     page: number,
     size: number,
-    condition: ReturnType<Condition>,
-  ) => {
-    const offset = (page - 1) * size;
-
-    const baseQuery = this.db
-      .select({
-        article: {
-          id: libraryView.id,
-          title: libraryView.title,
-        },
-        author: {
-          id: libraryView.people_id,
-          name: libraryView.people_name,
-        },
-        chapter: {
-          id: libraryView.series_id,
-          title: libraryView.series_title,
-          order: libraryView.chapter_order,
-        },
-        total: sql<number>`count(*) OVER()`,
-      })
-      .from(libraryView)
-      .orderBy(
-        libraryView.people_id,
-        libraryView.series_id,
-        libraryView.chapter_order,
-      )
-      .limit(size)
-      .offset(offset);
-
-    return baseQuery.where(condition);
+    condition?: SQL,
+  ): Promise<QueryRow[]> => {
+    const query = buildListQuery(db, page, size, condition);
+    return query;
   };
 
-  #keywordHandler = (
-    keyword: string,
-  ): { positive: string[]; negative: string[] } => {
-    const trimmed = keyword.trim();
-    const sp = trimmed.split(" ");
-    const positive = sp.filter((s) => s.startsWith("+")).map((s) => s.slice(1));
-    const negative = sp.filter((s) => s.startsWith("-")).map((s) => s.slice(1));
-    return { positive, negative };
-  };
+// ============================================================================
+// Error Handling
+// ============================================================================
 
-  #buildCondition = (keyword: string) => {
-    const { positive, negative } = this.#keywordHandler(keyword);
-    if (!positive.length && !negative.length) return undefined;
-    const query =
-      positive.reduce((acc, cur) => `${acc}  ${cur}`, "") +
-      negative.reduce((acc, cur) => `${acc}  -${cur}`, "");
-    const condition = sql`${libraryView.body} &@~ ${query.trim()}`;
-    return condition;
-  };
-  /**
-   * 对外提供的主要查询方法，将拆分好的辅助函数组合起来完成逻辑。
-   */
-  findMany = async (
+/**
+ * Handles errors and converts them to the appropriate type
+ */
+const handleListError = (error: unknown): UnknownStoreError => {
+  if (error instanceof UnknownStoreError) {
+    return error;
+  }
+
+  if (error instanceof Error) {
+    return new UnknownStoreError("Database query failed", error);
+  }
+
+  return new UnknownStoreError(`Unknown error: ${String(error)}`);
+};
+
+// ============================================================================
+// Orchestration
+// ============================================================================
+
+/**
+ * Executes the search with all necessary steps
+ */
+const executeFindMany =
+  (db: Database) =>
+  async (
     query: Pagination & { keyword?: string },
   ): Promise<Result<ArticleListResponse, UnknownStoreError>> => {
     const { page, size, keyword } = query;
 
-    const condition = keyword ? this.#buildCondition(keyword) : undefined;
     try {
-      // 1. 查询列表数据
-      const listQuery = this.#buildListQuery(page, size, condition);
+      const condition = keyword ? buildKeywordCondition(keyword) : undefined;
+      const rows = await executeListQuery(db)(page, size, condition);
+      const response = buildListResponse(rows, page, size);
 
-      const rows = await listQuery;
-      const list: ArticleMeta[] = rows.map(toModel);
-
-      const totalItems = Number(rows[0].total);
-      const totalPages = Math.ceil(totalItems / size);
-
-      // 2. 构造并返回
-      return Ok({
-        data: list,
-        pagination: {
-          current: page,
-          pages: totalPages,
-          size: size,
-          items: totalItems,
-        },
-      });
+      return Ok(response);
     } catch (error) {
-      return Err(new UnknownStoreError(`未知错误：${String(error)}`));
+      return Err(handleListError(error));
     }
   };
+
+// ============================================================================
+// Public API
+// ============================================================================
+
+/**
+ * Creates a functional Lister for articles
+ */
+export const createDrizzleLister = (db: Database): Lister => ({
+  findMany: executeFindMany(db),
+});
+
+/**
+ * Legacy class for backward compatibility
+ * @deprecated Use createDrizzleLister instead
+ */
+export class DrizzleLister implements Lister {
+  readonly #db: Database;
+
+  constructor(db: Database) {
+    this.#db = db;
+  }
+
+  findMany = (query: Pagination & { keyword?: string }): Promise<Result<ArticleListResponse, UnknownStoreError>> => {
+    return executeFindMany(this.#db)(query);
+  };
 }
+
+// ============================================================================
+// Deprecated Exports (for backward compatibility)
+// ============================================================================
+
+/**
+ * @deprecated Use parseKeywordParts and buildKeywordCondition instead
+ */
+export const spliteKeyword = (keyword: string): string[] => keyword.split("|");

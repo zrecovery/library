@@ -47,7 +47,7 @@ export const readArticle =
       const body = await getContent(fileFormat)(`${root}/${filename}`);
       if (!body) {
         console.error(filename);
-        throw new Error("未能成功获取body");
+        throw new Error("Failed to get body content");
       }
       return {
         filename: filename,

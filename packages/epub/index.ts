@@ -102,7 +102,7 @@ export class Epub {
 
     const bodyNode = this.content?.getElementsByTagName("section")[0];
     if (!bodyNode) {
-      throw new Error("未成功获取body节点");
+      throw new Error("Failed to get body node");
     }
 
     const body = bodyNode.textContent

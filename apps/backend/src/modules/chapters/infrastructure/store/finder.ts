@@ -20,15 +20,15 @@ const toModel = (result: {
     order: number | null;
   };
 }) => {
-  // 检查必要的字段
+  // Check required fields
   if (result.article.id === null) {
-    throw new Error("文章ID不能为空");
+    throw new Error("Article ID cannot be null");
   }
   if (result.article.title === null) {
-    throw new Error("文章标题不能为空");
+    throw new Error("Article title cannot be null");
   }
   if (result.author.id === null) {
-    throw new Error("作者ID不能为空");
+    throw new Error("Author ID cannot be null");
   }
 
   return {
@@ -49,7 +49,7 @@ const toModel = (result: {
   };
 };
 
-// 获取文章列表
+// Fetch article list
 export class DrizzleFinder implements Finder {
   constructor(private readonly db: Database) {}
 
@@ -80,7 +80,7 @@ export class DrizzleFinder implements Finder {
   };
 
   /**
-   * 对外提供的主要查询方法，将拆分好的辅助函数组合起来完成逻辑。
+   * Main query method that combines helper functions to complete the logic.
    */
   find = async (id: Id): Promise<Result<ChapterDetail, UnknownStoreError>> => {
     try {
@@ -91,10 +91,10 @@ export class DrizzleFinder implements Finder {
         .where(eq(series.id, id));
 
       if (!chapter) {
-        return Err(new NotFoundStoreError(`未找到章节：${id}`));
+        return Err(new NotFoundStoreError(`Chapter not found: ${id}`));
       }
 
-      // 获取该系列下的所有文章
+      // Get all articles in this series
       const rows = await this.buildListQuery(id);
       const articles = rows.map(toModel);
 
@@ -105,9 +105,9 @@ export class DrizzleFinder implements Finder {
       });
     } catch (error) {
       if (error instanceof Error) {
-        return Err(new UnknownStoreError(`未知错误：${error.message}`, error));
+        return Err(new UnknownStoreError(`Unknown error: ${error.message}`, error));
       }
-      return Err(new UnknownStoreError(`未知错误：${String(error)}`));
+      return Err(new UnknownStoreError(`Unknown error: ${String(error)}`));
     }
   };
 }

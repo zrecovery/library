@@ -1,33 +1,102 @@
 import type { Lister } from "@articles/domain/interfaces/store";
-import type { ArticleListResponse } from "@articles/domain/types/list";
 import { ArticleQuery } from "@articles/domain/types/query";
-import { InvalidationError, UnknownError } from "@shared/domain";
-import type { Logger } from "@shared/domain/interfaces/logger";
+import type { ArticleListResponse } from "@articles/domain/types/list";
+import { InvalidationError, UnknownError, type Logger } from "@shared/domain";
 import type { StoreError } from "@shared/domain/interfaces/store.error";
 import { Value } from "@sinclair/typebox/value";
 import { Err, type Result } from "result";
 
-const handleError = (error: StoreError) => {
-  switch (error._tag) {
-    default:
-      return new UnknownError(`Unknown error: ${error.message}`, error);
-  }
+// ============================================================================
+// Pure Functions - Validation
+// ============================================================================
+
+/**
+ * Validates that the query parameters comply with the schema
+ */
+const validateQuery = (query: ArticleQuery): boolean =>
+  Value.Check(ArticleQuery, query);
+
+/**
+ * Creates a validation error with context
+ */
+const createValidationError = (query: ArticleQuery): InvalidationError =>
+  new InvalidationError(
+    `Invalid query parameters: ${JSON.stringify(query)}`,
+  );
+
+// ============================================================================
+// Pure Functions - Error Handling
+// ============================================================================
+
+/**
+ * Transforms a store error into a domain error
+ */
+const transformStoreError = (error: StoreError): UnknownError =>
+  new UnknownError(
+    `Failed to retrieve article list: ${error.message}`,
+    error,
+  );
+
+// ============================================================================
+// Logging Functions
+// ============================================================================
+
+/**
+ * Logs invalid query parameters
+ */
+const logInvalidQuery = (logger: Logger) => (query: ArticleQuery): void => {
+  logger.error(`Invalid query parameters: ${JSON.stringify(query)}`);
 };
 
-export const findMany =
+/**
+ * Logs the search attempt
+ */
+const logSearchAttempt = (logger: Logger) => (query: ArticleQuery): void => {
+  logger.debug(`Searching articles with query: ${JSON.stringify(query)}`);
+};
+
+// ============================================================================
+// Orchestration Functions
+// ============================================================================
+
+/**
+ * Executes article search with query parameters
+ */
+const executeFindMany =
   (logger: Logger, store: Lister) =>
   async (
     query: ArticleQuery,
   ): Promise<Result<ArticleListResponse, UnknownError | InvalidationError>> => {
-    // 验证查询参数
-    if (!Value.Check(ArticleQuery, query)) {
-      logger.error("Invalid query parameters", query);
-      return Err(
-        new InvalidationError(`Invalid input: ${JSON.stringify(query)} `),
-      );
+    // 1. Validate query parameters
+    if (!validateQuery(query)) {
+      logInvalidQuery(logger)(query);
+      return Err(createValidationError(query));
     }
 
-    console.log(query);
+    // 2. Log search attempt
+    logSearchAttempt(logger)(query);
+
+    // 3. Execute search in the store
     const result = await store.findMany(query);
-    return result.mapErr(handleError);
+
+    // 4. Transform store errors to domain
+    return result.mapErr(transformStoreError);
   };
+
+// ============================================================================
+// Public API
+// ============================================================================
+
+/**
+ * Creates an article listing service
+ *
+ * This service coordinates the search for multiple articles with filters,
+ * validating parameters, delegating to the store and transforming errors
+ * to the appropriate domain.
+ *
+ * @param logger - Logger for recording operations
+ * @param store - Store for searching articles
+ * @returns Function that searches articles with pagination and filters
+ */
+export const findMany = (logger: Logger, store: Lister) =>
+  executeFindMany(logger, store);
