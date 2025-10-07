@@ -7,7 +7,7 @@ import { UnknownStoreError } from "@shared/domain/interfaces/store.error.ts";
 import type { Pagination } from "@shared/domain/types/common";
 import type { Database } from "@shared/infrastructure/store/db";
 import { articles, libraryView } from "@shared/infrastructure/store/schema.ts";
-import { type SQL, count, like } from "drizzle-orm";
+import { type SQL, count, like, sql } from "drizzle-orm";
 import { Err, Ok, type Result } from "result";
 
 export const spliteKeyword = (keyword: string): string[] => keyword.split("|");
@@ -119,7 +119,8 @@ export class DrizzleLister implements Lister {
   ): Promise<Result<ArticleListResponse, UnknownStoreError>> => {
     const { page, size, keyword } = query;
     const trimmed = keyword?.trim();
-    const condition = trimmed ? like(libraryView.body, `%${trimmed}%`) : undefined;
+    //const condition = trimmed ? like(libraryView.body, `%${trimmed}%`) : undefined;
+    const condition = trimmed ? sql`${libraryView.body} &@ ${`${trimmed}`}` : undefined;
     console.log(keyword)
     try {
       // 1. 查询列表数据

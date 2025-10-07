@@ -83,7 +83,7 @@ CREATE EXTENSION IF NOT EXISTS pgroonga;
 CREATE INDEX pgroonga_content_index ON articles USING pgroonga (title,body);
 
 
-CREATE VIEW library AS
+CREATE MATERIALIZED VIEW library AS
 SELECT articles.id AS id,
 	articles.title AS title,
 	articles.body AS body,
@@ -99,3 +99,6 @@ LEFT JOIN authors ON authors.article_id = articles.id
 LEFT JOIN people ON authors.person_id = people.id
 LEFT JOIN chapters ON chapters.article_id = articles.id
 LEFT JOIN series ON chapters.series_id = series.id;
+
+
+CREATE INDEX pgroonga_view_content_index ON view USING pgroonga (title,body);
