@@ -8,10 +8,13 @@ import {
   PopoverDescription,
 } from "./ui/popover";
 import { TextFieldRoot, TextFieldLabel, TextField } from "./ui/textfield";
+import type { Accessor } from "solid-js";
 
 export const SearchButton = (props: {
-  keyword: Setter<string>;
-  native: Setter<string>;
+  keyword: Accessor<string>;
+  setKeyword: Setter<string>;
+  native: Accessor<string>;
+  setNative: Setter<string>;
   click: () => void;
 }) => {
   return (
@@ -26,13 +29,18 @@ export const SearchButton = (props: {
             <TextFieldRoot class="grid grid-cols-3 items-center gap-4">
               <TextFieldLabel class="text-right">关键词</TextFieldLabel>
               <TextField
-                onInput={(val) => props.keyword(val.target.value)}
+                onInput={(val) => props.setKeyword(val.target.value)}
+                value={props.keyword()}
                 class="col-span-2 h-8"
               />
             </TextFieldRoot>
             <TextFieldRoot class="grid grid-cols-3 items-center gap-4">
               <TextFieldLabel class="text-right">不包含</TextFieldLabel>
-              <TextField value={props.native()} class="col-span-2 h-8" />
+              <TextField
+                onInput={(val) => props.setNative(val.target.value)}
+                value={props.native()}
+                class="col-span-2 h-8"
+              />
             </TextFieldRoot>
             <Button onClick={props.click}>提交</Button>
           </PopoverDescription>

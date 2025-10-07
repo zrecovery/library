@@ -6,8 +6,8 @@ import type {
 import { UnknownStoreError } from "@shared/domain/interfaces/store.error.ts";
 import type { Pagination } from "@shared/domain/types/common";
 import type { Database } from "@shared/infrastructure/store/db";
-import { articles, libraryView } from "@shared/infrastructure/store/schema.ts";
-import { type SQL, count, like, sql } from "drizzle-orm";
+import { libraryView } from "@shared/infrastructure/store/schema.ts";
+import { type SQL, sql } from "drizzle-orm";
 import { Err, Ok, type Result } from "result";
 
 export const spliteKeyword = (keyword: string): string[] => keyword.split("|");
@@ -52,14 +52,6 @@ export class DrizzleLister implements Lister {
   constructor(private readonly db: Database) {}
 
   /**
-   * 构造搜索条件，如无关键字则返回 undefined。
-   */
-  #buildCondition = (keyword?: string): SQL | undefined => {
-    const trimmed = keyword?.trim();
-    return trimmed ? like(articles.body, `%${trimmed}%`) : undefined;
-  };
-
-  /**
    * 构建列表查询。
    * @param condition 过滤条件，可为空
    * @param page 当前分页页码
@@ -101,6 +93,25 @@ export class DrizzleLister implements Lister {
     return baseQuery.where(condition);
   };
 
+  #keywordHandler = (
+    keyword: string,
+  ): { positive: string[]; negative: string[] } => {
+    const trimmed = keyword.trim();
+    const sp = trimmed.split(" ");
+    const positive = sp.filter((s) => s.startsWith("+")).map((s) => s.slice(1));
+    const negative = sp.filter((s) => s.startsWith("-")).map((s) => s.slice(1));
+    return { positive, negative };
+  };
+
+  #buildCondition = (keyword: string) => {
+    const { positive, negative } = this.#keywordHandler(keyword);
+    if (!positive.length && !negative.length) return undefined;
+    const query =
+      positive.reduce((acc, cur) => `${acc}  ${cur}`, "") +
+      negative.reduce((acc, cur) => `${acc}  -${cur}`, "");
+    const condition = sql`${libraryView.body} &@~ ${query.trim()}`;
+    return condition;
+  };
   /**
    * 对外提供的主要查询方法，将拆分好的辅助函数组合起来完成逻辑。
    */
@@ -108,10 +119,8 @@ export class DrizzleLister implements Lister {
     query: Pagination & { keyword?: string },
   ): Promise<Result<ArticleListResponse, UnknownStoreError>> => {
     const { page, size, keyword } = query;
-    const trimmed = keyword?.trim();
-    const condition = trimmed
-      ? sql`${libraryView.body} &@ ${`${trimmed}`}`
-      : undefined;
+
+    const condition = keyword ? this.#buildCondition(keyword) : undefined;
     try {
       // 1. 查询列表数据
       const listQuery = this.#buildListQuery(page, size, condition);
@@ -122,8 +131,6 @@ export class DrizzleLister implements Lister {
       const totalItems = Number(rows[0].total);
       const totalPages = Math.ceil(totalItems / size);
 
-      console.log(totalItems);
-      console.log(list);
       // 2. 构造并返回
       return Ok({
         data: list,
@@ -135,7 +142,6 @@ export class DrizzleLister implements Lister {
         },
       });
     } catch (error) {
-      console.error(error);
       return Err(new UnknownStoreError(`未知错误：${String(error)}`));
     }
   };

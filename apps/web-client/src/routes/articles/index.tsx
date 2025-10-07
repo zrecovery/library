@@ -74,6 +74,18 @@ const ErrorHandler = (props: {
   }
 };
 
+const searchKeyword = (keyword: string, native: string) => {
+  const keywords = keyword
+    .split(" ")
+    .map((word) => word.trim())
+    .map((word) => `+${word}`);
+  const nativeKeywords = native
+    .split(" ")
+    .map((word) => word.trim())
+    .map((word) => `-${word}`);
+  return keywords.join(" ") + " " + nativeKeywords.join(" ");
+};
+
 export default function ArticleList() {
   const { page, setPage, size } = usePagination();
   const [keyword, setKeyword] = createSignal<string>("");
@@ -87,10 +99,12 @@ export default function ArticleList() {
         enable: true,
         body: (
           <SearchButton
-            keyword={setKeyword}
-            native={setNative}
+            keyword={keyword}
+            native={native}
+            setKeyword={setKeyword}
+            setNative={setNative}
             click={() => {
-              setQuery(keyword());
+              setQuery(searchKeyword(keyword(), native()));
             }}
           />
         ),
