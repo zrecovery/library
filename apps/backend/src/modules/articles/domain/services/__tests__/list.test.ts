@@ -99,7 +99,7 @@ describe("Article Service - List", () => {
       // Get the error value from the Err result
       const error = result.unwrapErr();
       expect(error).toBeInstanceOf(InvalidationError);
-      expect(error.message).toContain("Invalid input");
+      expect(error.message).toContain("Invalid query parameters");
     }
     expect(mockStore.findMany).not.toHaveBeenCalled();
     expect(mockLogger.error).toHaveBeenCalled();
@@ -127,7 +127,7 @@ describe("Article Service - List", () => {
       // Get the error value from the Err result
       const error = result.unwrapErr();
       expect(error).toBeInstanceOf(UnknownError);
-      expect(error.message).toContain("Unknown error");
+      expect(error.message).toContain("Failed to retrieve article list");
       expect(error.message).toContain("Database connection failed");
       // The raw error is embedded in the UnknownError
       expect(error.raw).toBeDefined();

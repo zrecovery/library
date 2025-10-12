@@ -95,6 +95,6 @@ describe("Article Service - Remove", () => {
       expect(error.raw).toBeDefined();
     }
     expect(mockStore.remove).toHaveBeenCalledWith(articleId);
-    expect(mockLogger.debug).toHaveBeenCalledWith("Removing article 1");
+    expect(mockLogger.debug).toHaveBeenCalledWith("Attempting to remove article with id: 1");
   });
 });

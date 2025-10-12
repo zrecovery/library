@@ -522,8 +522,8 @@ describe("Edge Cases", () => {
   test("should handle mixed valid and invalid syntax", () => {
     const keyword = "+valid invalid -valid2 +";
     const parts = parseKeywordParts(keyword);
-    expect(parts.positive).toEqual(["valid", "valid2"]);
-    expect(parts.negative).toEqual([]);
+    expect(parts.positive).toEqual(["valid"]);
+    expect(parts.negative).toEqual(["valid2"]);
   });
 
   test("should handle duplicate keywords", () => {

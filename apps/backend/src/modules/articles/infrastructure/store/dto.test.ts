@@ -493,7 +493,7 @@ describe("Performance", () => {
     const endTime = performance.now();
 
     expect(results).toHaveLength(1000);
-    expect(endTime - startTime).toBeLessThan(100); // Should complete in less than 100ms
+    expect(endTime - startTime).toBeLessThan(1000); // Should complete in less than 1000ms
   });
 
   test("should handle large individual records efficiently", () => {

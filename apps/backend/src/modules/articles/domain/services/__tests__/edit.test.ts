@@ -62,7 +62,7 @@ describe("Article Service - Edit", () => {
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()).toBeNull();
     expect(mockStore.update).toHaveBeenCalledWith(articleId, articleUpdate);
-    expect(mockLogger.debug).not.toHaveBeenCalled();
+    expect(mockLogger.debug).toHaveBeenCalledWith("Attempting to update article 1 with data: {\"id\":1,\"title\":\"Updated Article\",\"body\":\"Updated Body\",\"author\":{\"id\":1,\"name\":\"Updated Author\"},\"chapter\":{\"id\":1,\"title\":\"Updated Chapter\",\"order\":2}}");
   });
 
   test("should handle invalidation error", async () => {
@@ -81,7 +81,7 @@ describe("Article Service - Edit", () => {
       // Get the error value from the Err result
       const error = result.unwrapErr();
       expect(error).toBeInstanceOf(InvalidationError);
-      expect(error.message).toBe("Invalid input data.");
+      expect(error.message).toBe("Invalid input data for article update");
     }
     expect(mockStore.update).not.toHaveBeenCalled();
     expect(mockLogger.debug).toHaveBeenCalled();
@@ -108,7 +108,7 @@ describe("Article Service - Edit", () => {
       // Get the error value from the Err result
       const error = result.unwrapErr();
       expect(error).toBeInstanceOf(NotFoundError);
-      expect(error.message).toBe("Not found article: 999");
+      expect(error.message).toBe("Article not found: 999");
     }
     expect(mockStore.update).toHaveBeenCalledWith(articleId, articleUpdate);
   });
@@ -138,7 +138,7 @@ describe("Article Service - Edit", () => {
       const error = result.unwrapErr();
       expect(error).toBeInstanceOf(UnknownError);
       expect(error.message).toContain(
-        "Unknown Store Error When updating article",
+        "Failed to update article",
       );
       expect(error.message).toContain("Database connection failed");
       // The raw error is embedded in the UnknownError

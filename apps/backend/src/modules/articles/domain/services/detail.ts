@@ -16,6 +16,7 @@ import type { Result } from "result";
  * Transforms a store error into a domain error
  */
 const transformStoreError =
+  (logger: Logger) =>
   (id: Id) =>
   (error: StoreError): NotFoundError | UnknownError => {
     switch (error._tag) {
@@ -23,6 +24,7 @@ const transformStoreError =
         return new NotFoundError(`Article not found: ${id}`);
 
       default:
+        logger.trace(error);
         return new UnknownError(
           `Failed to retrieve article ${id}: ${error.message}`,
           error,
@@ -57,7 +59,7 @@ const executeDetail =
 
     const result = await store.find(id);
 
-    return result.mapErr(transformStoreError(id));
+    return result.mapErr(transformStoreError(logger)(id));
   };
 
 // ============================================================================

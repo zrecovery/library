@@ -61,7 +61,7 @@ describe("Article Service - Detail", () => {
       expect(value).toEqual(articleDetail);
     }
     expect(mockStore.find).toHaveBeenCalledWith(articleId);
-    expect(mockLogger.debug).toHaveBeenCalledWith("Finding article 1");
+    expect(mockLogger.debug).toHaveBeenCalledWith("Searching for article with id: 1");
   });
 
   test("should handle not found error", async () => {
@@ -80,10 +80,10 @@ describe("Article Service - Detail", () => {
       // Get the error value from the Err result
       const error = result.unwrapErr();
       expect(error).toBeInstanceOf(NotFoundError);
-      expect(error.message).toBe("Not found article: 999");
+      expect(error.message).toBe("Article not found: 999");
     }
     expect(mockStore.find).toHaveBeenCalledWith(articleId);
-    expect(mockLogger.debug).toHaveBeenCalledWith("Finding article 999");
+    expect(mockLogger.debug).toHaveBeenCalledWith("Searching for article with id: 999");
   });
 
   test("should handle unknown store error", async () => {
@@ -105,13 +105,13 @@ describe("Article Service - Detail", () => {
       // Get the error value from the Err result
       const error = result.unwrapErr();
       expect(error).toBeInstanceOf(UnknownError);
-      expect(error.message).toContain("Unknown Store Error When find article");
+      expect(error.message).toContain("Failed to retrieve article");
       expect(error.message).toContain("Database connection failed");
       // The raw error is embedded in the UnknownError
       expect(error.raw).toBeDefined();
     }
     expect(mockStore.find).toHaveBeenCalledWith(articleId);
-    expect(mockLogger.debug).toHaveBeenCalledWith("Finding article 1");
+    expect(mockLogger.debug).toHaveBeenCalledWith("Searching for article with id: 1");
     expect(mockLogger.trace).toHaveBeenCalledWith(unknownError);
   });
 });
