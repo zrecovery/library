@@ -6,6 +6,7 @@ import {
   ArticleUpdate,
   type DomainError,
   DomainErrorTag,
+  type Logger,
 } from "backend";
 import Elysia, { status, t } from "elysia";
 
@@ -21,13 +22,13 @@ const ArticleModel = new Elysia().model({
   "update.request": ArticleUpdate,
 });
 
-export const createArticlesController = (articlesService: ArticleService) =>
+export const createArticlesController = (articlesService: ArticleService, logger?: Logger) =>
   new Elysia({ prefix: "/articles" })
     .use(ArticleModel)
     .get(
       "/",
       async ({ query }) => {
-        console.log(query);
+        logger?.debug("Articles list query", query);
         const result = await articlesService.list(query);
         const handleError = (err: DomainError) => {
           switch (err._tag) {
@@ -36,7 +37,7 @@ export const createArticlesController = (articlesService: ArticleService) =>
             case DomainErrorTag.Invalidation:
               return status(400, "Bad Request");
             default:
-              console.error("Articles list error:", err);
+              logger?.error("Articles list error:", err);
               return status(500, "Internal Server Error");
           }
         };
@@ -72,7 +73,7 @@ export const createArticlesController = (articlesService: ArticleService) =>
               return status(404, "Not Found");
 
             default:
-              console.error("Article detail error:", err);
+              logger?.error("Article detail error:", err);
               return status(500, "Internal Server Error");
           }
         };
@@ -101,7 +102,7 @@ export const createArticlesController = (articlesService: ArticleService) =>
             case DomainErrorTag.Invalidation:
               return status(400, "Bad Request");
             default:
-              console.error("Article create error:", err);
+              logger?.error("Article create error:", err);
               return status(500, "Internal Server Error");
           }
         };
@@ -133,7 +134,7 @@ export const createArticlesController = (articlesService: ArticleService) =>
             case DomainErrorTag.Invalidation:
               return status(400, "Bad Request");
             default:
-              console.error("Article update error:", err);
+              logger?.error("Article update error:", err);
               return status(500, "Internal Server Error");
           }
         };
@@ -167,7 +168,7 @@ export const createArticlesController = (articlesService: ArticleService) =>
               return status(404, "Not Found");
 
             default:
-              console.error("Article delete error:", err);
+              logger?.error("Article delete error:", err);
               return status(500, "Internal Server Error");
           }
         };

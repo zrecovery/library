@@ -11,11 +11,15 @@ import type { Result } from "result";
 /**
  * Transforms a store error into a domain error
  */
-const transformStoreError = (error: StoreError): UnknownError =>
-  new UnknownError(
-    `Failed to create article: ${error.message}`,
-    error,
-  );
+const transformStoreError =
+  (logger: Logger) =>
+  (error: StoreError): UnknownError => {
+    logger.trace(error);
+    return new UnknownError(
+      `Failed to create article: ${error.message}`,
+      error,
+    );
+  };
 
 // ============================================================================
 // Orchestration Functions
@@ -31,7 +35,7 @@ const executeCreate =
 
     const result = await store.save(data);
 
-    return result.mapErr(transformStoreError);
+    return result.mapErr(transformStoreError(logger));
   };
 
 // ============================================================================

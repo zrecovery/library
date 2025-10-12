@@ -34,6 +34,7 @@ const createValidationError = (): InvalidationError =>
  * Transforms a store error into a domain error
  */
 const transformStoreError =
+  (logger: Logger) =>
   (id: Id) =>
   (error: StoreError): NotFoundError | UnknownError => {
     switch (error._tag) {
@@ -41,6 +42,7 @@ const transformStoreError =
         return new NotFoundError(`Article not found: ${id}`);
 
       default:
+        logger.trace(error);
         return new UnknownError(
           `Failed to update article ${id}: ${error.message}`,
           error,
@@ -94,7 +96,7 @@ const executeEdit =
     const result = await store.update(id, data);
 
     // 4. Transform store errors to domain
-    return result.mapErr(transformStoreError(id));
+    return result.mapErr(transformStoreError(logger)(id));
   };
 
 // ============================================================================

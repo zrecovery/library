@@ -31,11 +31,15 @@ const createValidationError = (query: ArticleQuery): InvalidationError =>
 /**
  * Transforms a store error into a domain error
  */
-const transformStoreError = (error: StoreError): UnknownError =>
-  new UnknownError(
-    `Failed to retrieve article list: ${error.message}`,
-    error,
-  );
+const transformStoreError =
+  (logger: Logger) =>
+  (error: StoreError): UnknownError => {
+    logger.trace(error);
+    return new UnknownError(
+      `Failed to retrieve article list: ${error.message}`,
+      error,
+    );
+  };
 
 // ============================================================================
 // Logging Functions
@@ -80,7 +84,7 @@ const executeFindMany =
     const result = await store.findMany(query);
 
     // 4. Transform store errors to domain
-    return result.mapErr(transformStoreError);
+    return result.mapErr(transformStoreError(logger));
   };
 
 // ============================================================================

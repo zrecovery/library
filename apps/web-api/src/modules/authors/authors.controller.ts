@@ -1,11 +1,11 @@
-import { AuthorDetail, type AuthorService, DomainErrorTag } from "backend";
+import { AuthorDetail, type AuthorService, DomainErrorTag, type Logger } from "backend";
 import Elysia, { status, t } from "elysia";
 
 const AuthorModel = new Elysia().model({
   "detail.response": AuthorDetail,
 });
 
-export const createAuthorController = (service: AuthorService) => {
+export const createAuthorController = (service: AuthorService, logger?: Logger) => {
   return new Elysia({ prefix: "/authors" }).use(AuthorModel).get(
     "/:id",
     async ({ params: { id } }) => {
@@ -20,7 +20,7 @@ export const createAuthorController = (service: AuthorService) => {
               return status(404, "Not Found");
 
             default:
-              console.error("Author detail error:", err);
+              logger?.error("Author detail error:", err);
               return status(500, "Internal Server Error");
           }
         },
