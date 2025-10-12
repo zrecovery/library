@@ -1,5 +1,5 @@
 import { describe, expect, test, beforeEach, afterEach, vi } from "bun:test";
-import { createArticlesController } from "../articles.controller";
+import { createArticlesController } from "./articles.controller";
 import type { ArticleService } from "backend";
 import { Ok, Err } from "result";
 import {

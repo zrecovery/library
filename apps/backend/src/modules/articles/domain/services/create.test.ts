@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "bun:test";
-import { create } from "../create";
+import { create } from "./create";
 import { UnknownError } from "@shared/domain";
 import type { ArticleCreate } from "@articles/domain/types/create";
 import type { Saver } from "@articles/domain/interfaces/store";

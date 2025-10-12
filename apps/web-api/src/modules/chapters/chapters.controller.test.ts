@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { createChapterController } from "../chapters.controller";
+import { createChapterController } from "./chapters.controller";
 
 describe("Chapters Controller", () => {
   test("should have createChapterController function", () => {

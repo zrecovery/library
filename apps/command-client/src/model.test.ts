@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { FileFormat, format } from "../model";
+import { FileFormat, format } from "./model";
 
 describe("format", () => {
   test("should format raw data with chapter", () => {

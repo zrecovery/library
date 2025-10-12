@@ -1,5 +1,5 @@
 import { describe, expect, test, beforeEach, afterEach, vi } from "bun:test";
-import { createAuthorController } from "../authors.controller";
+import { createAuthorController } from "./authors.controller";
 import type { AuthorService } from "backend";
 import { Ok, Err } from "result";
 import { AuthorDetail } from "backend";

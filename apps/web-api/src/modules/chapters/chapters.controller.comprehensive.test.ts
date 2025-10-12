@@ -1,5 +1,5 @@
 import { describe, expect, test, beforeEach, afterEach, vi } from "bun:test";
-import { createChapterController } from "../chapters.controller";
+import { createChapterController } from "./chapters.controller";
 import type { ChapterService } from "backend";
 import { Ok, Err } from "result";
 import { ChapterDetail } from "backend";

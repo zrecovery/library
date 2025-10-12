@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { createAuthorController } from "../authors.controller";
+import { createAuthorController } from "./authors.controller";
 
 describe("Authors Controller", () => {
   test("should have createAuthorController function", () => {

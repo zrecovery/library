@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "bun:test";
-import { edit } from "../edit";
+import { edit } from "./edit";
 import {
   NotFoundError,
   UnknownError,

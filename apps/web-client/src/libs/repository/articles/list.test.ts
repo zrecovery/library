@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { list } from "../list";
+import { list } from "./list";
 
 describe("Article Repository - List", () => {
   test("should have list function", () => {

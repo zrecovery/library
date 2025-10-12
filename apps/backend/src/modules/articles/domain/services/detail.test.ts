@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "bun:test";
-import { detail } from "../detail";
+import { detail } from "./detail";
 import { NotFoundError, UnknownError } from "@shared/domain/types/errors";
 import type { Finder } from "@articles/domain/interfaces/store";
 import { Ok, Err } from "result";

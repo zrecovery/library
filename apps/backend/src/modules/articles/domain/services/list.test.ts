@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "bun:test";
-import { findMany } from "../list";
+import { findMany } from "./list";
 import { UnknownError, InvalidationError } from "@shared/domain";
 import type { Lister } from "@articles/domain/interfaces/store";
 import { Ok, Err } from "result";

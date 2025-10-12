@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, afterEach } from "bun:test";
 import { render } from "@solidjs/testing-library";
-import { ArticleCard } from "../article-card";
+import { ArticleCard } from "./article-card";
 
 describe("ArticleCard", () => {
   const mockArticleMeta = {

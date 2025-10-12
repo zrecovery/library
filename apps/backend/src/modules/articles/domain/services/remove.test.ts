@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from "bun:test";
-import { remove } from "../remove";
+import { remove } from "./remove";
 import { NotFoundError, UnknownError } from "@shared/domain/types/errors";
 import type { Remover } from "@articles/domain/interfaces/store";
 import { Ok, Err } from "result";
