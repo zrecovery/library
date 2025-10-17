@@ -12,7 +12,7 @@ export function log(level: string, message: string) {
       get(this: This) {
         const originalMethod = accessor.get.call(this);
         const date = Intl.DateTimeFormat();
-        console[level](
+        (console as any)[level](
           `${date}-${context.name.toString()}-${originalMethod} [${level}] : ${message}`,
         );
 

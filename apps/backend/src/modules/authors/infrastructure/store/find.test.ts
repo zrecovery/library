@@ -8,7 +8,6 @@ import {
   people,
   series,
 } from "@shared/infrastructure/store/schema";
-import { eq } from "drizzle-orm";
 import { Finder } from "./find";
 
 describe("Author Finder Success Cases", () => {

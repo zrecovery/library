@@ -11,7 +11,7 @@ import type { Database } from "@shared/infrastructure/store/db";
 const logger = console;
 
 const TEST_DB_URI =
-  process.env.DATABASE_URI ||
+  (process.env as any).DATABASE_URI ||
   "postgres://postgres:postgres@localhost:5432/test";
 
 export const createTestDb = (): Database => {

@@ -105,30 +105,28 @@ describe("Error Cases", () => {
           order: 2,
         },
       };
-      db.transaction(async (trx) => {
-        const saver = new DrizzleSaver(db);
-        await saver.save(input1);
-        await saver.save(input2);
+      const saver = new DrizzleSaver(db);
+      await saver.save(input1);
+      await saver.save(input2);
 
-        // Verify both articles share the same series
-        const results = await db.query.articles.findMany({
-          with: {
-            chapters: {
-              with: {
-                series: true,
-              },
+      // Verify both articles share the same series
+      const results = await db.query.articles.findMany({
+        with: {
+          chapters: {
+            with: {
+              series: true,
             },
           },
-          where: eq(series.title, "Same Chapter"),
-        });
-
-        expect(results).toHaveLength(2);
-
-        expect(results[0].chapters?.series.id).toBe(
-          // biome-ignore lint/style/noNonNullAssertion: <explanation>
-          results[1].chapters!.series.id,
-        );
+        },
+        where: eq(series.title, "Same Chapter"),
       });
+
+      expect(results).toHaveLength(2);
+
+      expect(results[0].chapters?.series.id).toBe(
+        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+        results[1].chapters!.series.id,
+      );
     }),
   );
 });

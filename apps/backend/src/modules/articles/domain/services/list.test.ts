@@ -39,10 +39,10 @@ describe("Article Service - List", () => {
 
     const listResponse: ArticleListResponse = {
       pagination: {
-        page: 1,
         size: 10,
-        total: 2,
+        items: 2,  // Changed from total to items
         pages: 1,
+        current: 1,  // Changed from page to current
       },
       data: [
         {
@@ -143,9 +143,9 @@ describe("Article Service - List", () => {
 
     const listResponse: ArticleListResponse = {
       pagination: {
-        page: 2,
+        current: 2,
         size: 5,
-        total: 10,
+        items: 10,
         pages: 2,
       },
       data: [],
@@ -167,9 +167,9 @@ describe("Article Service - List", () => {
 
     const listResponse: ArticleListResponse = {
       pagination: {
-        page: 1,
+        current: 1,
         size: 10,
-        total: 1,
+        items: 1,
         pages: 1,
       },
       data: [

@@ -5,9 +5,7 @@ import type { Config } from "@shared/domain/config";
 import { connectDb } from "@shared/infrastructure/store/connect";
 
 export const createChapterService = (config: Config): ChapterService => {
-  const uri = config.database.URI;
-
-  const db = connectDb(uri);
+  const db = connectDb(config);
   const store = createChapterStore(db);
 
   const logger = console;

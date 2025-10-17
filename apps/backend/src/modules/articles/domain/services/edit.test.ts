@@ -43,11 +43,9 @@ describe("Article Service - Edit", () => {
       title: "Updated Article",
       body: "Updated Body",
       author: {
-        id: 1,
         name: "Updated Author",
       },
       chapter: {
-        id: 1,
         title: "Updated Chapter",
         order: 2,
       },
@@ -62,7 +60,7 @@ describe("Article Service - Edit", () => {
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()).toBeNull();
     expect(mockStore.update).toHaveBeenCalledWith(articleId, articleUpdate);
-    expect(mockLogger.debug).toHaveBeenCalledWith("Attempting to update article 1 with data: {\"id\":1,\"title\":\"Updated Article\",\"body\":\"Updated Body\",\"author\":{\"id\":1,\"name\":\"Updated Author\"},\"chapter\":{\"id\":1,\"title\":\"Updated Chapter\",\"order\":2}}");
+    expect(mockLogger.debug).toHaveBeenCalledWith("Attempting to update article 1 with data: {\"id\":1,\"title\":\"Updated Article\",\"body\":\"Updated Body\",\"author\":{\"name\":\"Updated Author\"},\"chapter\":{\"title\":\"Updated Chapter\",\"order\":2}}");
   });
 
   test("should handle invalidation error", async () => {
