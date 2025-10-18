@@ -22,7 +22,10 @@ const ArticleModel = new Elysia().model({
   "update.request": ArticleUpdate,
 });
 
-export const createArticlesController = (articlesService: ArticleService, logger?: Logger) =>
+export const createArticlesController = (
+  articlesService: ArticleService,
+  logger?: Logger,
+) =>
   new Elysia({ prefix: "/articles" })
     .use(ArticleModel)
     .get(

@@ -66,9 +66,7 @@ const hasCompleteChapterData = (chapter: {
   readonly title: string | null;
   readonly order: number | null;
 }): chapter is { id: number; title: string; order: number } =>
-  chapter.id !== null &&
-  chapter.title !== null &&
-  chapter.order !== null;
+  chapter.id !== null && chapter.title !== null && chapter.order !== null;
 
 /**
  * Creates a chapter object with complete fields

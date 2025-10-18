@@ -105,7 +105,9 @@ export class DrizzleFinder implements Finder {
       });
     } catch (error) {
       if (error instanceof Error) {
-        return Err(new UnknownStoreError(`Unknown error: ${error.message}`, error));
+        return Err(
+          new UnknownStoreError(`Unknown error: ${error.message}`, error),
+        );
       }
       return Err(new UnknownStoreError(`Unknown error: ${String(error)}`));
     }

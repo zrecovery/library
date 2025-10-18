@@ -113,9 +113,7 @@ const findOrCreatePerson =
       .where(eq(people.name, trimmedName));
 
     if (!person) {
-      throw new UnknownStoreError(
-        `Failed to find or create person: ${name}`,
-      );
+      throw new UnknownStoreError(`Failed to find or create person: ${name}`);
     }
 
     return person;
@@ -197,9 +195,7 @@ const findOrCreateSeries =
       .where(eq(series.title, trimmedTitle));
 
     if (!seriesEntity) {
-      throw new UnknownStoreError(
-        `Failed to find or create series: ${title}`,
-      );
+      throw new UnknownStoreError(`Failed to find or create series: ${title}`);
     }
 
     return seriesEntity;
@@ -224,11 +220,7 @@ const findExistingChapter =
  */
 const updateChapterRelation =
   (trx: Database) =>
-  async (
-    chapterId: number,
-    seriesId: Id,
-    order: number,
-  ): Promise<void> => {
+  async (chapterId: number, seriesId: Id, order: number): Promise<void> => {
     await trx
       .update(chapters)
       .set({ series_id: seriesId, order })
@@ -241,13 +233,11 @@ const updateChapterRelation =
 const createChapterRelation =
   (trx: Database) =>
   async (articleId: Id, seriesId: Id, order: number): Promise<void> => {
-    await trx
-      .insert(chapters)
-      .values({
-        article_id: articleId,
-        series_id: seriesId,
-        order,
-      });
+    await trx.insert(chapters).values({
+      article_id: articleId,
+      series_id: seriesId,
+      order,
+    });
   };
 
 /**
@@ -267,11 +257,7 @@ const updateChapterOrder =
  */
 const upsertChapterWithTitle =
   (trx: Database) =>
-  async (
-    articleId: Id,
-    title: string,
-    order: number,
-  ): Promise<void> => {
+  async (articleId: Id, title: string, order: number): Promise<void> => {
     const seriesEntity = await findOrCreateSeries(trx)(title);
     const existingChapter = await findExistingChapter(trx)(articleId);
 
@@ -406,7 +392,10 @@ export class DrizzleUpdater implements Updater {
     this.#db = db;
   }
 
-  update = (id: Id, data: UpdateData): Promise<Result<null, NotFoundStoreError | UnknownStoreError>> => {
+  update = (
+    id: Id,
+    data: UpdateData,
+  ): Promise<Result<null, NotFoundStoreError | UnknownStoreError>> => {
     return executeUpdate(this.#db)(id, data);
   };
 }

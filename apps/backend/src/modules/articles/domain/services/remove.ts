@@ -38,16 +38,20 @@ const transformStoreError =
 /**
  * Logs the deletion attempt
  */
-const logRemovalAttempt = (logger: Logger) => (id: Id): void => {
-  logger.debug(`Attempting to remove article with id: ${id}`);
-};
+const logRemovalAttempt =
+  (logger: Logger) =>
+  (id: Id): void => {
+    logger.debug(`Attempting to remove article with id: ${id}`);
+  };
 
 /**
  * Logs successful deletion
  */
-const logRemovalSuccess = (logger: Logger) => (id: Id): void => {
-  logger.info(`Successfully removed article: ${id}`);
-};
+const logRemovalSuccess =
+  (logger: Logger) =>
+  (id: Id): void => {
+    logger.info(`Successfully removed article: ${id}`);
+  };
 
 // ============================================================================
 // Orchestration Functions

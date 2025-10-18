@@ -1,11 +1,19 @@
-import { AuthorDetail, type AuthorService, DomainErrorTag, type Logger } from "backend";
+import {
+  AuthorDetail,
+  type AuthorService,
+  DomainErrorTag,
+  type Logger,
+} from "backend";
 import Elysia, { status, t } from "elysia";
 
 const AuthorModel = new Elysia().model({
   "detail.response": AuthorDetail,
 });
 
-export const createAuthorController = (service: AuthorService, logger?: Logger) => {
+export const createAuthorController = (
+  service: AuthorService,
+  logger?: Logger,
+) => {
   return new Elysia({ prefix: "/authors" }).use(AuthorModel).get(
     "/:id",
     async ({ params: { id } }) => {

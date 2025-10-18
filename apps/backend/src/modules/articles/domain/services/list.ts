@@ -20,9 +20,7 @@ const validateQuery = (query: ArticleQuery): boolean =>
  * Creates a validation error with context
  */
 const createValidationError = (query: ArticleQuery): InvalidationError =>
-  new InvalidationError(
-    `Invalid query parameters: ${JSON.stringify(query)}`,
-  );
+  new InvalidationError(`Invalid query parameters: ${JSON.stringify(query)}`);
 
 // ============================================================================
 // Pure Functions - Error Handling
@@ -48,16 +46,20 @@ const transformStoreError =
 /**
  * Logs invalid query parameters
  */
-const logInvalidQuery = (logger: Logger) => (query: ArticleQuery): void => {
-  logger.error(`Invalid query parameters: ${JSON.stringify(query)}`);
-};
+const logInvalidQuery =
+  (logger: Logger) =>
+  (query: ArticleQuery): void => {
+    logger.error(`Invalid query parameters: ${JSON.stringify(query)}`);
+  };
 
 /**
  * Logs the search attempt
  */
-const logSearchAttempt = (logger: Logger) => (query: ArticleQuery): void => {
-  logger.debug(`Searching articles with query: ${JSON.stringify(query)}`);
-};
+const logSearchAttempt =
+  (logger: Logger) =>
+  (query: ArticleQuery): void => {
+    logger.debug(`Searching articles with query: ${JSON.stringify(query)}`);
+  };
 
 // ============================================================================
 // Orchestration Functions

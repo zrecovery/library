@@ -1,11 +1,19 @@
-import { ChapterDetail, type ChapterService, DomainErrorTag, type Logger } from "backend";
+import {
+  ChapterDetail,
+  type ChapterService,
+  DomainErrorTag,
+  type Logger,
+} from "backend";
 import Elysia, { status, t } from "elysia";
 
 const ChapterModel = new Elysia().model({
   "chapter.detail.response": ChapterDetail,
 });
 
-export const createChapterController = (service: ChapterService, logger?: Logger) => {
+export const createChapterController = (
+  service: ChapterService,
+  logger?: Logger,
+) => {
   return new Elysia({ prefix: "/chapters" }).use(ChapterModel).get(
     "/:id",
     async ({ params: { id } }) => {

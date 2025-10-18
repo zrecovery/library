@@ -145,7 +145,9 @@ export class DrizzleFinder implements Finder {
     this.#db = db;
   }
 
-  find = (id: Id): Promise<Result<ArticleDetail, NotFoundStoreError | UnknownStoreError>> => {
+  find = (
+    id: Id,
+  ): Promise<Result<ArticleDetail, NotFoundStoreError | UnknownStoreError>> => {
     return findArticleById(this.#db)(id);
   };
 }

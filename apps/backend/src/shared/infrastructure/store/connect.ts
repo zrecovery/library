@@ -5,7 +5,7 @@ import type { Config } from "@shared/domain/config";
 
 // Global database instance for singleton pattern
 let dbInstance: Database | null = null;
-let connectionState: 'disconnected' | 'connected' | 'error' = 'disconnected';
+let connectionState: "disconnected" | "connected" | "error" = "disconnected";
 
 /**
  * Enhanced database connection function with proper configuration handling
@@ -13,34 +13,34 @@ let connectionState: 'disconnected' | 'connected' | 'error' = 'disconnected';
  */
 export const connectDb = (config: Config): Database => {
   const { database: dbConfig } = config;
-  
+
   if (!dbConfig.URI) {
     throw new Error("Database URI is required");
   }
 
   // If we already have a connected instance, return it
-  if (connectionState === 'connected' && dbInstance) {
+  if (connectionState === "connected" && dbInstance) {
     return dbInstance;
   }
 
   try {
     console.info(`Connecting to database: ${dbConfig.URI}`);
-    
+
     // Create the database instance with the URI and configuration
     // Note: The bun-sql adapter doesn't support connection pooling natively,
     // but the configuration can be enhanced for other adapters if needed
-    dbInstance = drizzle(dbConfig.URI, { 
-      schema: schema, 
-      logger: dbConfig.enableLogging ?? true 
+    dbInstance = drizzle(dbConfig.URI, {
+      schema: schema,
+      logger: dbConfig.enableLogging ?? true,
     });
-    
-    connectionState = 'connected';
+
+    connectionState = "connected";
     console.info("Database connection established successfully");
-    
+
     return dbInstance;
   } catch (error) {
     console.error("Database connection failed:", error);
-    connectionState = 'error';
+    connectionState = "error";
     throw new Error(`Database connection failed: ${(error as Error).message}`);
   }
 };
@@ -48,53 +48,58 @@ export const connectDb = (config: Config): Database => {
 // Enhanced async connection function with retry logic (can be used during app startup)
 export const connectDbAsync = async (config: Config): Promise<Database> => {
   const { database: dbConfig } = config;
-  
+
   if (!dbConfig.URI) {
     throw new Error("Database URI is required");
   }
 
   // If we already have a connected instance, return it
-  if (connectionState === 'connected' && dbInstance) {
+  if (connectionState === "connected" && dbInstance) {
     return dbInstance;
   }
 
   console.info(`Connecting to database: ${dbConfig.URI}`);
-  
+
   let lastError: Error | null = null;
-  
+
   // Attempt connection with retry logic
   for (let attempt = 0; attempt <= (dbConfig.retryAttempts || 1); attempt++) {
     try {
       // Create the database instance with the URI and configuration
-      const newDbInstance = drizzle(dbConfig.URI, { 
-        schema: schema, 
-        logger: dbConfig.enableLogging ?? true 
+      const newDbInstance = drizzle(dbConfig.URI, {
+        schema: schema,
+        logger: dbConfig.enableLogging ?? true,
       });
 
       // Test the connection by running a simple query
-      await newDbInstance.execute('SELECT 1');
-      
+      await newDbInstance.execute("SELECT 1");
+
       dbInstance = newDbInstance;
-      connectionState = 'connected';
-      
+      connectionState = "connected";
+
       console.info("Database connection established successfully");
       return dbInstance;
     } catch (error) {
       lastError = error as Error;
-      console.error(`Database connection attempt ${attempt + 1} failed:`, error);
+      console.error(
+        `Database connection attempt ${attempt + 1} failed:`,
+        error,
+      );
 
       // If we're not on the last attempt, wait before retrying
       if (attempt < (dbConfig.retryAttempts || 1)) {
         const delay = (dbConfig.retryDelay || 1000) * Math.pow(2, attempt); // Exponential backoff
         console.info(`Retrying connection in ${delay}ms...`);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
   }
 
   // If we get here, all retry attempts have failed
-  connectionState = 'error';
-  throw new Error(`Database connection failed after ${(dbConfig.retryAttempts || 1) + 1} attempts: ${lastError?.message || 'Unknown error'}`);
+  connectionState = "error";
+  throw new Error(
+    `Database connection failed after ${(dbConfig.retryAttempts || 1) + 1} attempts: ${lastError?.message || "Unknown error"}`,
+  );
 };
 
 // Connection state management
@@ -105,7 +110,7 @@ export const disconnectDb = (): void => {
   if (dbInstance) {
     // Note: bun-sql doesn't have explicit disconnect, but we can reset our internal state
     dbInstance = null;
-    connectionState = 'disconnected';
+    connectionState = "disconnected";
     console.info("Database connection disconnected");
   }
 };

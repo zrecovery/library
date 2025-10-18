@@ -61,7 +61,9 @@ describe("Article Service - Detail", () => {
       expect(value).toEqual(articleDetail);
     }
     expect(mockStore.find).toHaveBeenCalledWith(articleId);
-    expect(mockLogger.debug).toHaveBeenCalledWith("Searching for article with id: 1");
+    expect(mockLogger.debug).toHaveBeenCalledWith(
+      "Searching for article with id: 1",
+    );
   });
 
   test("should handle not found error", async () => {
@@ -83,7 +85,9 @@ describe("Article Service - Detail", () => {
       expect(error.message).toBe("Article not found: 999");
     }
     expect(mockStore.find).toHaveBeenCalledWith(articleId);
-    expect(mockLogger.debug).toHaveBeenCalledWith("Searching for article with id: 999");
+    expect(mockLogger.debug).toHaveBeenCalledWith(
+      "Searching for article with id: 999",
+    );
   });
 
   test("should handle unknown store error", async () => {
@@ -111,7 +115,9 @@ describe("Article Service - Detail", () => {
       expect(error.raw).toBeDefined();
     }
     expect(mockStore.find).toHaveBeenCalledWith(articleId);
-    expect(mockLogger.debug).toHaveBeenCalledWith("Searching for article with id: 1");
+    expect(mockLogger.debug).toHaveBeenCalledWith(
+      "Searching for article with id: 1",
+    );
     expect(mockLogger.trace).toHaveBeenCalledWith(unknownError);
   });
 });

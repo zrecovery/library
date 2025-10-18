@@ -60,7 +60,9 @@ describe("Article Service - Edit", () => {
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()).toBeNull();
     expect(mockStore.update).toHaveBeenCalledWith(articleId, articleUpdate);
-    expect(mockLogger.debug).toHaveBeenCalledWith("Attempting to update article 1 with data: {\"id\":1,\"title\":\"Updated Article\",\"body\":\"Updated Body\",\"author\":{\"name\":\"Updated Author\"},\"chapter\":{\"title\":\"Updated Chapter\",\"order\":2}}");
+    expect(mockLogger.debug).toHaveBeenCalledWith(
+      'Attempting to update article 1 with data: {"id":1,"title":"Updated Article","body":"Updated Body","author":{"name":"Updated Author"},"chapter":{"title":"Updated Chapter","order":2}}',
+    );
   });
 
   test("should handle invalidation error", async () => {
@@ -135,9 +137,7 @@ describe("Article Service - Edit", () => {
       // Get the error value from the Err result
       const error = result.unwrapErr();
       expect(error).toBeInstanceOf(UnknownError);
-      expect(error.message).toContain(
-        "Failed to update article",
-      );
+      expect(error.message).toContain("Failed to update article");
       expect(error.message).toContain("Database connection failed");
       // The raw error is embedded in the UnknownError
       expect(error.raw).toBeDefined();

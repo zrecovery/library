@@ -43,7 +43,9 @@ describe("Article Service - Remove", () => {
     expect(result.isOk()).toBe(true);
     expect(result.unwrap()).toBeNull();
     expect(mockStore.remove).toHaveBeenCalledWith(articleId);
-    expect(mockLogger.debug).toHaveBeenCalledWith("Attempting to remove article with id: 1");
+    expect(mockLogger.debug).toHaveBeenCalledWith(
+      "Attempting to remove article with id: 1",
+    );
   });
 
   test("should handle not found error", async () => {
@@ -65,7 +67,9 @@ describe("Article Service - Remove", () => {
       expect(error.message).toBe("Article not found: 999");
     }
     expect(mockStore.remove).toHaveBeenCalledWith(articleId);
-    expect(mockLogger.debug).toHaveBeenCalledWith("Attempting to remove article with id: 999");
+    expect(mockLogger.debug).toHaveBeenCalledWith(
+      "Attempting to remove article with id: 999",
+    );
   });
 
   test("should handle unknown store error", async () => {
@@ -87,14 +91,14 @@ describe("Article Service - Remove", () => {
       // Get the error value from the Err result
       const error = result.unwrapErr();
       expect(error).toBeInstanceOf(UnknownError);
-      expect(error.message).toContain(
-        "Failed to remove article",
-      );
+      expect(error.message).toContain("Failed to remove article");
       expect(error.message).toContain("Database connection failed");
       // The raw error is embedded in the UnknownError
       expect(error.raw).toBeDefined();
     }
     expect(mockStore.remove).toHaveBeenCalledWith(articleId);
-    expect(mockLogger.debug).toHaveBeenCalledWith("Attempting to remove article with id: 1");
+    expect(mockLogger.debug).toHaveBeenCalledWith(
+      "Attempting to remove article with id: 1",
+    );
   });
 });

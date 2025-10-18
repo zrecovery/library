@@ -37,10 +37,7 @@ const buildSearchQuery = (parts: KeywordParts): string => {
     .map((keyword) => `-${keyword}`)
     .join("  ");
 
-  return [positiveQuery, negativeQuery]
-    .filter(Boolean)
-    .join("  ")
-    .trim();
+  return [positiveQuery, negativeQuery].filter(Boolean).join("  ").trim();
 };
 
 const hasValidKeywordParts = (parts: KeywordParts): boolean =>
@@ -450,11 +447,16 @@ describe("Keyword Processing Pipeline", () => {
   });
 
   test("should handle complex real-world query", () => {
-    const keyword = "+react +hooks +typescript -class-components -legacy -deprecated";
+    const keyword =
+      "+react +hooks +typescript -class-components -legacy -deprecated";
     const parts = parseKeywordParts(keyword);
 
     expect(parts.positive).toEqual(["react", "hooks", "typescript"]);
-    expect(parts.negative).toEqual(["class-components", "legacy", "deprecated"]);
+    expect(parts.negative).toEqual([
+      "class-components",
+      "legacy",
+      "deprecated",
+    ]);
     expect(hasValidKeywordParts(parts)).toBe(true);
 
     const query = buildSearchQuery(parts);
@@ -514,7 +516,9 @@ describe("Edge Cases", () => {
   });
 
   test("should handle many keywords", () => {
-    const keywords = Array.from({ length: 100 }, (_, i) => `+keyword${i}`).join(" ");
+    const keywords = Array.from({ length: 100 }, (_, i) => `+keyword${i}`).join(
+      " ",
+    );
     const parts = parseKeywordParts(keywords);
     expect(parts.positive).toHaveLength(100);
   });
@@ -548,7 +552,7 @@ describe("Edge Cases", () => {
 describe("Performance", () => {
   test("should handle large keyword string efficiently", () => {
     const keywords = Array.from({ length: 1000 }, (_, i) =>
-      i % 2 === 0 ? `+pos${i}` : `-neg${i}`
+      i % 2 === 0 ? `+pos${i}` : `-neg${i}`,
     ).join(" ");
 
     const startTime = performance.now();

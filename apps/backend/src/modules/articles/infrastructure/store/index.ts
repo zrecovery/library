@@ -1,10 +1,4 @@
-import type {
-  Finder,
-  Lister,
-  Remover,
-  Saver,
-  Updater,
-} from "@articles/domain";
+import type { Finder, Lister, Remover, Saver, Updater } from "@articles/domain";
 import type { Database } from "@shared/infrastructure/store/db";
 import { createDrizzleFinder } from "./find";
 import { createDrizzleLister } from "./findMany";

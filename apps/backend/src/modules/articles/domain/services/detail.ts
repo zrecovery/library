@@ -39,9 +39,11 @@ const transformStoreError =
 /**
  * Logs the search attempt
  */
-const logSearchAttempt = (logger: Logger) => (id: Id): void => {
-  logger.debug(`Searching for article with id: ${id}`);
-};
+const logSearchAttempt =
+  (logger: Logger) =>
+  (id: Id): void => {
+    logger.debug(`Searching for article with id: ${id}`);
+  };
 
 // ============================================================================
 // Orchestration Functions

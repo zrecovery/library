@@ -30,14 +30,14 @@ async function initializeApp() {
   const chapterController = createChapterController(chapterService);
 
   // Add shutdown hook to gracefully close database connections
-  process.on('SIGINT', async () => {
-    console.info('Shutting down gracefully...');
+  process.on("SIGINT", async () => {
+    console.info("Shutting down gracefully...");
     await dbManager.shutdown();
     process.exit(0);
   });
 
-  process.on('SIGTERM', async () => {
-    console.info('Shutting down gracefully...');
+  process.on("SIGTERM", async () => {
+    console.info("Shutting down gracefully...");
     await dbManager.shutdown();
     process.exit(0);
   });

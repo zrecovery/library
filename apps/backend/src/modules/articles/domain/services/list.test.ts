@@ -40,9 +40,9 @@ describe("Article Service - List", () => {
     const listResponse: ArticleListResponse = {
       pagination: {
         size: 10,
-        items: 2,  // Changed from total to items
+        items: 2, // Changed from total to items
         pages: 1,
-        current: 1,  // Changed from page to current
+        current: 1, // Changed from page to current
       },
       data: [
         {

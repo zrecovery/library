@@ -57,16 +57,24 @@ const transformStoreError =
 /**
  * Logs invalid data
  */
-const logInvalidData = (logger: Logger) => (data: ArticleUpdate): void => {
-  logger.debug(`Invalid input data for article update: ${JSON.stringify(data)}`);
-};
+const logInvalidData =
+  (logger: Logger) =>
+  (data: ArticleUpdate): void => {
+    logger.debug(
+      `Invalid input data for article update: ${JSON.stringify(data)}`,
+    );
+  };
 
 /**
  * Logs the update attempt
  */
-const logUpdateAttempt = (logger: Logger) => (id: Id, data: ArticleUpdate): void => {
-  logger.debug(`Attempting to update article ${id} with data: ${JSON.stringify(data)}`);
-};
+const logUpdateAttempt =
+  (logger: Logger) =>
+  (id: Id, data: ArticleUpdate): void => {
+    logger.debug(
+      `Attempting to update article ${id} with data: ${JSON.stringify(data)}`,
+    );
+  };
 
 // ============================================================================
 // Orchestration Functions

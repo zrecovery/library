@@ -35,7 +35,9 @@ const createArticleEntity =
       .returning();
 
     if (!article) {
-      throw new UnknownStoreError("Failed to create article: no entity returned");
+      throw new UnknownStoreError(
+        "Failed to create article: no entity returned",
+      );
     }
 
     return article;
@@ -71,12 +73,10 @@ const createAuthorRelation =
   (trx: Database) =>
   async (articleId: Id, personId: Id): Promise<void> => {
     try {
-      await trx
-        .insert(authors)
-        .values({
-          person_id: personId,
-          article_id: articleId,
-        });
+      await trx.insert(authors).values({
+        person_id: personId,
+        article_id: articleId,
+      });
     } catch (error) {
       throw new UnknownStoreError(
         `Failed to create author relation: articleId=${articleId}, personId=${personId}`,

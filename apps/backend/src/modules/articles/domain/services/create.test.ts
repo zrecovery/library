@@ -97,7 +97,7 @@ describe("Article Service - Create - Success Cases", () => {
 
     expect(mockLogger.debug).toHaveBeenCalledTimes(1);
     expect(mockLogger.debug).toHaveBeenCalledWith(
-      expect.stringContaining("Creating article")
+      expect.stringContaining("Creating article"),
     );
   });
 

@@ -1,7 +1,13 @@
 import { describe, expect, test, beforeEach, afterEach } from "bun:test";
 import { withTestDb } from "@utils/test";
 import { DrizzleRemover, createDrizzleRemover } from "./remove";
-import { articles, authors, chapters, people, series } from "@shared/infrastructure/store/schema";
+import {
+  articles,
+  authors,
+  chapters,
+  people,
+  series,
+} from "@shared/infrastructure/store/schema";
 import { eq } from "drizzle-orm";
 import type { ArticleCreate } from "@articles/domain/types/create";
 import { DrizzleSaver } from "./save";
@@ -39,7 +45,10 @@ const articleExists = async (db: any, id: number): Promise<boolean> => {
   return !!article;
 };
 
-const authorRelationsExist = async (db: any, articleId: number): Promise<boolean> => {
+const authorRelationsExist = async (
+  db: any,
+  articleId: number,
+): Promise<boolean> => {
   const [author] = await db
     .select({ id: authors.id })
     .from(authors)
@@ -48,7 +57,10 @@ const authorRelationsExist = async (db: any, articleId: number): Promise<boolean
   return !!author;
 };
 
-const chapterRelationsExist = async (db: any, articleId: number): Promise<boolean> => {
+const chapterRelationsExist = async (
+  db: any,
+  articleId: number,
+): Promise<boolean> => {
   const [chapter] = await db
     .select({ id: chapters.id })
     .from(chapters)
@@ -70,7 +82,7 @@ describe("createDrizzleRemover", () => {
       expect(remover).toBeDefined();
       expect(remover.remove).toBeDefined();
       expect(typeof remover.remove).toBe("function");
-    })
+    }),
   );
 
   test(
@@ -82,7 +94,7 @@ describe("createDrizzleRemover", () => {
       expect(remover1).not.toBe(remover2);
       expect(remover1.remove).toBeDefined();
       expect(remover2.remove).toBeDefined();
-    })
+    }),
   );
 });
 
@@ -98,7 +110,7 @@ describe("DrizzleRemover - Legacy Class", () => {
 
       expect(remover).toBeDefined();
       expect(remover.remove).toBeDefined();
-    })
+    }),
   );
 });
 
@@ -128,7 +140,7 @@ describe("Article Removal - Success Cases", () => {
       // Verify successful removal
       expect(result.isOk()).toBe(true);
       expect(await articleExists(db, articleId)).toBe(false);
-    })
+    }),
   );
 
   test(
@@ -160,7 +172,7 @@ describe("Article Removal - Success Cases", () => {
       expect(await articleExists(db, articleId)).toBe(false);
       expect(await authorRelationsExist(db, articleId)).toBe(false);
       expect(await chapterRelationsExist(db, articleId)).toBe(false);
-    })
+    }),
   );
 
   test(
@@ -200,7 +212,7 @@ describe("Article Removal - Success Cases", () => {
       expect(await articleExists(db, id1)).toBe(false);
       expect(await articleExists(db, id2)).toBe(false);
       expect(await articleExists(db, id3)).toBe(false);
-    })
+    }),
   );
 });
 
@@ -237,7 +249,7 @@ describe("Relationship Cleanup", () => {
         .where(eq(people.name, "Author to Clean"));
 
       expect(person).toBeDefined();
-    })
+    }),
   );
 
   test(
@@ -272,7 +284,7 @@ describe("Relationship Cleanup", () => {
         .where(eq(series.title, "Chapter to Clean"));
 
       expect(seriesRecord).toBeDefined();
-    })
+    }),
   );
 
   test(
@@ -301,7 +313,7 @@ describe("Relationship Cleanup", () => {
       // Verify all relationships are removed
       expect(await authorRelationsExist(db, articleId)).toBe(false);
       expect(await chapterRelationsExist(db, articleId)).toBe(false);
-    })
+    }),
   );
 });
 
@@ -322,7 +334,7 @@ describe("Article Removal - Error Cases", () => {
       if (result.isErr()) {
         expect(result.unwrapErr().message).toContain("not found");
       }
-    })
+    }),
   );
 
   test(
@@ -334,7 +346,7 @@ describe("Article Removal - Error Cases", () => {
       const result = await remover.remove(invalidId);
 
       expect(result.isErr()).toBe(true);
-    })
+    }),
   );
 
   test(
@@ -346,7 +358,7 @@ describe("Article Removal - Error Cases", () => {
       const result = await remover.remove(invalidId);
 
       expect(result.isErr()).toBe(true);
-    })
+    }),
   );
 
   test(
@@ -371,7 +383,7 @@ describe("Article Removal - Error Cases", () => {
       if (secondResult.isErr()) {
         expect(secondResult.unwrapErr().message).toContain("not found");
       }
-    })
+    }),
   );
 });
 
@@ -409,7 +421,7 @@ describe("Transaction Atomicity", () => {
       expect(articleStillExists).toBe(false);
       expect(authorStillExists).toBe(false);
       expect(chapterStillExists).toBe(false);
-    })
+    }),
   );
 
   test(
@@ -455,7 +467,7 @@ describe("Transaction Atomicity", () => {
         .from(series)
         .where(eq(series.title, "Shared Chapter"));
       expect(seriesRecord).toBeDefined();
-    })
+    }),
   );
 });
 
@@ -480,7 +492,7 @@ describe("Edge Cases", () => {
 
       expect(result.isOk()).toBe(true);
       expect(await articleExists(db, articleId)).toBe(false);
-    })
+    }),
   );
 
   test(
@@ -499,7 +511,7 @@ describe("Edge Cases", () => {
 
       expect(result.isOk()).toBe(true);
       expect(await articleExists(db, articleId)).toBe(false);
-    })
+    }),
   );
 
   test(
@@ -519,7 +531,7 @@ describe("Edge Cases", () => {
 
       expect(result.isOk()).toBe(true);
       expect(await articleExists(db, articleId)).toBe(false);
-    })
+    }),
   );
 
   test(
@@ -543,7 +555,7 @@ describe("Edge Cases", () => {
       expect(result.isOk()).toBe(true);
       expect(await articleExists(db, articleId)).toBe(false);
       expect(await chapterRelationsExist(db, articleId)).toBe(false);
-    })
+    }),
   );
 
   test(
@@ -566,7 +578,7 @@ describe("Edge Cases", () => {
 
       expect(result.isOk()).toBe(true);
       expect(await articleExists(db, articleId)).toBe(false);
-    })
+    }),
   );
 });
 
@@ -607,7 +619,7 @@ describe("Concurrent Operations", () => {
       for (const id of ids) {
         expect(await articleExists(db, id)).toBe(false);
       }
-    })
+    }),
   );
 });
 
@@ -632,7 +644,7 @@ describe("Integration Tests", () => {
 
       expect(result.isOk()).toBe(true);
       expect(await articleExists(db, articleId)).toBe(false);
-    })
+    }),
   );
 
   test(
@@ -651,6 +663,6 @@ describe("Integration Tests", () => {
 
       expect(result.isOk()).toBe(true);
       expect(await articleExists(db, articleId)).toBe(false);
-    })
+    }),
   );
 });

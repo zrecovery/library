@@ -153,10 +153,7 @@ const buildSearchQuery = (parts: KeywordParts): string => {
     .map((keyword) => `-${keyword}`)
     .join("  ");
 
-  return [positiveQuery, negativeQuery]
-    .filter(Boolean)
-    .join("  ")
-    .trim();
+  return [positiveQuery, negativeQuery].filter(Boolean).join("  ").trim();
 };
 
 /**
@@ -238,11 +235,7 @@ const buildListQuery = (
  */
 const executeListQuery =
   (db: Database) =>
-  async (
-    page: number,
-    size: number,
-    condition?: SQL,
-  ): Promise<QueryRow[]> => {
+  async (page: number, size: number, condition?: SQL): Promise<QueryRow[]> => {
     const query = buildListQuery(db, page, size, condition);
     return query;
   };
@@ -313,7 +306,9 @@ export class DrizzleLister implements Lister {
     this.#db = db;
   }
 
-  findMany = (query: Pagination & { keyword?: string }): Promise<Result<ArticleListResponse, UnknownStoreError>> => {
+  findMany = (
+    query: Pagination & { keyword?: string },
+  ): Promise<Result<ArticleListResponse, UnknownStoreError>> => {
     return executeFindMany(this.#db)(query);
   };
 }

@@ -52,21 +52,24 @@ export class DatabaseManager {
   /**
    * Check database health by running a simple query
    */
-  async healthCheck(): Promise<{ status: 'healthy' | 'unhealthy'; message?: string; }> {
+  async healthCheck(): Promise<{
+    status: "healthy" | "unhealthy";
+    message?: string;
+  }> {
     try {
       if (!this.dbInstance) {
-        return { status: 'unhealthy', message: 'Database not connected' };
+        return { status: "unhealthy", message: "Database not connected" };
       }
 
       // Run a simple health check query
-      await this.dbInstance.execute('SELECT 1 as health_check');
-      
-      return { status: 'healthy' };
+      await this.dbInstance.execute("SELECT 1 as health_check");
+
+      return { status: "healthy" };
     } catch (error) {
-      console.error('Database health check failed:', error);
-      return { 
-        status: 'unhealthy', 
-        message: `Health check failed: ${(error as Error).message}` 
+      console.error("Database health check failed:", error);
+      return {
+        status: "unhealthy",
+        message: `Health check failed: ${(error as Error).message}`,
       };
     }
   }
@@ -96,7 +99,7 @@ export class DatabaseManager {
   /**
    * Get database statistics (connection pool info, etc.)
    */
-  getStats(): { initialized: boolean; connectionState: string; } {
+  getStats(): { initialized: boolean; connectionState: string } {
     return {
       initialized: this.isInitialized,
       connectionState: getConnectionState(),

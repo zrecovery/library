@@ -118,7 +118,9 @@ const handleRemoveError = (
  */
 const executeRemove =
   (db: Database) =>
-  async (id: Id): Promise<Result<null, NotFoundStoreError | UnknownStoreError>> => {
+  async (
+    id: Id,
+  ): Promise<Result<null, NotFoundStoreError | UnknownStoreError>> => {
     try {
       await executeDeleteTransaction(db)(id);
       return Ok(null);
@@ -149,7 +151,9 @@ export class DrizzleRemover implements Remover {
     this.#db = db;
   }
 
-  remove = (id: Id): Promise<Result<null, NotFoundStoreError | UnknownStoreError>> => {
+  remove = (
+    id: Id,
+  ): Promise<Result<null, NotFoundStoreError | UnknownStoreError>> => {
     return executeRemove(this.#db)(id);
   };
 }

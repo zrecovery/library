@@ -485,7 +485,7 @@ describe("Performance", () => {
       createMetaResult({
         article: { id: i, title: `Article ${i}` },
         author: { id: i * 10, name: `Author ${i}` },
-      })
+      }),
     );
 
     const startTime = performance.now();
