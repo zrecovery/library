@@ -3,39 +3,30 @@ import type { ArticleCreate } from "@articles/domain/types/create";
 import { UnknownError, type Logger } from "@shared/domain";
 import type { StoreError } from "@shared/domain/interfaces/store.error";
 import type { Result } from "result";
-
-// ============================================================================
-// Pure Functions - Error Handling
-// ============================================================================
-
-/**
- * Transforms a store error into a domain error
- */
-const transformStoreError =
-  (logger: Logger) =>
-  (error: StoreError): UnknownError => {
-    logger.trace(error);
-    return new UnknownError(
-      `Failed to create article: ${error.message}`,
-      error,
-    );
-  };
+import { withStoreResultHandling, createOperationLogger } from "@shared/utils/fp";
 
 // ============================================================================
 // Orchestration Functions
 // ============================================================================
 
 /**
- * Executes article creation with the store
+ * Executes article creation with the store using functional utilities
  */
 const executeCreate =
   (logger: Logger, store: Saver) =>
   async (data: ArticleCreate): Promise<Result<null, UnknownError>> => {
-    logger.debug(`Creating article: ${JSON.stringify(data)}`);
+    // Log the operation
+    createOperationLogger(logger, `Creating article`)(data);
 
-    const result = await store.save(data);
-
-    return result.mapErr(transformStoreError(logger));
+    // Use store result handling utility
+    const storeOperation = () => store.save(data);
+    return await withStoreResultHandling<null, StoreError>(
+      logger, 
+      'article', 
+      'Article', 
+      'create', 
+      storeOperation
+    )();
   };
 
 // ============================================================================

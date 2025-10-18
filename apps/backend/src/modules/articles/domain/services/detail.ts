@@ -1,67 +1,36 @@
 import type { Finder } from "@articles/domain/interfaces/store";
 import type { ArticleDetail } from "@articles/domain/types/detail";
 import { NotFoundError, UnknownError, type Logger } from "@shared/domain";
-import {
-  type StoreError,
-  StoreErrorTag,
-} from "@shared/domain/interfaces/store.error";
+import type { StoreError } from "@shared/domain/interfaces/store.error";
 import type { Id } from "@shared/domain/types/common";
 import type { Result } from "result";
-
-// ============================================================================
-// Pure Functions - Error Handling
-// ============================================================================
-
-/**
- * Transforms a store error into a domain error
- */
-const transformStoreError =
-  (logger: Logger) =>
-  (id: Id) =>
-  (error: StoreError): NotFoundError | UnknownError => {
-    switch (error._tag) {
-      case StoreErrorTag.NotFound:
-        return new NotFoundError(`Article not found: ${id}`);
-
-      default:
-        logger.trace(error);
-        return new UnknownError(
-          `Failed to retrieve article ${id}: ${error.message}`,
-          error,
-        );
-    }
-  };
-
-// ============================================================================
-// Logging Functions
-// ============================================================================
-
-/**
- * Logs the search attempt
- */
-const logSearchAttempt =
-  (logger: Logger) =>
-  (id: Id): void => {
-    logger.debug(`Searching for article with id: ${id}`);
-  };
+import { withStoreResultHandling, createOperationLogger } from "@shared/utils/fp";
 
 // ============================================================================
 // Orchestration Functions
 // ============================================================================
 
 /**
- * Executes article search by ID
+ * Executes article search by ID using functional utilities
  */
 const executeDetail =
   (logger: Logger, store: Finder) =>
   async (
     id: Id,
   ): Promise<Result<ArticleDetail, NotFoundError | UnknownError>> => {
-    logSearchAttempt(logger)(id);
+    // Log the operation
+    createOperationLogger(logger, `Searching for article with id`)(id);
 
-    const result = await store.find(id);
-
-    return result.mapErr(transformStoreError(logger)(id));
+    // Use store result handling utility
+    const storeOperation = () => store.find(id);
+    return await withStoreResultHandling<ArticleDetail, StoreError>(
+      logger, 
+      'article', 
+      'Article', 
+      'retrieve', 
+      storeOperation, 
+      id
+    )();
   };
 
 // ============================================================================

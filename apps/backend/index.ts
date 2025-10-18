@@ -11,3 +11,4 @@ export {
   getDatabaseManager,
 } from "./src/shared/infrastructure/store/db.manager";
 export { readConfig } from "./src/shared/domain/config";
+export * from "./src/shared/utils";
