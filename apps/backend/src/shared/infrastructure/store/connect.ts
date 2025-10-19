@@ -2,6 +2,7 @@ import * as schema from "@shared/infrastructure/store/schema";
 import { drizzle } from "drizzle-orm/bun-sql";
 import type { Database } from "./db";
 import type { Config } from "@shared/domain/config";
+import { defaultLogger } from "@shared/utils";
 
 // Global database instance for singleton pattern
 let dbInstance: Database | null = null;
@@ -24,7 +25,7 @@ export const connectDb = (config: Config): Database => {
   }
 
   try {
-    console.info(`Connecting to database: ${dbConfig.URI}`);
+    defaultLogger.info(`Connecting to database: ${dbConfig.URI}`);
 
     // Create the database instance with the URI and configuration
     // Note: The bun-sql adapter doesn't support connection pooling natively,
@@ -35,11 +36,13 @@ export const connectDb = (config: Config): Database => {
     });
 
     connectionState = "connected";
-    console.info("Database connection established successfully");
+    defaultLogger.info("Database connection established successfully");
 
     return dbInstance;
   } catch (error) {
-    console.error("Database connection failed:", error);
+    defaultLogger.error(
+      `Database connection failed: ${(error as Error).message}`,
+    );
     connectionState = "error";
     throw new Error(`Database connection failed: ${(error as Error).message}`);
   }
@@ -58,7 +61,7 @@ export const connectDbAsync = async (config: Config): Promise<Database> => {
     return dbInstance;
   }
 
-  console.info(`Connecting to database: ${dbConfig.URI}`);
+  defaultLogger.info(`Connecting to database: ${dbConfig.URI}`);
 
   let lastError: Error | null = null;
 
@@ -77,19 +80,18 @@ export const connectDbAsync = async (config: Config): Promise<Database> => {
       dbInstance = newDbInstance;
       connectionState = "connected";
 
-      console.info("Database connection established successfully");
+      defaultLogger.info("Database connection established successfully");
       return dbInstance;
     } catch (error) {
       lastError = error as Error;
-      console.error(
-        `Database connection attempt ${attempt + 1} failed:`,
-        error,
+      defaultLogger.error(
+        `Database connection attempt ${attempt + 1} failed: ${(error as Error).message}`,
       );
 
       // If we're not on the last attempt, wait before retrying
       if (attempt < (dbConfig.retryAttempts || 1)) {
         const delay = (dbConfig.retryDelay || 1000) * Math.pow(2, attempt); // Exponential backoff
-        console.info(`Retrying connection in ${delay}ms...`);
+        defaultLogger.info(`Retrying connection in ${delay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
@@ -111,6 +113,6 @@ export const disconnectDb = (): void => {
     // Note: bun-sql doesn't have explicit disconnect, but we can reset our internal state
     dbInstance = null;
     connectionState = "disconnected";
-    console.info("Database connection disconnected");
+    defaultLogger.info("Database connection disconnected");
   }
 };

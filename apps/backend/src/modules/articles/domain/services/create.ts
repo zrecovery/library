@@ -3,7 +3,10 @@ import type { ArticleCreate } from "@articles/domain/types/create";
 import { UnknownError, type Logger } from "@shared/domain";
 import type { StoreError } from "@shared/domain/interfaces/store.error";
 import type { Result } from "result";
-import { withStoreResultHandling, createOperationLogger } from "@shared/utils/fp";
+import {
+  withStoreResultHandling,
+  createOperationLogger,
+} from "@shared/utils/fp";
 
 // ============================================================================
 // Orchestration Functions
@@ -21,11 +24,11 @@ const executeCreate =
     // Use store result handling utility
     const storeOperation = () => store.save(data);
     return await withStoreResultHandling<null, StoreError>(
-      logger, 
-      'article', 
-      'Article', 
-      'create', 
-      storeOperation
+      logger,
+      "article",
+      "Article",
+      "create",
+      storeOperation,
     )();
   };
 

@@ -4,7 +4,10 @@ import { NotFoundError, UnknownError, type Logger } from "@shared/domain";
 import type { StoreError } from "@shared/domain/interfaces/store.error";
 import type { Id } from "@shared/domain/types/common";
 import type { Result } from "result";
-import { withStoreResultHandling, createOperationLogger } from "@shared/utils/fp";
+import {
+  withStoreResultHandling,
+  createOperationLogger,
+} from "@shared/utils/fp";
 
 // ============================================================================
 // Orchestration Functions
@@ -24,12 +27,12 @@ const executeDetail =
     // Use store result handling utility
     const storeOperation = () => store.find(id);
     return await withStoreResultHandling<ArticleDetail, StoreError>(
-      logger, 
-      'article', 
-      'Article', 
-      'retrieve', 
-      storeOperation, 
-      id
+      logger,
+      "article",
+      "Article",
+      "retrieve",
+      storeOperation,
+      id,
     )();
   };
 

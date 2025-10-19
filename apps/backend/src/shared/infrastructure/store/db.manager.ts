@@ -1,6 +1,7 @@
 import type { Config } from "@shared/domain/config";
 import { connectDbAsync, getConnectionState, disconnectDb } from "./connect";
 import type { Database } from "./db";
+import { defaultLogger } from "@shared/utils";
 
 /**
  * Database Manager that provides comprehensive database lifecycle management
@@ -25,9 +26,11 @@ export class DatabaseManager {
     try {
       this.dbInstance = await connectDbAsync(this.config);
       this.isInitialized = true;
-      console.info("Database manager initialized successfully");
+      defaultLogger.info("Database manager initialized successfully");
     } catch (error) {
-      console.error("Failed to initialize database manager:", error);
+      defaultLogger.error(
+        `Failed to initialize database manager: ${(error as Error).message}`,
+      );
       throw error;
     }
   }
@@ -66,7 +69,9 @@ export class DatabaseManager {
 
       return { status: "healthy" };
     } catch (error) {
-      console.error("Database health check failed:", error);
+      defaultLogger.error(
+        `Database health check failed: ${(error as Error).message}`,
+      );
       return {
         status: "unhealthy",
         message: `Health check failed: ${(error as Error).message}`,
@@ -81,9 +86,11 @@ export class DatabaseManager {
     try {
       disconnectDb();
       this.isInitialized = false;
-      console.info("Database manager shut down successfully");
+      defaultLogger.info("Database manager shut down successfully");
     } catch (error) {
-      console.error("Error during database shutdown:", error);
+      defaultLogger.error(
+        `Error during database shutdown: ${(error as Error).message}`,
+      );
       throw error;
     }
   }

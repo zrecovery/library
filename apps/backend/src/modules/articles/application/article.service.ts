@@ -7,12 +7,13 @@ import { remove } from "@articles/domain/services/remove";
 import { createArticleStore } from "@articles/infrastructure/store";
 import type { Config } from "@shared/domain/config";
 import { connectDb } from "@shared/infrastructure/store/connect";
+import { createConsoleLogger } from "@shared/utils";
 
 export const createArticleService = (config: Config): ArticleService => {
   const db = connectDb(config);
   const store = createArticleStore(db);
 
-  const logger = console;
+  const logger = createConsoleLogger();
   return {
     create: create(logger, store),
     edit: edit(logger, store),

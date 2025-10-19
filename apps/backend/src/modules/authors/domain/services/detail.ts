@@ -4,7 +4,10 @@ import type { StoreError } from "@shared/domain/interfaces/store.error";
 import type { Result } from "result";
 import type { Find } from "../interfaces";
 import type { AuthorDetail } from "../types";
-import { withStoreResultHandling, createOperationLogger } from "@shared/utils/fp";
+import {
+  withStoreResultHandling,
+  createOperationLogger,
+} from "@shared/utils/fp";
 
 export const detail =
   (logger: Logger, store: Find) =>
@@ -17,11 +20,11 @@ export const detail =
     // Use store result handling utility
     const storeOperation = () => store.find(id);
     return await withStoreResultHandling<AuthorDetail, StoreError>(
-      logger, 
-      'author', 
-      'Author', 
-      'retrieve', 
-      storeOperation, 
-      id
+      logger,
+      "author",
+      "Author",
+      "retrieve",
+      storeOperation,
+      id,
     )();
   };
