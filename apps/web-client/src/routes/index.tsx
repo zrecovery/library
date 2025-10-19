@@ -19,7 +19,11 @@ export default function Home() {
         {" - "}
         <A href="/admin" class="text-sky-600 hover:underline">
           Admin
-        </A>{" "}
+        </A>
+        {" - "}
+        <A href="/settings" class="text-sky-600 hover:underline">
+          Settings
+        </A>
       </p>
     </main>
   );

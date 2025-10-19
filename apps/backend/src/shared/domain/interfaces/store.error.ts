@@ -1,6 +1,7 @@
 export enum StoreErrorTag {
   NotFound = "NOT FOUND",
   UnknownError = "UNKNOWN_ERROR",
+  Invalidation = "INVALIDATION",
 }
 
 export class StoreError extends Error {

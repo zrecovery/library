@@ -11,6 +11,8 @@ import { staticPlugin } from "@elysiajs/static";
 import { createArticlesController } from "./src/modules/articles/articles.controller";
 import { createAuthorController } from "./src/modules/authors/authors.controller";
 import { createChapterController } from "./src/modules/chapters/chapters.controller";
+import { createSettingController } from "./src/modules/settings/settings.controller";
+import { createSettingService } from "./src/modules/settings/settings.service";
 
 const config = readConfig();
 
@@ -29,6 +31,13 @@ async function initializeApp() {
   const chapterService = createChapterService(config);
   const chapterController = createChapterController(chapterService);
 
+  // Initialize settings service and controller
+  const settingService = createSettingService(dbManager.getDb());
+  const settingController = createSettingController(
+    settingService,
+    dbManager.getDb(),
+  );
+
   // Add shutdown hook to gracefully close database connections
   process.on("SIGINT", async () => {
     console.info("Shutting down gracefully...");
@@ -46,7 +55,11 @@ async function initializeApp() {
     .use(cors())
     .use(staticPlugin({ prefix: "/" }))
     .group("/api", (api) =>
-      api.use(articleController).use(authorController).use(chapterController),
+      api
+        .use(articleController)
+        .use(authorController)
+        .use(chapterController)
+        .use(settingController),
     )
     .listen(3001);
 

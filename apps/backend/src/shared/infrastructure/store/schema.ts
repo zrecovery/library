@@ -93,6 +93,19 @@ export const chaptersRelations = relations(chapters, ({ one }) => ({
   }),
 }));
 
+export const settings = pgTable("settings", {
+  id: serial("id").primaryKey().notNull(),
+  userId: integer("user_id"), // null for system settings
+  key: text("key").notNull(),
+  value: text("value").notNull(), // stored as JSON string
+  type: text("type", {
+    enum: ["string", "number", "boolean", "json"],
+  }).notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 export const libraryView = pgView("library", {
   id: integer("id"),
   title: text("title"),
@@ -105,3 +118,5 @@ export const libraryView = pgView("library", {
   people_id: integer("people_id"),
   people_name: text("people_name"),
 }).existing();
+
+export const settingsRelations = relations(settings, () => ({}));
