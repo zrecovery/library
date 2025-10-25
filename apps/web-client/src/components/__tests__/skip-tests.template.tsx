@@ -1,4 +1,4 @@
-import { describe, test, expect } from "bun:test";
+import { describe, expect, test } from "bun:test";
 
 describe("Component Tests", () => {
   test("should skip tests due to SolidJS Router compatibility issues", () => {

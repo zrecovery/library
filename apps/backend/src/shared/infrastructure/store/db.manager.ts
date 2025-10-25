@@ -1,7 +1,7 @@
 import type { Config } from "@shared/domain/config";
-import { connectDbAsync, getConnectionState, disconnectDb } from "./connect";
-import type { Database } from "./db";
 import { defaultLogger } from "@shared/utils";
+import { connectDbAsync, disconnectDb, getConnectionState } from "./connect";
+import type { Database } from "./db";
 
 /**
  * Database Manager that provides comprehensive database lifecycle management

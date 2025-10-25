@@ -1,13 +1,13 @@
 import type { Finder } from "@chapters/domain/interfaces/store/find";
-import { type Id, NotFoundError, UnknownError } from "@shared/domain";
+import type { Id, NotFoundError, UnknownError } from "@shared/domain";
 import type { Logger } from "@shared/domain/interfaces/logger";
 import type { StoreError } from "@shared/domain/interfaces/store.error";
+import {
+  createOperationLogger,
+  withStoreResultHandling,
+} from "@shared/utils/fp";
 import type { Result } from "result";
 import type { ChapterDetail } from "../types";
-import {
-  withStoreResultHandling,
-  createOperationLogger,
-} from "@shared/utils/fp";
 
 export const detail =
   (logger: Logger, store: Finder) =>

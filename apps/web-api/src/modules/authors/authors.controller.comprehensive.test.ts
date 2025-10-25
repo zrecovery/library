@@ -1,13 +1,13 @@
-import { describe, expect, test, beforeEach, afterEach, vi } from "bun:test";
-import { createAuthorController } from "./authors.controller";
+import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
 import type { AuthorService } from "backend";
-import { Ok, Err } from "result";
-import { AuthorDetail } from "backend";
+import type { AuthorDetail } from "backend";
 import {
   NotFoundError,
   UnknownError,
 } from "backend/src/shared/domain/types/errors";
 import { Elysia } from "elysia";
+import { Err, Ok } from "result";
+import { createAuthorController } from "./authors.controller";
 
 // Mock service
 const mockAuthorService: AuthorService = {
@@ -55,7 +55,7 @@ describe("Authors Controller - Comprehensive Tests", () => {
       };
 
       // Mock the service to return Ok result
-      (mockAuthorService.detail as jest.Mock).mockImplementation(
+      (mockAuthorService.detail as any).mockImplementation(
         async (id: number) => {
           return Ok(mockResponse);
         },
@@ -75,7 +75,7 @@ describe("Authors Controller - Comprehensive Tests", () => {
 
     test("should handle not found error", async () => {
       // Mock the service to return Err result with NotFoundError
-      (mockAuthorService.detail as jest.Mock).mockImplementation(
+      (mockAuthorService.detail as any).mockImplementation(
         async (id: number) => {
           return Err(new NotFoundError("Author not found"));
         },
@@ -94,7 +94,7 @@ describe("Authors Controller - Comprehensive Tests", () => {
 
     test("should handle unknown error", async () => {
       // Mock the service to return Err result with UnknownError
-      (mockAuthorService.detail as jest.Mock).mockImplementation(
+      (mockAuthorService.detail as any).mockImplementation(
         async (id: number) => {
           return Err(new UnknownError("Database error"));
         },

@@ -31,7 +31,7 @@ export const createArticlesController = (
     .get(
       "/",
       async ({ query }) => {
-        logger?.debug("Articles list query", query);
+        logger?.debug(`Articles list query: ${JSON.stringify(query)}`);
         const result = await articlesService.list(query);
         const handleError = (err: DomainError) => {
           switch (err._tag) {
@@ -40,15 +40,15 @@ export const createArticlesController = (
             case DomainErrorTag.Invalidation:
               return status(400, "Bad Request");
             default:
-              logger?.error("Articles list error:", err);
+              logger?.error(`Articles list error: ${JSON.stringify(err)}`);
               return status(500, "Internal Server Error");
           }
         };
         return result.match({
-          ok: (val) => {
+          ok: (val: ArticleListResponse) => {
             return val;
           },
-          err: (e) => handleError(e),
+          err: (e: DomainError) => handleError(e),
         });
       },
       {
@@ -76,15 +76,15 @@ export const createArticlesController = (
               return status(404, "Not Found");
 
             default:
-              logger?.error("Article detail error:", err);
+              logger?.error(`Article detail error: ${JSON.stringify(err)}`);
               return status(500, "Internal Server Error");
           }
         };
         return result.match({
-          ok: (val) => {
+          ok: (val: ArticleDetail) => {
             return val;
           },
-          err: (e) => handleError(e),
+          err: (e: DomainError) => handleError(e),
         });
       },
       {
@@ -105,7 +105,7 @@ export const createArticlesController = (
             case DomainErrorTag.Invalidation:
               return status(400, "Bad Request");
             default:
-              logger?.error("Article create error:", err);
+              logger?.error(`Article create error: ${JSON.stringify(err)}`);
               return status(500, "Internal Server Error");
           }
         };
@@ -114,7 +114,7 @@ export const createArticlesController = (
             set.status = "Created";
             return "Created";
           },
-          err: (e) => handleError(e),
+          err: (e: DomainError) => handleError(e),
         });
       },
       {
@@ -137,7 +137,7 @@ export const createArticlesController = (
             case DomainErrorTag.Invalidation:
               return status(400, "Bad Request");
             default:
-              logger?.error("Article update error:", err);
+              logger?.error(`Article update error: ${JSON.stringify(err)}`);
               return status(500, "Internal Server Error");
           }
         };
@@ -146,7 +146,7 @@ export const createArticlesController = (
             set.status = "No Content";
             return "";
           },
-          err: (e) => handleError(e),
+          err: (e: DomainError) => handleError(e),
         });
       },
       {
@@ -171,7 +171,7 @@ export const createArticlesController = (
               return status(404, "Not Found");
 
             default:
-              logger?.error("Article delete error:", err);
+              logger?.error(`Article delete error: ${JSON.stringify(err)}`);
               return status(500, "Internal Server Error");
           }
         };
@@ -180,7 +180,7 @@ export const createArticlesController = (
             set.status = "No Content";
             return "";
           },
-          err: (e) => handleError(e),
+          err: (e: DomainError) => handleError(e),
         });
       },
       {

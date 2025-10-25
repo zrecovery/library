@@ -1,12 +1,12 @@
-import { Result, Ok, Err } from "result";
-import { DomainError, DomainErrorTag } from "@shared/domain/types/errors";
-import {
+import { type DomainError, DomainErrorTag } from "@shared/domain/types/errors";
+import { Err, Ok, type Result } from "result";
+import type { SettingStore } from "../interfaces/store";
+import type {
   Setting,
   SettingCreate,
   SettingQuery,
   SettingUpdate,
 } from "../types/settings";
-import { SettingStore } from "../interfaces/store";
 
 // ============================================================================
 // Types and Interfaces

@@ -1,6 +1,5 @@
-import { describe, expect, test, beforeEach, afterEach } from "bun:test";
-import { withTestDb } from "@utils/test";
-import { DrizzleRemover, createDrizzleRemover } from "./remove";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
+import type { ArticleCreate } from "@articles/domain/types/create";
 import {
   articles,
   authors,
@@ -8,8 +7,9 @@ import {
   people,
   series,
 } from "@shared/infrastructure/store/schema";
+import { withTestDb } from "@utils/test";
 import { eq } from "drizzle-orm";
-import type { ArticleCreate } from "@articles/domain/types/create";
+import { DrizzleRemover, createDrizzleRemover } from "./remove";
 import { DrizzleSaver } from "./save";
 
 beforeEach(() => {});

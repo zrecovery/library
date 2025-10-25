@@ -1,21 +1,21 @@
-import { eq, and, isNull, inArray } from "drizzle-orm";
-import { Result, Ok, Err } from "result";
-import { Database } from "@shared/infrastructure/database";
 import {
+  NotFoundStoreError,
   StoreError,
   StoreErrorTag,
-  NotFoundStoreError,
   UnknownStoreError,
 } from "@shared/domain/interfaces/store.error";
-import { settings as settingsTable } from "./schema";
-import { toModel, toModelList, toEntity } from "./dto";
-import {
+import type { Database } from "@shared/infrastructure/store/db";
+import { and, eq, inArray, isNull } from "drizzle-orm";
+import { Err, Ok, type Result } from "result";
+import type {
   Setting,
   SettingCreate,
   SettingQuery,
   SettingUpdate,
 } from "../../domain/types/settings";
 import { validateAndNormalizeSetting } from "../../domain/validation";
+import { toModel, toModelList } from "./dto";
+import { settings as settingsTable } from "./schema";
 
 // ============================================================================
 // Types and Interfaces
@@ -95,7 +95,7 @@ const createSetting =
         );
       }
 
-      const validatedData = validatedResult.val;
+      const validatedData = validatedResult.unwrap();
 
       // Determine the type if not provided
       const settingType =
@@ -161,7 +161,7 @@ const updateSetting =
         );
       }
 
-      const validatedData = validatedResult.val;
+      const validatedData = validatedResult.unwrap();
 
       const settingType =
         typeof validatedData.value === "string"
@@ -213,7 +213,7 @@ const upsertSetting =
         );
       }
 
-      const validatedData = validatedResult.val;
+      const validatedData = validatedResult.unwrap();
 
       // First try to find existing setting
       const existing = await db

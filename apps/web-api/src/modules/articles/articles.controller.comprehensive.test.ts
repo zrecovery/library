@@ -1,8 +1,6 @@
-import { describe, expect, test, beforeEach, afterEach, vi } from "bun:test";
-import { createArticlesController } from "./articles.controller";
+import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
 import type { ArticleService } from "backend";
-import { Ok, Err } from "result";
-import {
+import type {
   ArticleCreate,
   ArticleDetail,
   ArticleListResponse,
@@ -14,6 +12,8 @@ import {
   UnknownError,
 } from "backend/src/shared/domain/types/errors";
 import { Elysia } from "elysia";
+import { Err, Ok } from "result";
+import { createArticlesController } from "./articles.controller";
 
 // Mock service
 const mockArticleService: ArticleService = {
@@ -62,9 +62,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
         },
       };
 
-      (mockArticleService.list as jest.Mock).mockResolvedValue(
-        Ok(mockResponse),
-      );
+      (mockArticleService.list as any).mockResolvedValue(Ok(mockResponse));
 
       const response = await app.handle(
         new Request("http://localhost/api/articles?page=1&size=10"),
@@ -79,7 +77,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
     });
 
     test("should handle validation error", async () => {
-      (mockArticleService.list as jest.Mock).mockResolvedValue(
+      (mockArticleService.list as any).mockResolvedValue(
         Err(new InvalidationError("Invalid query")),
       );
 
@@ -93,7 +91,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
     });
 
     test("should handle unknown error", async () => {
-      (mockArticleService.list as jest.Mock).mockResolvedValue(
+      (mockArticleService.list as any).mockResolvedValue(
         Err(new UnknownError("Database error")),
       );
 
@@ -116,9 +114,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
         chapter: { id: 1, title: "Test Chapter", order: 1 },
       };
 
-      (mockArticleService.detail as jest.Mock).mockResolvedValue(
-        Ok(mockResponse),
-      );
+      (mockArticleService.detail as any).mockResolvedValue(Ok(mockResponse));
 
       const response = await app.handle(
         new Request("http://localhost/api/articles/1"),
@@ -130,7 +126,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
     });
 
     test("should handle not found error", async () => {
-      (mockArticleService.detail as jest.Mock).mockResolvedValue(
+      (mockArticleService.detail as any).mockResolvedValue(
         Err(new NotFoundError("Article not found")),
       );
 
@@ -143,7 +139,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
     });
 
     test("should handle unknown error", async () => {
-      (mockArticleService.detail as jest.Mock).mockResolvedValue(
+      (mockArticleService.detail as any).mockResolvedValue(
         Err(new UnknownError("Database error")),
       );
 
@@ -164,7 +160,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
         author: { name: "New Author" },
       };
 
-      (mockArticleService.create as jest.Mock).mockResolvedValue(Ok(null));
+      (mockArticleService.create as any).mockResolvedValue(Ok(null));
 
       const response = await app.handle(
         new Request("http://localhost/api/articles", {
@@ -185,7 +181,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
         body: "New article body",
       };
 
-      (mockArticleService.create as jest.Mock).mockResolvedValue(
+      (mockArticleService.create as any).mockResolvedValue(
         Err(new InvalidationError("Invalid input")),
       );
 
@@ -209,7 +205,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
         author: { name: "New Author" },
       };
 
-      (mockArticleService.create as jest.Mock).mockResolvedValue(
+      (mockArticleService.create as any).mockResolvedValue(
         Err(new UnknownError("Database error")),
       );
 
@@ -234,7 +230,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
         body: "Updated article body",
       };
 
-      (mockArticleService.edit as jest.Mock).mockResolvedValue(Ok(null));
+      (mockArticleService.edit as any).mockResolvedValue(Ok(null));
 
       const response = await app.handle(
         new Request("http://localhost/api/articles/1", {
@@ -251,12 +247,12 @@ describe("Articles Controller - Comprehensive Tests", () => {
     });
 
     test("should handle not found error", async () => {
-      const mockRequest: ArticleUpdate = {
+      const mockRequest = {
         title: "Updated Article",
         body: "Updated article body",
       };
 
-      (mockArticleService.edit as jest.Mock).mockResolvedValue(
+      (mockArticleService.edit as any).mockResolvedValue(
         Err(new NotFoundError("Article not found")),
       );
 
@@ -279,7 +275,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
         body: "Updated article body",
       };
 
-      (mockArticleService.edit as jest.Mock).mockResolvedValue(
+      (mockArticleService.edit as any).mockResolvedValue(
         Err(new InvalidationError("Invalid input")),
       );
 
@@ -297,12 +293,12 @@ describe("Articles Controller - Comprehensive Tests", () => {
     });
 
     test("should handle unknown error", async () => {
-      const mockRequest: ArticleUpdate = {
+      const mockRequest = {
         title: "Updated Article",
         body: "Updated article body",
       };
 
-      (mockArticleService.edit as jest.Mock).mockResolvedValue(
+      (mockArticleService.edit as any).mockResolvedValue(
         Err(new UnknownError("Database error")),
       );
 
@@ -322,7 +318,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
 
   describe("DELETE /articles/:id", () => {
     test("should delete article successfully", async () => {
-      (mockArticleService.remove as jest.Mock).mockResolvedValue(Ok(null));
+      (mockArticleService.remove as any).mockResolvedValue(Ok(null));
 
       const response = await app.handle(
         new Request("http://localhost/api/articles/1", {
@@ -336,7 +332,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
     });
 
     test("should handle not found error", async () => {
-      (mockArticleService.remove as jest.Mock).mockResolvedValue(
+      (mockArticleService.remove as any).mockResolvedValue(
         Err(new NotFoundError("Article not found")),
       );
 
@@ -351,7 +347,7 @@ describe("Articles Controller - Comprehensive Tests", () => {
     });
 
     test("should handle unknown error", async () => {
-      (mockArticleService.remove as jest.Mock).mockResolvedValue(
+      (mockArticleService.remove as any).mockResolvedValue(
         Err(new UnknownError("Database error")),
       );
 

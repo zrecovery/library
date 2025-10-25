@@ -1,13 +1,13 @@
-import { describe, expect, test, beforeEach, afterEach, vi } from "bun:test";
-import { createChapterController } from "./chapters.controller";
+import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
 import type { ChapterService } from "backend";
-import { Ok, Err } from "result";
-import { ChapterDetail } from "backend";
+import type { ChapterDetail } from "backend";
 import {
   NotFoundError,
   UnknownError,
 } from "backend/src/shared/domain/types/errors";
 import { Elysia } from "elysia";
+import { Err, Ok } from "result";
+import { createChapterController } from "./chapters.controller";
 
 // Mock service
 const mockChapterService: ChapterService = {
@@ -51,7 +51,7 @@ describe("Chapters Controller - Comprehensive Tests", () => {
       };
 
       // Mock the service to return Ok result
-      (mockChapterService.detail as jest.Mock).mockImplementation(
+      (mockChapterService.detail as any).mockImplementation(
         async (id: number) => {
           return Ok(mockResponse);
         },
@@ -68,7 +68,7 @@ describe("Chapters Controller - Comprehensive Tests", () => {
 
     test("should handle not found error", async () => {
       // Mock the service to return Err result with NotFoundError
-      (mockChapterService.detail as jest.Mock).mockImplementation(
+      (mockChapterService.detail as any).mockImplementation(
         async (id: number) => {
           return Err(new NotFoundError("Chapter not found"));
         },
@@ -84,7 +84,7 @@ describe("Chapters Controller - Comprehensive Tests", () => {
 
     test("should handle unknown error", async () => {
       // Mock the service to return Err result with UnknownError
-      (mockChapterService.detail as jest.Mock).mockImplementation(
+      (mockChapterService.detail as any).mockImplementation(
         async (id: number) => {
           return Err(new UnknownError("Database error"));
         },

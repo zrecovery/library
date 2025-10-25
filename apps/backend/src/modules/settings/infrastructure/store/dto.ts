@@ -1,13 +1,11 @@
-import { Value } from "@sinclair/typebox/value";
-import { Result, Ok, Err } from "result";
 import {
-  StoreError,
+  type StoreError,
   StoreErrorTag,
   NotFoundStoreError,
   UnknownStoreError,
 } from "@shared/domain/interfaces/store.error";
-import { Setting } from "../../domain/types/settings";
-import { settings as settingsTable } from "./schema";
+import { Err, Ok, type Result } from "result";
+import type { Setting } from "../../domain/types/settings";
 
 // ============================================================================
 // Types and Interfaces
@@ -15,13 +13,13 @@ import { settings as settingsTable } from "./schema";
 
 interface SettingEntity {
   id: number;
-  user_id: number | null;
+  userId: number | null;
   key: string;
   value: string; // JSON string in DB
   type: "string" | "number" | "boolean" | "json";
-  description?: string;
-  created_at: Date;
-  updated_at: Date;
+  description: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // ============================================================================
@@ -50,24 +48,24 @@ const serializeValue = (
 
 const transformEntityToModel = (entity: SettingEntity): Setting => ({
   id: entity.id,
-  userId: entity.user_id,
+  userId: entity.userId,
   key: entity.key,
   value: parseValue(entity.value, entity.type),
   type: entity.type,
-  description: entity.description,
-  createdAt: entity.created_at,
-  updatedAt: entity.updated_at,
+  description: entity.description ?? undefined,
+  createdAt: entity.createdAt,
+  updatedAt: entity.updatedAt,
 });
 
 const transformModelToEntity = (model: Setting): SettingEntity => ({
   id: model.id,
-  user_id: model.userId,
+  userId: model.userId,
   key: model.key,
   value: serializeValue(model.value, model.type),
   type: model.type,
-  description: model.description,
-  created_at: model.createdAt,
-  updated_at: model.updatedAt,
+  description: model.description ?? null,
+  createdAt: model.createdAt,
+  updatedAt: model.updatedAt,
 });
 
 // ============================================================================

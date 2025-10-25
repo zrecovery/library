@@ -1,7 +1,7 @@
+import { type Static, Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
-import { Type, type Static } from "@sinclair/typebox";
-import { Result, Ok, Err } from "result";
-import { SettingCreate } from "../types/settings";
+import { Err, Ok, type Result } from "result";
+import type { SettingCreate } from "../types/settings";
 
 // ============================================================================
 // Types and Interfaces

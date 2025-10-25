@@ -1,6 +1,6 @@
-import { Result } from "result";
-import { StoreError } from "@shared/domain/interfaces/store.error";
-import {
+import type { StoreError } from "@shared/domain/interfaces/store.error";
+import type { Result } from "result";
+import type {
   Setting,
   SettingCreate,
   SettingQuery,

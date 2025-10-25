@@ -1,6 +1,6 @@
 import type { Find } from "@authors/domain/interfaces/store";
-import { Finder } from "./find";
 import type { Database } from "@shared/infrastructure/store/db";
+import { Finder } from "./find";
 
 export const createAuthorStore = (db: Database): Find => {
   return {

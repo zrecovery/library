@@ -1,4 +1,3 @@
-import { cn } from "~/libs/cn";
 import type {
   NavigationMenuContentProps,
   NavigationMenuRootProps,
@@ -13,6 +12,7 @@ import {
   mergeProps,
   splitProps,
 } from "solid-js";
+import { cn } from "~/libs/cn";
 
 export const NavigationMenuItem = NavigationMenuPrimitive.Menu;
 export const NavigationMenuLink = NavigationMenuPrimitive.Item;

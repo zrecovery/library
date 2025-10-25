@@ -1,11 +1,6 @@
-import { Result } from "result";
-import { DomainError } from "@shared/domain/interfaces/domain.error";
-import {
-  Setting,
-  SettingCreate,
-  SettingQuery,
-  SettingUpdate,
-} from "../types/settings";
+import type { DomainError } from "@shared/domain/types/errors";
+import type { Result } from "result";
+import type { Setting, SettingQuery, SettingUpdate } from "../types/settings";
 
 export interface SettingService {
   get: (id: number) => Promise<Result<Setting, DomainError>>;

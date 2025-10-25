@@ -15,11 +15,11 @@ import { HolyGrailLayout } from "~/components/holy-grail-layout";
 import { ListPagination } from "~/components/list-pagination";
 import { PaginationLayout } from "~/components/pagination-layout";
 import { ResultHandler } from "~/components/result-handler";
+import { SearchButton } from "~/components/search-button";
 import {
   type WebRepositoryError,
   WebRepositoryErrorTag,
 } from "~/libs/repository/error";
-import { SearchButton } from "~/components/search-button";
 
 function usePagination() {
   const [page, setPage] = createSignal(1);

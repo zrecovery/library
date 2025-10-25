@@ -1,8 +1,9 @@
-import * as schema from "@shared/infrastructure/store/schema";
-import { drizzle } from "drizzle-orm/bun-sql";
-import type { Database } from "./db";
 import type { Config } from "@shared/domain/config";
+import * as schema from "@shared/infrastructure/store/schema";
 import { defaultLogger } from "@shared/utils";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import type { Database } from "./db";
 
 // Global database instance for singleton pattern
 let dbInstance: Database | null = null;
@@ -27,10 +28,15 @@ export const connectDb = (config: Config): Database => {
   try {
     defaultLogger.info(`Connecting to database: ${dbConfig.URI}`);
 
-    // Create the database instance with the URI and configuration
-    // Note: The bun-sql adapter doesn't support connection pooling natively,
-    // but the configuration can be enhanced for other adapters if needed
-    dbInstance = drizzle(dbConfig.URI, {
+    // Create postgres client
+    const client = postgres(dbConfig.URI, {
+      max: dbConfig.pool?.maxConnections || 10,
+      idle_timeout: (dbConfig.pool?.idleTimeout || 60000) / 1000,
+      connect_timeout: (dbConfig.pool?.connectTimeout || 10000) / 1000,
+    });
+
+    // Create the database instance with the client and configuration
+    dbInstance = drizzle(client, {
       schema: schema,
       logger: dbConfig.enableLogging ?? true,
     });
@@ -68,14 +74,25 @@ export const connectDbAsync = async (config: Config): Promise<Database> => {
   // Attempt connection with retry logic
   for (let attempt = 0; attempt <= (dbConfig.retryAttempts || 1); attempt++) {
     try {
-      // Create the database instance with the URI and configuration
-      const newDbInstance = drizzle(dbConfig.URI, {
+      // Create postgres client
+      console.log(`Connecting to database: ${dbConfig.URI}`);
+      const client = postgres(dbConfig.URI, {
+        max: dbConfig.pool?.maxConnections || 10,
+        idle_timeout: (dbConfig.pool?.idleTimeout || 60000) / 1000,
+        connect_timeout: (dbConfig.pool?.connectTimeout || 10000) / 1000,
+      });
+
+      // Create the database instance with the client and configuration
+      const newDbInstance = drizzle(client, {
         schema: schema,
         logger: dbConfig.enableLogging ?? true,
       });
 
       // Test the connection by running a simple query
-      await newDbInstance.execute("SELECT 1");
+      await newDbInstance
+        .select({ test: schema.authors.id })
+        .from(schema.authors)
+        .limit(1);
 
       dbInstance = newDbInstance;
       connectionState = "connected";

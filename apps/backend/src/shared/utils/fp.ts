@@ -1,9 +1,9 @@
+import { NotFoundError, UnknownError } from "@shared/domain";
 import type { Logger } from "@shared/domain/interfaces/logger";
 import type { StoreError } from "@shared/domain/interfaces/store.error";
 import { StoreErrorTag } from "@shared/domain/interfaces/store.error";
-import { NotFoundError, UnknownError } from "@shared/domain";
-import type { Result } from "result";
 import type { Id } from "@shared/domain/types/common";
+import type { Result } from "result";
 
 /**
  * Creates a function that maps store errors to appropriate domain errors
@@ -19,7 +19,7 @@ export const createStoreResultErrorHandler =
     logger: Logger,
     entityNameLowercase: string,
     entityNameCapitalized: string,
-    operationName: string = "retrieve",
+    operationName = "retrieve",
   ) =>
   (id?: Id) =>
   (error: StoreError) => {

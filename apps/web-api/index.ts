@@ -1,4 +1,5 @@
 import { cors } from "@elysiajs/cors";
+import { staticPlugin } from "@elysiajs/static";
 import {
   createArticleService,
   createAuthorService,
@@ -7,7 +8,6 @@ import {
   readConfig,
 } from "backend";
 import { Elysia } from "elysia";
-import { staticPlugin } from "@elysiajs/static";
 import { createArticlesController } from "./src/modules/articles/articles.controller";
 import { createAuthorController } from "./src/modules/authors/authors.controller";
 import { createChapterController } from "./src/modules/chapters/chapters.controller";
@@ -31,12 +31,8 @@ async function initializeApp() {
   const chapterService = createChapterService(config);
   const chapterController = createChapterController(chapterService);
 
-  // Initialize settings service and controller
-  const settingService = createSettingService(dbManager.getDb());
-  const settingController = createSettingController(
-    settingService,
-    dbManager.getDb(),
-  );
+  // Initialize settings controller
+  const settingController = createSettingController(dbManager.getDb());
 
   // Add shutdown hook to gracefully close database connections
   process.on("SIGINT", async () => {

@@ -1,6 +1,5 @@
-import { integer, pgTable, text, timestamp, index } from "drizzle-orm/pg-core";
+import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
-import { sql } from "drizzle-orm";
 
 export const settings = pgTable("settings", {
   id: integer("id").primaryKey().notNull(),

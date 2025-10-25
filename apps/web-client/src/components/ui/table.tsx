@@ -1,5 +1,5 @@
-import { cn } from "~/libs/cn";
 import { type ComponentProps, splitProps } from "solid-js";
+import { cn } from "~/libs/cn";
 
 export const Table = (props: ComponentProps<"table">) => {
   const [local, rest] = splitProps(props, ["class"]);

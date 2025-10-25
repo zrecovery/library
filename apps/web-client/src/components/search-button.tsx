@@ -1,14 +1,14 @@
 import type { Setter } from "solid-js";
+import type { Accessor } from "solid-js";
 import { Button } from "./ui/button";
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
-  PopoverTitle,
   PopoverDescription,
+  PopoverTitle,
+  PopoverTrigger,
 } from "./ui/popover";
-import { TextFieldRoot, TextFieldLabel, TextField } from "./ui/textfield";
-import type { Accessor } from "solid-js";
+import { TextField, TextFieldLabel, TextFieldRoot } from "./ui/textfield";
 
 export const SearchButton = (props: {
   keyword: Accessor<string>;

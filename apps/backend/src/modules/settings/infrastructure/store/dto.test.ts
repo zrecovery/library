@@ -1,19 +1,19 @@
 import { describe, expect, test } from "bun:test";
-import { Ok, Err } from "result";
-import { toModel, toModelList, toEntity } from "./dto";
+import { Err, Ok } from "result";
+import { toEntity, toModel, toModelList } from "./dto";
 
 describe("Settings DTO", () => {
   describe("toModel", () => {
     test("should transform entity to model correctly", () => {
       const entity = {
         id: 1,
-        user_id: 123,
+        userId: 123,
         key: "testSetting",
         value: '"testValue"',
         type: "string" as const,
         description: "A test setting",
-        created_at: new Date(),
-        updated_at: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       const result = toModel(entity);
@@ -26,21 +26,21 @@ describe("Settings DTO", () => {
         expect(result.val.value).toBe("testValue"); // Should be parsed from JSON
         expect(result.val.type).toBe("string");
         expect(result.val.description).toBe("A test setting");
-        expect(result.val.createdAt).toEqual(entity.created_at);
-        expect(result.val.updatedAt).toEqual(entity.updated_at);
+        expect(result.val.createdAt).toEqual(entity.createdAt);
+        expect(result.val.updatedAt).toEqual(entity.updatedAt);
       }
     });
 
     test("should handle number values correctly", () => {
       const entity = {
         id: 2,
-        user_id: null,
+        userId: null,
         key: "numberSetting",
         value: "123",
         type: "number" as const,
-        description: undefined,
-        created_at: new Date(),
-        updated_at: new Date(),
+        description: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       const result = toModel(entity);
@@ -56,13 +56,13 @@ describe("Settings DTO", () => {
     test("should handle boolean values correctly", () => {
       const entity = {
         id: 3,
-        user_id: null,
+        userId: null,
         key: "boolSetting",
         value: "true",
         type: "boolean" as const,
-        description: undefined,
-        created_at: new Date(),
-        updated_at: new Date(),
+        description: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       const result = toModel(entity);
@@ -77,13 +77,13 @@ describe("Settings DTO", () => {
     test("should handle JSON values correctly", () => {
       const entity = {
         id: 4,
-        user_id: null,
+        userId: null,
         key: "jsonSetting",
         value: '{"name": "test", "count": 5}',
         type: "json" as const,
-        description: undefined,
-        created_at: new Date(),
-        updated_at: new Date(),
+        description: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       const result = toModel(entity);
@@ -98,13 +98,13 @@ describe("Settings DTO", () => {
     test("should return error for invalid JSON", () => {
       const entity = {
         id: 5,
-        user_id: null,
+        userId: null,
         key: "invalidJsonSetting",
         value: '{"invalid": json}',
         type: "json" as const,
-        description: undefined,
-        created_at: new Date(),
-        updated_at: new Date(),
+        description: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       const result = toModel(entity);
@@ -118,23 +118,23 @@ describe("Settings DTO", () => {
       const entities = [
         {
           id: 1,
-          user_id: null,
+          userId: null,
           key: "setting1",
           value: '"value1"',
           type: "string" as const,
           description: "First setting",
-          created_at: new Date(),
-          updated_at: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
         {
           id: 2,
-          user_id: 123,
+          userId: 123,
           key: "setting2",
           value: "42",
           type: "number" as const,
-          description: undefined,
-          created_at: new Date(),
-          updated_at: new Date(),
+          description: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
       ];
 
@@ -167,13 +167,13 @@ describe("Settings DTO", () => {
       const entity = toEntity(model);
 
       expect(entity.id).toBe(1);
-      expect(entity.user_id).toBe(123);
+      expect(entity.userId).toBe(123);
       expect(entity.key).toBe("testSetting");
       expect(entity.value).toBe('"testValue"'); // Should be serialized as JSON string
       expect(entity.type).toBe("string");
       expect(entity.description).toBe("A test setting");
-      expect(entity.created_at).toEqual(model.createdAt);
-      expect(entity.updated_at).toEqual(model.updatedAt);
+      expect(entity.createdAt).toEqual(model.createdAt);
+      expect(entity.updatedAt).toEqual(model.updatedAt);
     });
 
     test("should serialize different value types correctly", () => {

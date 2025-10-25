@@ -1,7 +1,7 @@
-import { describe, expect, test, beforeEach, afterEach, vi } from "bun:test";
-import { eq, and, isNull } from "drizzle-orm";
-import { Ok, Err } from "result";
+import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
 import { StoreErrorTag } from "@shared/domain/interfaces/store.error";
+import { and, eq, isNull } from "drizzle-orm";
+import { Err, Ok } from "result";
 import { Setting } from "../domain/types/settings";
 import { createSettingStore } from "./index";
 import { settings as settingsTable } from "./schema";
@@ -41,13 +41,13 @@ describe("Setting Store", () => {
     test("should find existing setting", async () => {
       const mockSetting = {
         id: 1,
-        user_id: null,
+        userId: null,
         key: "theme",
         value: '"dark"',
         type: "string",
         description: "UI theme setting",
-        created_at: new Date(),
-        updated_at: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       mockDb.select.mockReturnValueOnce({
@@ -93,13 +93,13 @@ describe("Setting Store", () => {
 
       const mockResult = {
         id: 1,
-        user_id: null,
+        userId: null,
         key: "theme",
         value: '"dark"',
         type: "string",
         description: "UI theme setting",
-        created_at: new Date(),
-        updated_at: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       mockDb.insert.mockReturnValueOnce({
@@ -144,13 +144,13 @@ describe("Setting Store", () => {
       // Then, mock the insert operation
       const mockResult = {
         id: 1,
-        user_id: null,
+        userId: null,
         key: "testSetting",
         value: '"testValue"',
         type: "string",
         description: undefined,
-        created_at: new Date(),
-        updated_at: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       mockDb.insert.mockReturnValueOnce({
@@ -172,13 +172,13 @@ describe("Setting Store", () => {
     test("should update setting if it exists", async () => {
       const existingSetting = {
         id: 1,
-        user_id: null,
+        userId: null,
         key: "existingSetting",
         value: '"oldValue"',
         type: "string",
         description: "description",
-        created_at: new Date(),
-        updated_at: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       // First, return the existing setting
@@ -192,7 +192,7 @@ describe("Setting Store", () => {
       const updatedResult = {
         ...existingSetting,
         value: '"newValue"',
-        updated_at: new Date(),
+        updatedAt: new Date(),
       };
 
       mockDb.update.mockReturnValueOnce({
@@ -218,13 +218,13 @@ describe("Setting Store", () => {
       // First, find the existing setting
       const existingSetting = {
         id: 1,
-        user_id: null,
+        userId: null,
         key: "theme",
         value: '"oldTheme"',
         type: "string",
         description: "UI theme setting",
-        created_at: new Date(),
-        updated_at: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       mockDb.select.mockReturnValueOnce({
@@ -237,7 +237,7 @@ describe("Setting Store", () => {
       const updatedSetting = {
         ...existingSetting,
         value: '"newTheme"',
-        updated_at: new Date(),
+        updatedAt: new Date(),
       };
 
       mockDb.update.mockReturnValueOnce({
@@ -306,13 +306,13 @@ describe("Setting Store", () => {
     test("should find setting by key and user ID", async () => {
       const mockSetting = {
         id: 1,
-        user_id: 123,
+        userId: 123,
         key: "userPreference",
         value: '"value"',
         type: "string",
         description: "User preference",
-        created_at: new Date(),
-        updated_at: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       mockDb.select.mockReturnValueOnce({

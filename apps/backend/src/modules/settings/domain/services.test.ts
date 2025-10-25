@@ -1,8 +1,8 @@
-import { describe, expect, test, beforeEach, afterEach, vi } from "bun:test";
-import { Ok, Err } from "result";
-import { SettingStore } from "../domain/interfaces/store";
-import { Setting } from "../domain/types/settings";
-import { get, set, update, remove, getSetting } from "./services";
+import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
+import { Err, Ok } from "result";
+import type { SettingStore } from "../domain/interfaces/store";
+import type { Setting } from "../domain/types/settings";
+import { get, getSetting, remove, set, update } from "./services";
 
 // Mock store
 const mockStore: SettingStore = {

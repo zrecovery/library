@@ -1,13 +1,13 @@
-import { type Id, NotFoundError, UnknownError } from "@shared/domain";
+import type { Id, NotFoundError, UnknownError } from "@shared/domain";
 import type { Logger } from "@shared/domain/interfaces/logger";
 import type { StoreError } from "@shared/domain/interfaces/store.error";
+import {
+  createOperationLogger,
+  withStoreResultHandling,
+} from "@shared/utils/fp";
 import type { Result } from "result";
 import type { Find } from "../interfaces";
 import type { AuthorDetail } from "../types";
-import {
-  withStoreResultHandling,
-  createOperationLogger,
-} from "@shared/utils/fp";
 
 export const detail =
   (logger: Logger, store: Find) =>

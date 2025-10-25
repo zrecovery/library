@@ -1,19 +1,15 @@
 import {
-  SettingService,
-  Setting,
-  SettingCreate,
-  SettingQuery,
-  SettingUpdate,
+  type SettingService,
   createSettingStore,
   get,
+  getAll,
+  getSetting,
   list,
+  remove,
   set,
   update,
-  remove,
-  getSetting,
-  getAll,
 } from "backend";
-import { Database } from "@shared/infrastructure/database";
+import type { Database } from "backend/src/shared/infrastructure/store/db";
 
 export const createSettingService = (db: Database): SettingService => {
   const store = createSettingStore(db);

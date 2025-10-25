@@ -117,22 +117,25 @@ export const readConfig = (): Config => {
   // Parse pool configuration from environment variables or use defaults
   const poolConfig = {
     maxConnections: (process.env as any).DATABASE_POOL_MAX_CONNECTIONS
-      ? parseInt((process.env as any).DATABASE_POOL_MAX_CONNECTIONS, 10)
+      ? Number.parseInt((process.env as any).DATABASE_POOL_MAX_CONNECTIONS, 10)
       : defaultPoolSettings?.maxConnections,
     minConnections: (process.env as any).DATABASE_POOL_MIN_CONNECTIONS
-      ? parseInt((process.env as any).DATABASE_POOL_MIN_CONNECTIONS, 10)
+      ? Number.parseInt((process.env as any).DATABASE_POOL_MIN_CONNECTIONS, 10)
       : defaultPoolSettings?.minConnections,
     acquireTimeout: (process.env as any).DATABASE_POOL_ACQUIRE_TIMEOUT
-      ? parseInt((process.env as any).DATABASE_POOL_ACQUIRE_TIMEOUT, 10)
+      ? Number.parseInt((process.env as any).DATABASE_POOL_ACQUIRE_TIMEOUT, 10)
       : defaultPoolSettings?.acquireTimeout,
     idleTimeout: (process.env as any).DATABASE_POOL_IDLE_TIMEOUT
-      ? parseInt((process.env as any).DATABASE_POOL_IDLE_TIMEOUT, 10)
+      ? Number.parseInt((process.env as any).DATABASE_POOL_IDLE_TIMEOUT, 10)
       : defaultPoolSettings?.idleTimeout,
     connectTimeout: (process.env as any).DATABASE_POOL_CONNECT_TIMEOUT
-      ? parseInt((process.env as any).DATABASE_POOL_CONNECT_TIMEOUT, 10)
+      ? Number.parseInt((process.env as any).DATABASE_POOL_CONNECT_TIMEOUT, 10)
       : 10000,
     keepAliveTimeout: (process.env as any).DATABASE_POOL_KEEP_ALIVE_TIMEOUT
-      ? parseInt((process.env as any).DATABASE_POOL_KEEP_ALIVE_TIMEOUT, 10)
+      ? Number.parseInt(
+          (process.env as any).DATABASE_POOL_KEEP_ALIVE_TIMEOUT,
+          10,
+        )
       : 300000,
   };
 
@@ -148,13 +151,13 @@ export const readConfig = (): Config => {
 
   // Parse retry configuration
   const retryAttempts = (process.env as any).DATABASE_RETRY_ATTEMPTS
-    ? parseInt((process.env as any).DATABASE_RETRY_ATTEMPTS, 10)
+    ? Number.parseInt((process.env as any).DATABASE_RETRY_ATTEMPTS, 10)
     : mode === "production"
       ? 3
       : 1;
 
   const retryDelay = (process.env as any).DATABASE_RETRY_DELAY
-    ? parseInt((process.env as any).DATABASE_RETRY_DELAY, 10)
+    ? Number.parseInt((process.env as any).DATABASE_RETRY_DELAY, 10)
     : 1000;
 
   return {

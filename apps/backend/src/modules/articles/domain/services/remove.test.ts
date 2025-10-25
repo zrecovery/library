@@ -1,12 +1,12 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from "bun:test";
-import { remove } from "./remove";
-import { NotFoundError, UnknownError } from "@shared/domain/types/errors";
+import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
 import type { Remover } from "@articles/domain/interfaces/store";
-import { Ok, Err } from "result";
 import {
   NotFoundStoreError,
   UnknownStoreError,
 } from "@shared/domain/interfaces/store.error";
+import { NotFoundError, UnknownError } from "@shared/domain/types/errors";
+import { Err, Ok } from "result";
+import { remove } from "./remove";
 
 // Mock logger
 const mockLogger = {

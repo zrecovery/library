@@ -1,20 +1,15 @@
 import {
-  Setting,
-  SettingCreate,
-  SettingQuery,
-  SettingUpdate,
-  SettingStore,
-  SettingService,
+  type DomainError,
+  DomainErrorTag,
+  type SettingQuery,
+  type SettingUpdate,
   createSettingStore,
   get,
+  getSetting,
   list,
+  remove,
   set,
   update,
-  remove,
-  getSetting,
-  getAll,
-  DomainError,
-  DomainErrorTag,
 } from "backend";
 import Elysia, { status, t } from "elysia";
 
@@ -70,13 +65,10 @@ const SettingModel = new Elysia().model({
     createdAt: t.String(),
     updatedAt: t.String(),
   }),
-  "setting.list.response": t.Array("setting.response"),
+  "setting.list.response": t.Array(t.Ref("setting.response")),
 });
 
-export const createSettingController = (
-  settingService: SettingService,
-  db: any, // Database connection
-) => {
+export const createSettingController = (db: any) => {
   // Create store instance for direct access if needed
   const store = createSettingStore(db);
 
@@ -119,13 +111,13 @@ export const createSettingController = (
         return result.match({
           ok: (val) => {
             // Format dates for JSON serialization
-            return val.map((setting) => ({
+            return val.map((setting: any) => ({
               ...setting,
               createdAt: setting.createdAt.toISOString(),
               updatedAt: setting.updatedAt.toISOString(),
             }));
           },
-          err: (e) => handleError(e),
+          err: (e: DomainError) => handleError(e),
         });
       },
       {
@@ -155,14 +147,14 @@ export const createSettingController = (
           }
         };
         return result.match({
-          ok: (val) => {
+          ok: (val: any) => {
             return {
               ...val,
               createdAt: val.createdAt.toISOString(),
               updatedAt: val.updatedAt.toISOString(),
             };
           },
-          err: (e) => handleError(e),
+          err: (e: DomainError) => handleError(e),
         });
       },
       {
@@ -191,7 +183,7 @@ export const createSettingController = (
           }
         };
         return result.match({
-          ok: (val) => {
+          ok: (val: any) => {
             if (!val) {
               return status(404, "Setting not found");
             }
@@ -201,7 +193,7 @@ export const createSettingController = (
               updatedAt: val.updatedAt.toISOString(),
             };
           },
-          err: (e) => handleError(e),
+          err: (e: DomainError) => handleError(e),
         });
       },
       {
@@ -218,7 +210,7 @@ export const createSettingController = (
     )
     .post(
       "/",
-      async ({ body, set }) => {
+      async ({ body, set: setContext }) => {
         const result = await set(store)(null, body.key, body.value);
         const handleError = (err: DomainError) => {
           switch (err._tag) {
@@ -230,15 +222,15 @@ export const createSettingController = (
           }
         };
         return result.match({
-          ok: (val) => {
-            set.status = "Created";
+          ok: (val: any) => {
+            setContext.status = "Created";
             return {
               ...val,
               createdAt: val.createdAt.toISOString(),
               updatedAt: val.updatedAt.toISOString(),
             };
           },
-          err: (e) => handleError(e),
+          err: (e: DomainError) => handleError(e),
         });
       },
       {
@@ -252,7 +244,7 @@ export const createSettingController = (
     )
     .put(
       "/:id",
-      async ({ body, params: { id }, set }) => {
+      async ({ body, params: { id }, set: setContext }) => {
         const updateData: SettingUpdate = {
           key: body.key,
           value: body.value,
@@ -271,15 +263,15 @@ export const createSettingController = (
           }
         };
         return result.match({
-          ok: (val) => {
-            set.status = "OK";
+          ok: (val: any) => {
+            setContext.status = "OK";
             return {
               ...val,
               createdAt: val.createdAt.toISOString(),
               updatedAt: val.updatedAt.toISOString(),
             };
           },
-          err: (e) => handleError(e),
+          err: (e: DomainError) => handleError(e),
         });
       },
       {
@@ -295,7 +287,7 @@ export const createSettingController = (
     )
     .delete(
       "/:id",
-      async ({ params: { id }, set }) => {
+      async ({ params: { id }, set: setContext }) => {
         const result = await remove(store)(Number(id));
         const handleError = (err: DomainError) => {
           switch (err._tag) {
@@ -308,10 +300,10 @@ export const createSettingController = (
         };
         return result.match({
           ok: () => {
-            set.status = "No Content";
+            setContext.status = "No Content";
             return "";
           },
-          err: (e) => handleError(e),
+          err: (e: DomainError) => handleError(e),
         });
       },
       {

@@ -1,4 +1,4 @@
-import { createSignal, For } from "solid-js";
+import { For, createSignal } from "solid-js";
 
 interface SettingsFormProps {
   initialSettings?: Record<string, any>;
@@ -105,7 +105,7 @@ const SettingsForm = (props: SettingsFormProps) => {
             onInput={(e) =>
               handleSettingChange(
                 field.key,
-                parseInt(e.currentTarget.value) || 0,
+                Number.parseInt(e.currentTarget.value) || 0,
               )
             }
             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"

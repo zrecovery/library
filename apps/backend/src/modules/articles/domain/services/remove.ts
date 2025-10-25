@@ -1,5 +1,5 @@
 import type { Remover } from "@articles/domain/interfaces/store";
-import { NotFoundError, UnknownError, type Logger } from "@shared/domain";
+import { type Logger, NotFoundError, UnknownError } from "@shared/domain";
 import {
   type StoreError,
   StoreErrorTag,

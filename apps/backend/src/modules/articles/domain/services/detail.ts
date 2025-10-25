@@ -1,13 +1,13 @@
 import type { Finder } from "@articles/domain/interfaces/store";
 import type { ArticleDetail } from "@articles/domain/types/detail";
-import { NotFoundError, UnknownError, type Logger } from "@shared/domain";
+import type { Logger, NotFoundError, UnknownError } from "@shared/domain";
 import type { StoreError } from "@shared/domain/interfaces/store.error";
 import type { Id } from "@shared/domain/types/common";
-import type { Result } from "result";
 import {
-  withStoreResultHandling,
   createOperationLogger,
+  withStoreResultHandling,
 } from "@shared/utils/fp";
+import type { Result } from "result";
 
 // ============================================================================
 // Orchestration Functions

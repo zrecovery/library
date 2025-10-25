@@ -1,5 +1,5 @@
-import { createSignal, onMount } from "solid-js";
 import { Title } from "@solidjs/meta";
+import { createSignal, onMount } from "solid-js";
 import SettingsForm from "../components/SettingsForm";
 
 interface Setting {

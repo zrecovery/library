@@ -1,10 +1,10 @@
-import { describe, test, expect, vi, beforeEach, afterEach } from "bun:test";
-import { create } from "./create";
-import { UnknownError } from "@shared/domain";
-import type { ArticleCreate } from "@articles/domain/types/create";
+import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
 import type { Saver } from "@articles/domain/interfaces/store";
-import { Ok, Err } from "result";
+import type { ArticleCreate } from "@articles/domain/types/create";
+import { UnknownError } from "@shared/domain";
 import { UnknownStoreError } from "@shared/domain/interfaces/store.error";
+import { Err, Ok } from "result";
+import { create } from "./create";
 
 // ============================================================================
 // Mock Setup

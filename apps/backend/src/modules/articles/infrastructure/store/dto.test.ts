@@ -1,12 +1,12 @@
 import { describe, expect, test } from "bun:test";
+import type { ArticleDetail } from "@articles/domain/types/detail";
+import type { ArticleMeta } from "@articles/domain/types/list";
 import {
   createFindResult,
   createMetaResult,
   toModel,
   toModelList,
 } from "./dto";
-import type { ArticleDetail } from "@articles/domain/types/detail";
-import type { ArticleMeta } from "@articles/domain/types/list";
 
 // ============================================================================
 // Tests for toModel with FindResult

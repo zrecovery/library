@@ -5,12 +5,12 @@ import type {
   ChapterDetail,
 } from "backend";
 import type { Result } from "result";
+import type { CreatedSchema, ListQuery } from "../schema";
 import type {
   InvalidateWebRepositoryError,
   NotFoundWebRepositoryError,
   UnknownWebRepositoryError,
 } from "./error";
-import type { CreatedSchema, ListQuery } from "../schema";
 
 export interface ArticleRepository {
   create: (

@@ -1,4 +1,3 @@
-import { cn } from "~/libs/cn";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import type {
   TabsContentProps,
@@ -12,6 +11,7 @@ import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import type { ValidComponent, VoidProps } from "solid-js";
 import { splitProps } from "solid-js";
+import { cn } from "~/libs/cn";
 
 type tabsProps<T extends ValidComponent = "div"> = TabsRootProps<T> & {
   class?: string;

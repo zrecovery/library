@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import {
+  isSystemSetting,
   validateAndNormalizeSetting,
+  validateSetting,
   validateSettingKey,
   validateSettingValue,
-  validateSetting,
-  isSystemSetting,
 } from "./validation";
 
 describe("Settings Validation", () => {

@@ -1,7 +1,7 @@
 import type { Lister } from "@articles/domain/interfaces/store";
-import { ArticleQuery } from "@articles/domain/types/query";
 import type { ArticleListResponse } from "@articles/domain/types/list";
-import { InvalidationError, UnknownError, type Logger } from "@shared/domain";
+import { ArticleQuery } from "@articles/domain/types/query";
+import { InvalidationError, type Logger, UnknownError } from "@shared/domain";
 import type { StoreError } from "@shared/domain/interfaces/store.error";
 import { Value } from "@sinclair/typebox/value";
 import { Err, type Result } from "result";

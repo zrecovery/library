@@ -1,14 +1,7 @@
-import {
-  ChapterDetail,
-  type ChapterService,
-  DomainErrorTag,
-  type Logger,
-} from "backend";
+import { type ChapterService, DomainErrorTag, type Logger } from "backend";
 import Elysia, { status, t } from "elysia";
 
-const ChapterModel = new Elysia().model({
-  "chapter.detail.response": ChapterDetail,
-});
+const ChapterModel = new Elysia().model({});
 
 export const createChapterController = (
   service: ChapterService,
@@ -17,18 +10,18 @@ export const createChapterController = (
   return new Elysia({ prefix: "/chapters" }).use(ChapterModel).get(
     "/:id",
     async ({ params: { id } }) => {
-      const result = await service.detail(id);
+      const result = await service.detail(Number(id));
       return result.match({
-        ok: (val) => {
+        ok: (val: any) => {
           return val;
         },
-        err: (err) => {
+        err: (err: any) => {
           switch (err._tag) {
             case DomainErrorTag.NotFound:
               return status(404, "Not Found");
 
             default:
-              logger?.error("Chapter detail error:", err);
+              logger?.error(`Chapter detail error: ${JSON.stringify(err)}`);
               return status(500, "Internal Server Error");
           }
         },
@@ -37,7 +30,7 @@ export const createChapterController = (
     {
       params: t.Object({ id: t.Numeric() }),
       response: {
-        200: "chapter.detail.response",
+        200: t.Any(),
         404: t.String(),
         500: t.String(),
       },
