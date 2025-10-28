@@ -133,21 +133,3 @@ const findArticleById =
 export const createDrizzleFinder = (db: Database): Finder => ({
   find: findArticleById(db),
 });
-
-/**
- * Legacy class for backward compatibility
- * @deprecated Use createDrizzleFinder instead
- */
-export class DrizzleFinder implements Finder {
-  readonly #db: Database;
-
-  constructor(db: Database) {
-    this.#db = db;
-  }
-
-  find = (
-    id: Id,
-  ): Promise<Result<ArticleDetail, NotFoundStoreError | UnknownStoreError>> => {
-    return findArticleById(this.#db)(id);
-  };
-}

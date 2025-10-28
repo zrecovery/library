@@ -3,7 +3,7 @@ import { withTestDb } from "@utils/test";
 
 import { articles } from "@shared/infrastructure/store/schema";
 import { eq } from "drizzle-orm";
-import { DrizzleFinder } from "./find";
+import { createDrizzleFinder } from "./find";
 
 describe("Success Cases", () => {
   test(
@@ -11,7 +11,7 @@ describe("Success Cases", () => {
     withTestDb(async (db) => {
       const input = 1;
 
-      const finder = new DrizzleFinder(db);
+      const finder = createDrizzleFinder(db);
       const result = await finder.find(input);
 
       const response = await db.query.articles.findFirst({

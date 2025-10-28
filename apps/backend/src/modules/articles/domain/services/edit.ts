@@ -121,5 +121,4 @@ const executeEdit =
  * @param store - Store for updating articles
  * @returns Function that updates articles
  */
-export const edit = (logger: Logger, store: Updater) =>
-  executeEdit(logger, store);
+export const edit = executeEdit;

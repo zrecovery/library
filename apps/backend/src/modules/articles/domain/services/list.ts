@@ -104,5 +104,4 @@ const executeFindMany =
  * @param store - Store for searching articles
  * @returns Function that searches articles with pagination and filters
  */
-export const findMany = (logger: Logger, store: Lister) =>
-  executeFindMany(logger, store);
+export const findMany = executeFindMany;

@@ -92,5 +92,4 @@ const executeRemove =
  * @param store - Store for deleting articles
  * @returns Function that deletes articles by ID
  */
-export const remove = (logger: Logger, store: Remover) =>
-  executeRemove(logger, store);
+export const remove = executeRemove;

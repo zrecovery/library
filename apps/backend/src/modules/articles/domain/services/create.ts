@@ -46,5 +46,4 @@ const executeCreate =
  * @param store - Store for persisting articles
  * @returns Function that creates articles
  */
-export const create = (logger: Logger, store: Saver) =>
-  executeCreate(logger, store);
+export const create = executeCreate;

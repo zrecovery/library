@@ -50,5 +50,4 @@ const executeDetail =
  * @param store - Store for searching articles
  * @returns Function that searches articles by ID
  */
-export const detail = (logger: Logger, store: Finder) =>
-  executeDetail(logger, store);
+export const detail = executeDetail;

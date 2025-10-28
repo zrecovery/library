@@ -68,12 +68,5 @@ export { createDrizzleLister } from "./findMany";
 export { createDrizzleUpdater } from "./update";
 export { createDrizzleRemover } from "./remove";
 
-// Export legacy classes for backward compatibility
-export { DrizzleSaver } from "./save";
-export { DrizzleFinder } from "./find";
-export { DrizzleLister } from "./findMany";
-export { DrizzleUpdater } from "./update";
-export { DrizzleRemover } from "./remove";
-
 // Export utilities
 export { toModel } from "./dto";
