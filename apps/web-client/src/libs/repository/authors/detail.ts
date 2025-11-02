@@ -1,4 +1,3 @@
-import type { AuthorDetail } from "backend";
 import { Err, Ok, type Result } from "result";
 import { edenServer } from "../eden";
 import {
@@ -8,9 +7,7 @@ import {
 
 export const detail = async (
   id: number,
-): Promise<
-  Result<AuthorDetail, NotFoundWebRepositoryError | UnknownWebRepositoryError>
-> => {
+) => {
   const { data, error } = await edenServer.api.authors({ id }).get();
 
   if (error) {

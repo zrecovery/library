@@ -41,9 +41,7 @@ const useArticleData = (
 
 const ArticleListWithPagination =
   (props1: { page: Accessor<number>; setPage: Setter<number> }) =>
-  (props: {
-    value: ArticleListResponse;
-  }) => {
+  (props: { value: ArticleListResponse }) => {
     const { page, setPage } = mergeProps(props1);
     const { value } = mergeProps(props);
 
@@ -61,9 +59,7 @@ const ArticleListWithPagination =
     );
   };
 
-const ErrorHandler = (props: {
-  error: WebRepositoryError;
-}) => {
+const ErrorHandler = (props: { error: WebRepositoryError }) => {
   const { error } = mergeProps(props);
 
   switch (error.tag) {

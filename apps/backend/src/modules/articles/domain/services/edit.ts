@@ -7,9 +7,8 @@ import {
   StoreErrorTag,
 } from "@shared/domain/interfaces/store.error";
 import type { Id } from "@shared/domain/types/common";
-import { Value } from "@sinclair/typebox/value";
 import { Err, type Result } from "result";
-
+import { Value } from "@sinclair/typebox/value";
 // ============================================================================
 // Pure Functions - Validation
 // ============================================================================

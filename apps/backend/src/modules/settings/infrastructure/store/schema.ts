@@ -1,5 +1,5 @@
 import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
+import { createInsertSchema } from "drizzle-typebox";
 
 export const settings = pgTable("settings", {
   id: integer("id").primaryKey().notNull(),

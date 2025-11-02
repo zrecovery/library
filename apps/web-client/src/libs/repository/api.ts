@@ -1,9 +1,3 @@
-import type {
-  ArticleDetail,
-  ArticleListResponse,
-  AuthorDetail,
-  ChapterDetail,
-} from "backend";
 import type { Result } from "result";
 import type { CreatedSchema, ListQuery } from "../schema";
 import type {
@@ -20,15 +14,10 @@ export interface ArticleRepository {
   >;
   list: (
     query: ListQuery,
-  ) => Promise<Result<ArticleListResponse, UnknownWebRepositoryError>>;
+  ) => Promise;
   detail: (
     id: number,
-  ) => Promise<
-    Result<
-      ArticleDetail,
-      NotFoundWebRepositoryError | UnknownWebRepositoryError
-    >
-  >;
+  ) => Promise;
   remove: (
     id: number,
   ) => Promise<

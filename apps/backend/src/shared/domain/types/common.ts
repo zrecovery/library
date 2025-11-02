@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox";
+import { t as Type } from "elysia";
 
 export const IdSchema = Type.Object({
   id: Type.Integer({ minimum: 0 }),

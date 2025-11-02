@@ -1,6 +1,7 @@
-export const toAuthorModel = (e: { id: number; name: string | null }):
-  | { id: number; name: string }
-  | undefined => {
+export const toAuthorModel = (e: {
+  id: number;
+  name: string | null;
+}): { id: number; name: string } | undefined => {
   if (e.name !== null) {
     return {
       id: e.id,

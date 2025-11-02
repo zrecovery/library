@@ -42,9 +42,7 @@ const AuthorDetailList = (props: { value: AuthorDetail }) => {
   );
 };
 
-const AuthorDetailErrorHandler = (props: {
-  error: WebRepositoryError;
-}) => {
+const AuthorDetailErrorHandler = (props: { error: WebRepositoryError }) => {
   const { error } = mergeProps(props);
 
   switch (error.tag) {

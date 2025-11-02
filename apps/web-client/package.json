@@ -2,17 +2,15 @@
   "name": "web-client",
   "type": "module",
   "scripts": {
-    "dev": "vinxi dev --port 3002",
-    "build": "vinxi build",
-    "start": "vinxi start",
+    "dev": "vite dev --port 3002",
+    "build": "vite build",
+    "start": "vite start",
     "test": "bun test"
   },
   "dependencies": {
-    "@kobalte/core": "^0.13.11",
+    "backend": "workspace:*",
+    "result": "workspace:*",
     "tag-error": "workspace:*",
     "web-api": "workspace:*"
-  },
-  "devDependencies": {
-    "@solidjs/testing-library": "^0.8.10"
   }
 }

@@ -82,6 +82,7 @@ const executeFindMany =
     // 2. Log search attempt
     logSearchAttempt(logger)(query);
 
+    console.log(query);
     // 3. Execute search in the store
     const result = await store.findMany(query);
 

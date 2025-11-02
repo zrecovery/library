@@ -4,14 +4,14 @@ import {
   InvalidateWebRepositoryError,
   UnknownWebRepositoryError,
 } from "../error";
-import type { CreatedSchema } from "../schema";
+import type { CreatedSchema } from "../../schema";
 
 export const create = async (
   data: CreatedSchema,
 ): Promise<
   Result<null, InvalidateWebRepositoryError | UnknownWebRepositoryError>
 > => {
-  const { error } = await edenServer.api.articles.index.post(data);
+  const { error } = await edenServer.api.articles.post(data);
 
   if (error) {
     switch (error.status) {

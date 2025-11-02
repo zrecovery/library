@@ -1,4 +1,4 @@
-import { type Static, Type } from "@sinclair/typebox";
+import { t as Type, type Static } from "elysia";
 
 const SupportDatabaseType = Type.Enum({
   PostgreSQL: "postgresql",

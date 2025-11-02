@@ -13,9 +13,7 @@ const useGetArticleDetail = (id: number) => {
   return createResource(() => id, articleRepository.detail);
 };
 
-const ArticleDisplay = (props: {
-  value: ArticleDetail;
-}) => {
+const ArticleDisplay = (props: { value: ArticleDetail }) => {
   const article = () => props.value;
   return (
     <article class="p-1">
@@ -27,9 +25,7 @@ const ArticleDisplay = (props: {
   );
 };
 
-const ArticleDisplayErrorHandler = (props: {
-  error: WebRepositoryError;
-}) => {
+const ArticleDisplayErrorHandler = (props: { error: WebRepositoryError }) => {
   const { error } = mergeProps(props);
 
   switch (error.tag) {

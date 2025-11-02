@@ -1,4 +1,3 @@
-import type { ArticleListResponse } from "backend";
 import { Err, Ok, type Result } from "result";
 import type { ListQuery } from "../../schema";
 import { edenServer } from "../eden";
@@ -6,7 +5,7 @@ import { UnknownWebRepositoryError } from "../error";
 
 export const list = async (
   query: ListQuery,
-): Promise<Result<ArticleListResponse, UnknownWebRepositoryError>> => {
+)=> {
   const queryCondition =
     query.keyword !== "" && query.keyword
       ? {

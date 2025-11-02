@@ -7,7 +7,7 @@ import {
   getDatabaseManager,
   readConfig,
 } from "backend";
-import { Elysia } from "elysia";
+import { Elysia, file } from "elysia";
 import { createArticlesController } from "./src/modules/articles/articles.controller";
 import { createAuthorController } from "./src/modules/authors/authors.controller";
 import { createChapterController } from "./src/modules/chapters/chapters.controller";
@@ -49,6 +49,7 @@ async function initializeApp() {
 
   const app = new Elysia()
     .use(cors())
+    .get('/', () => file('./public/index.html'))
     .use(staticPlugin({ prefix: "/" }))
     .group("/api", (api) =>
       api

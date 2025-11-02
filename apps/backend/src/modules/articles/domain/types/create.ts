@@ -1,8 +1,7 @@
 import { ArticleSchema } from "@shared/domain/types/article";
 import { AuthorSchema } from "@shared/domain/types/author";
 import { ChapterSchema } from "@shared/domain/types/chapter";
-import { type Static, Type } from "@sinclair/typebox";
-export * from "@sinclair/typebox";
+import { t as Type, type Static } from "elysia";
 
 export const ArticleCreate = Type.Composite([
   ArticleSchema,

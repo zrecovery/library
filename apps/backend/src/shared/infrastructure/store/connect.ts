@@ -1,9 +1,9 @@
 import type { Config } from "@shared/domain/config";
 import * as schema from "@shared/infrastructure/store/schema";
 import { defaultLogger } from "@shared/utils";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/bun-sql";
 import type { Database } from "./db";
+import { SQL } from "bun";
 
 // Global database instance for singleton pattern
 let dbInstance: Database | null = null;
@@ -29,14 +29,16 @@ export const connectDb = (config: Config): Database => {
     defaultLogger.info(`Connecting to database: ${dbConfig.URI}`);
 
     // Create postgres client
-    const client = postgres(dbConfig.URI, {
+    const client = new SQL({
+      url: dbConfig.URI,
       max: dbConfig.pool?.maxConnections || 10,
       idle_timeout: (dbConfig.pool?.idleTimeout || 60000) / 1000,
       connect_timeout: (dbConfig.pool?.connectTimeout || 10000) / 1000,
     });
 
     // Create the database instance with the client and configuration
-    dbInstance = drizzle(client, {
+    dbInstance = drizzle({
+      client: client,
       schema: schema,
       logger: dbConfig.enableLogging ?? true,
     });
@@ -76,7 +78,8 @@ export const connectDbAsync = async (config: Config): Promise<Database> => {
     try {
       // Create postgres client
       console.log(`Connecting to database: ${dbConfig.URI}`);
-      const client = postgres(dbConfig.URI, {
+      const client = new SQL({
+        url: dbConfig.URI,
         max: dbConfig.pool?.maxConnections || 10,
         idle_timeout: (dbConfig.pool?.idleTimeout || 60000) / 1000,
         connect_timeout: (dbConfig.pool?.connectTimeout || 10000) / 1000,

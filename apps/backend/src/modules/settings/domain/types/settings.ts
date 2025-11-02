@@ -1,4 +1,4 @@
-import { Type } from "@sinclair/typebox";
+import { t as Type } from "elysia";
 
 export type SettingValue = string | number | boolean | object;
 

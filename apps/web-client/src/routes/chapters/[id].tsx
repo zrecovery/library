@@ -23,9 +23,7 @@ const ChapterDetailList = (props: { value: ChapterDetail }) => {
   );
 };
 
-const ChapterDetailErrorHandler = (props: {
-  error: WebRepositoryError;
-}) => {
+const ChapterDetailErrorHandler = (props: { error: WebRepositoryError }) => {
   const { error } = mergeProps(props);
 
   switch (error.tag) {
