@@ -3,9 +3,7 @@ import type { ListQuery } from "../../schema";
 import { edenServer } from "../eden";
 import { UnknownWebRepositoryError } from "../error";
 
-export const list = async (
-  query: ListQuery,
-)=> {
+export const list = async (query: ListQuery) => {
   const queryCondition =
     query.keyword !== "" && query.keyword
       ? {

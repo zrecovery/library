@@ -12,12 +12,8 @@ export interface ArticleRepository {
   ) => Promise<
     Result<null, InvalidateWebRepositoryError | UnknownWebRepositoryError>
   >;
-  list: (
-    query: ListQuery,
-  ) => Promise;
-  detail: (
-    id: number,
-  ) => Promise;
+  list: (query: ListQuery) => Promise;
+  detail: (id: number) => Promise;
   remove: (
     id: number,
   ) => Promise<

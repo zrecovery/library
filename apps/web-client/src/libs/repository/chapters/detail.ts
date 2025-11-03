@@ -5,9 +5,7 @@ import {
   UnknownWebRepositoryError,
 } from "../error";
 
-export const detail = async (
-  id: number,
-)=> {
+export const detail = async (id: number) => {
   const { data, error } = await edenServer.api.chapters({ id }).get();
 
   if (error) {

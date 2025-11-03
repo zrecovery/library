@@ -3,7 +3,6 @@
   "compilerOptions": {
     "jsx": "preserve",
     "jsxImportSource": "solid-js",
-    "types": ["vinxi/types/client"],
     "baseUrl": "./",
     "paths": {
       "~/*": ["./src/*"]

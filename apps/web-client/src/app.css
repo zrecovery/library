@@ -60,11 +60,6 @@
   --ring: 216 12.2% 83.9%;
 }
 
-* {
-  @apply border-border;
-}
-
 body {
   overflow: clip;
-  @apply bg-background text-foreground;
 }

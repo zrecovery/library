@@ -49,7 +49,7 @@ async function initializeApp() {
 
   const app = new Elysia()
     .use(cors())
-    .get('/', () => file('./public/index.html'))
+    .get("/", () => file("./public/index.html"))
     .use(staticPlugin({ prefix: "/" }))
     .group("/api", (api) =>
       api
