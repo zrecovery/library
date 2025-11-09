@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises";
 
-import { type ArticleService, createArticleService } from "backend";
-import { readConfig } from "backend/src/shared/domain/config/index.ts";
+import { type ArticleService, createArticleService } from "core";
+import { readConfig } from "core/src/shared/domain/config/index.ts";
 import {
   type Config,
   type Created,

@@ -5,12 +5,15 @@
     "jsxImportSource": "solid-js",
     "baseUrl": "./",
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/*"],
+      "@core/*/domain": ["../core/src/modules/*/domain/index.ts"],
+      "@core/shared/*": ["../core/src/shared/*"]
     }
   },
   "references": [
     {
       "path": "../web-api"
     }
-  ]
+  ],
+  "exclude": ["../core/src/modules/*/infrastructure/store"]
 }

@@ -6,7 +6,7 @@ import {
   createChapterService,
   getDatabaseManager,
   readConfig,
-} from "backend";
+} from "core";
 import { Elysia, file } from "elysia";
 import { createArticlesController } from "./src/modules/articles/articles.controller";
 import { createAuthorController } from "./src/modules/authors/authors.controller";

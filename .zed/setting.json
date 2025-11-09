@@ -1,3 +1,8 @@
 {
-  "language_servers": ["biome", "!eslint", "vtsls"]
+  "language_servers": ["biome", "!eslint", "vtsls"],
+  "code_actions_on_format": {
+    "source.organizeImports.biome": true,
+
+    "source.fixAll.biome": true
+  }
 }

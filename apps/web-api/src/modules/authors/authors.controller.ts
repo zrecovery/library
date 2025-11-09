@@ -1,4 +1,4 @@
-import { type AuthorService, DomainErrorTag, type Logger } from "backend";
+import { type AuthorService, DomainErrorTag, type Logger } from "core";
 import Elysia, { status, t } from "elysia";
 
 const AuthorModel = new Elysia().model({});

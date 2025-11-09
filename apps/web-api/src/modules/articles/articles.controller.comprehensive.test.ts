@@ -1,16 +1,16 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
-import type { ArticleService } from "backend";
+import type { ArticleService } from "core";
 import type {
   ArticleCreate,
   ArticleDetail,
   ArticleListResponse,
   ArticleUpdate,
-} from "backend";
+} from "core";
 import {
   InvalidationError,
   NotFoundError,
   UnknownError,
-} from "backend/src/shared/domain/types/errors";
+} from "core/src/shared/domain/types/errors";
 import { Elysia } from "elysia";
 import { Err, Ok } from "result";
 import { createArticlesController } from "./articles.controller";

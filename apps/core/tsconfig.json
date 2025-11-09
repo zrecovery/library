@@ -1,0 +1,13 @@
+{
+  "extends": "../../packages/tsconfig/tsconfig.json",
+  "compilerOptions": {
+    // Path aliases
+    "baseUrl": ".",
+    "paths": {
+      "@core/*/domain": ["modules/*/domain/index.ts"],
+      "@core/*/store": ["modules/*/infrastructure/store/index.ts"],
+      "@core/shared/*": ["shared/*"]
+    }
+  },
+  "include": ["src/**/*"]
+}

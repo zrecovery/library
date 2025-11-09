@@ -8,7 +8,7 @@
     "test": "bun test"
   },
   "dependencies": {
-    "backend": "workspace:*",
+    "core": "workspace:*",
     "result": "workspace:*",
     "tag-error": "workspace:*",
     "web-api": "workspace:*"

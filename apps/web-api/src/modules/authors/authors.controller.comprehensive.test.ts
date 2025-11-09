@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
-import type { AuthorService } from "backend";
-import type { AuthorDetail } from "backend";
+import type { AuthorService } from "core";
+import type { AuthorDetail } from "core";
 import {
   NotFoundError,
   UnknownError,
-} from "backend/src/shared/domain/types/errors";
+} from "core/src/shared/domain/types/errors";
 import { Elysia } from "elysia";
 import { Err, Ok } from "result";
 import { createAuthorController } from "./authors.controller";

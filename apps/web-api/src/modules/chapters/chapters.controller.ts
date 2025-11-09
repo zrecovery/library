@@ -1,4 +1,4 @@
-import { type ChapterService, DomainErrorTag, type Logger } from "backend";
+import { type ChapterService, DomainErrorTag, type Logger } from "core";
 import Elysia, { status, t } from "elysia";
 
 const ChapterModel = new Elysia().model({});

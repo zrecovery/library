@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
-import type { ChapterService } from "backend";
-import type { ChapterDetail } from "backend";
+import type { ChapterService } from "core";
+import type { ChapterDetail } from "core";
 import {
   NotFoundError,
   UnknownError,
-} from "backend/src/shared/domain/types/errors";
+} from "core/src/shared/domain/types/errors";
 import { Elysia } from "elysia";
 import { Err, Ok } from "result";
 import { createChapterController } from "./chapters.controller";

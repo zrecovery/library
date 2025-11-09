@@ -10,7 +10,7 @@ import {
   remove,
   set,
   update,
-} from "backend";
+} from "core";
 import Elysia, { status, t } from "elysia";
 
 const SettingModel = new Elysia().model({

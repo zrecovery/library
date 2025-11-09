@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { FileFormat } from "./model";
 
 describe("readArticle", () => {
   test("should have readArticle function", () => {

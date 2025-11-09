@@ -1,4 +1,4 @@
-# backend
+# core
 必要依赖
 - PostgreSQL with PGroonga(PGroonga用于g中文全文搜索)
 
@@ -7,7 +7,7 @@
 ### 前期准备
 - 配置好环境变量
 ```
-    # .env.test 用于测试  
+    # .env.test 用于测试
     #.env 用于开发
     # 数据库
     DATABASE_URL="postgresql://user:password@localhost:5432/postgres?schema=public"
@@ -47,4 +47,3 @@
     chmod +x library
     ./library
 ```
-

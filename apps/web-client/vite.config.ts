@@ -20,10 +20,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "~": path.resolve(__dirname, "./src"),
-      "@shared": path.resolve(__dirname, "../backend/src/shared"),
-      "@articles": path.resolve(__dirname, "../backend/src/modules/articles"),
-      "@authors": path.resolve(__dirname, "../backend/src/modules/authors"),
-      "@chapters": path.resolve(__dirname, "../backend/src/modules/chapters"),
+      "@shared": path.resolve(__dirname, "../core/src/shared"),
+      "@articles": path.resolve(__dirname, "../core/src/modules/articles"),
+      "@authors": path.resolve(__dirname, "../core/src/modules/authors"),
+      "@chapters": path.resolve(__dirname, "../core/src/modules/chapters"),
     },
   },
 });

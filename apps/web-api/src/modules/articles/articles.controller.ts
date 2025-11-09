@@ -7,7 +7,7 @@ import {
   type DomainError,
   DomainErrorTag,
   type Logger,
-} from "backend";
+} from "core";
 import Elysia, { status, t } from "elysia";
 
 const ArticleModel = new Elysia().model({

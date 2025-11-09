@@ -9,7 +9,7 @@ import {
 
 import { articleRepository } from "~/libs/repository";
 
-import type { ArticleListResponse } from "backend";
+import type { ArticleListResponse } from "core";
 import { ArticleGrid } from "~/components/article-grid";
 import { HolyGrailLayout } from "~/components/holy-grail-layout";
 import { ListPagination } from "~/components/list-pagination";
