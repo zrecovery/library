@@ -1,10 +1,11 @@
-import { NotFoundError } from "elysia";
+
 import type { Result } from "result";
 import {
   type Id,
   UnknownError,
   StoreErrorTag,
   type Logger,
+  NotFoundError,
 } from "src/shared/domain";
 import type { StoreError } from "src/shared/domain/interfaces/store.error";
 import type { Remover } from "../interfaces";

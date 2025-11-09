@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
 import { Err, Ok } from "result";
 import { detail } from "./detail";
-import { NotFoundError } from "elysia";
-import { UnknownError } from "src/shared/domain";
+import { UnknownError, NotFoundError } from "src/shared/domain";
 import {
   NotFoundStoreError,
   UnknownStoreError,
