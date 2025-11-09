@@ -138,7 +138,7 @@ describe("Article Service - Edit", () => {
       expect(error.message).toContain("Failed to update article");
       expect(error.message).toContain("Database connection failed");
       // The raw error is embedded in the UnknownError
-      expect(error.raw).toBeDefined();
+      expect((error as UnknownError).raw).toBeDefined();
     }
     expect(mockStore.update).toHaveBeenCalledWith(articleId, articleUpdate);
   });

@@ -2,8 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
 
 import { Err, Ok } from "result";
 import { remove } from "./remove";
-import { NotFoundError } from "elysia";
-import { UnknownError } from "src/shared/domain";
+import { NotFoundError, UnknownError } from "src/shared/domain";
 import {
   NotFoundStoreError,
   UnknownStoreError,
@@ -96,7 +95,7 @@ describe("Article Service - Remove", () => {
       expect(error.message).toContain("Failed to remove article");
       expect(error.message).toContain("Database connection failed");
       // The raw error is embedded in the UnknownError
-      expect(error.raw).toBeDefined();
+      expect((error as UnknownError).raw).toBeDefined();
     }
     expect(mockStore.remove).toHaveBeenCalledWith(articleId);
     expect(mockLogger.debug).toHaveBeenCalledWith(
