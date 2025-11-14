@@ -1,11 +1,16 @@
-import { Err, Ok } from "result";
+import { Err, Ok, type Result } from "result";
 import { edenServer } from "../eden";
 import {
   NotFoundWebRepositoryError,
   UnknownWebRepositoryError,
 } from "../error";
+import type { ArticleDetail } from "core";
 
-export const detail = async (id: number) => {
+export const detail = async (
+  id: number,
+): Promise<
+  Result<ArticleDetail, UnknownWebRepositoryError | NotFoundWebRepositoryError>
+> => {
   const { data, error } = await edenServer.api.articles({ id }).get();
 
   if (error) {

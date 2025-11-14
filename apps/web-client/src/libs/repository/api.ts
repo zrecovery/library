@@ -5,6 +5,9 @@ import type {
   NotFoundWebRepositoryError,
   UnknownWebRepositoryError,
 } from "./error";
+import type { ArticleDetail, ArticleListResponse } from "@core/articles/domain";
+import type { AuthorDetail } from "@core/authors/domain";
+import type { ChapterDetail } from "@core/chapters/domain";
 
 export interface ArticleRepository {
   create: (
@@ -12,8 +15,17 @@ export interface ArticleRepository {
   ) => Promise<
     Result<null, InvalidateWebRepositoryError | UnknownWebRepositoryError>
   >;
-  list: (query: ListQuery) => Promise;
-  detail: (id: number) => Promise;
+  list: (
+    query: ListQuery,
+  ) => Promise<Result<ArticleListResponse, UnknownWebRepositoryError>>;
+  detail: (
+    id: number,
+  ) => Promise<
+    Result<
+      ArticleDetail,
+      UnknownWebRepositoryError | NotFoundWebRepositoryError
+    >
+  >;
   remove: (
     id: number,
   ) => Promise<

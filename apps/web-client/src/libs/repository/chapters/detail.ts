@@ -4,8 +4,13 @@ import {
   NotFoundWebRepositoryError,
   UnknownWebRepositoryError,
 } from "../error";
+import type { ChapterDetail } from "core";
 
-export const detail = async (id: number) => {
+export const detail = async (
+  id: number,
+): Promise<
+  Result<ChapterDetail, UnknownWebRepositoryError | NotFoundWebRepositoryError>
+> => {
   const { data, error } = await edenServer.api.chapters({ id }).get();
 
   if (error) {

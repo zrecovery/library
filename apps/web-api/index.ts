@@ -1,4 +1,3 @@
-import { cors } from "@elysiajs/cors";
 import { staticPlugin } from "@elysiajs/static";
 import {
   createArticleService,
@@ -12,7 +11,6 @@ import { createArticlesController } from "./src/modules/articles/articles.contro
 import { createAuthorController } from "./src/modules/authors/authors.controller";
 import { createChapterController } from "./src/modules/chapters/chapters.controller";
 import { createSettingController } from "./src/modules/settings/settings.controller";
-import { createSettingService } from "./src/modules/settings/settings.service";
 
 const config = readConfig();
 
@@ -48,7 +46,6 @@ async function initializeApp() {
   });
 
   const app = new Elysia()
-    .use(cors())
     .get("/", () => file("./public/index.html"))
     .use(staticPlugin({ prefix: "/" }))
     .group("/api", (api) =>
