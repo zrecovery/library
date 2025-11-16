@@ -10,7 +10,6 @@ import { Elysia, file } from "elysia";
 import { createArticlesController } from "./src/modules/articles/articles.controller";
 import { createAuthorController } from "./src/modules/authors/authors.controller";
 import { createChapterController } from "./src/modules/chapters/chapters.controller";
-import { createSettingController } from "./src/modules/settings/settings.controller";
 
 const config = readConfig();
 
@@ -29,8 +28,6 @@ async function initializeApp() {
   const chapterService = createChapterService(config);
   const chapterController = createChapterController(chapterService);
 
-  // Initialize settings controller
-  const settingController = createSettingController(dbManager.getDb());
 
   // Add shutdown hook to gracefully close database connections
   process.on("SIGINT", async () => {
@@ -53,7 +50,6 @@ async function initializeApp() {
         .use(articleController)
         .use(authorController)
         .use(chapterController)
-        .use(settingController),
     )
     .listen(3001);
 

@@ -101,4 +101,4 @@ LEFT JOIN chapters ON chapters.article_id = articles.id
 LEFT JOIN series ON chapters.series_id = series.id;
 
 
-CREATE INDEX pgroonga_view_content_index ON view USING pgroonga (title,body);
+CREATE INDEX pgroonga_view_content_index ON library USING pgroonga (title,body);
