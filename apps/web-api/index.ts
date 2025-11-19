@@ -28,7 +28,6 @@ async function initializeApp() {
   const chapterService = createChapterService(config);
   const chapterController = createChapterController(chapterService);
 
-
   // Add shutdown hook to gracefully close database connections
   process.on("SIGINT", async () => {
     console.info("Shutting down gracefully...");
@@ -46,10 +45,7 @@ async function initializeApp() {
     .get("/", () => file("./public/index.html"))
     .use(staticPlugin({ prefix: "/" }))
     .group("/api", (api) =>
-      api
-        .use(articleController)
-        .use(authorController)
-        .use(chapterController)
+      api.use(articleController).use(authorController).use(chapterController),
     )
     .listen(3001);
 
