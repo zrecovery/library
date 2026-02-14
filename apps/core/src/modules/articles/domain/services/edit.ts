@@ -1,16 +1,17 @@
-import { Err, type Result } from "result";
 import { Value } from "@sinclair/typebox/value";
 import { NotFoundError } from "elysia";
+import { Err, type Result } from "result";
 import {
-  InvalidationError,
   type Id,
-  UnknownError,
-  StoreErrorTag,
+  InvalidationError,
   type Logger,
+  StoreErrorTag,
+  UnknownError,
 } from "src/shared/domain";
 import type { StoreError } from "src/shared/domain/interfaces/store.error";
 import type { Updater } from "../interfaces";
 import { ArticleUpdate } from "../types";
+
 // ============================================================================
 // Pure Functions - Validation
 // ============================================================================

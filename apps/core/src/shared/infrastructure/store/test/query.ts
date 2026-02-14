@@ -1,8 +1,8 @@
 import { eq } from "drizzle-orm";
 import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { Id } from "../../../domain/types/common";
-import { articles, authors, chapters, people, series } from "../schema";
 import type * as schema from "../schema";
+import { articles, authors, chapters, people, series } from "../schema";
 
 export const findArticleByTitle =
   (db: PostgresJsDatabase<typeof schema>) => (title: string) =>

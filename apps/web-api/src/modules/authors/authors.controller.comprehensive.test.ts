@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
-import type { AuthorService } from "core";
-import type { AuthorDetail } from "core";
+import type { AuthorDetail, AuthorService } from "core";
 import {
   NotFoundError,
   UnknownError,

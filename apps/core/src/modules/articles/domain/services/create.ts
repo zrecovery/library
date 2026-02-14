@@ -1,9 +1,9 @@
 import type { Result } from "result";
 import {
-  type UnknownError,
   createOperationLogger,
-  withStoreResultHandling,
   type Logger,
+  type UnknownError,
+  withStoreResultHandling,
 } from "src/shared/domain";
 import type { StoreError } from "src/shared/domain/interfaces/store.error";
 import type { Saver } from "../interfaces";

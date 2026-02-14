@@ -1,13 +1,13 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
 import { Err, Ok } from "result";
-import { detail } from "./detail";
-import { UnknownError, NotFoundError } from "src/shared/domain";
+import { NotFoundError, UnknownError } from "src/shared/domain";
 import {
   NotFoundStoreError,
   UnknownStoreError,
 } from "src/shared/domain/interfaces/store.error";
 import type { Finder } from "../interfaces";
 import type { ArticleDetail } from "../types";
+import { detail } from "./detail";
 
 // Mock logger
 const mockLogger = {

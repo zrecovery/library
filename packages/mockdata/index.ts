@@ -5,17 +5,17 @@
 
 // 导出新的命名（推荐使用）
 export * from "./articles";
-export * from "./people";
 export * from "./authors";
-export * from "./series";
 export * from "./chapters";
+export * from "./people";
+export * from "./series";
 
 // 兼容旧命名（已废弃，建议迁移到新命名）
-import { sampleArticles, type Article } from "./articles";
-import { sampleAuthors, type Author } from "./authors";
-import { sampleChapters, type Chapter } from "./chapters";
-import { samplePeople, type Person } from "./people";
-import { sampleSeries, type Series } from "./series";
+import { type Article, sampleArticles } from "./articles";
+import { type Author, sampleAuthors } from "./authors";
+import { type Chapter, sampleChapters } from "./chapters";
+import { type Person, samplePeople } from "./people";
+import { type Series, sampleSeries } from "./series";
 
 /**
  * @deprecated 请使用 sampleArticles

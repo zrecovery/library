@@ -2,17 +2,17 @@ import { Type } from "@sinclair/typebox";
 import { Value } from "@sinclair/typebox/value";
 import { and, eq, isNotNull } from "drizzle-orm";
 import { Err, Ok, type Result } from "result";
-import { toAuthorModel, toChapterMetaModel } from "./dto";
-import type { Database } from "src/shared/infrastructure/store/db";
-import { IdSchema, type Id } from "src/shared/domain";
+import { type Id, IdSchema } from "src/shared/domain";
 import {
   NotFoundStoreError,
   UnknownStoreError,
 } from "src/shared/domain/interfaces/store.error";
 import { AuthorSchema } from "src/shared/domain/types/author";
 import { ChapterSchema } from "src/shared/domain/types/chapter";
-import type { AuthorDetail } from "../../domain";
+import type { Database } from "src/shared/infrastructure/store/db";
 import * as schema from "src/shared/infrastructure/store/schema";
+import type { AuthorDetail } from "../../domain";
+import { toAuthorModel, toChapterMetaModel } from "./dto";
 
 type Entity = {
   article: { id: number | null; title: string | null };

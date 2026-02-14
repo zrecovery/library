@@ -1,15 +1,15 @@
-import type { Result } from "result";
-import type { ChapterDetail } from "../types";
 import type { NotFoundError } from "elysia";
+import type { Result } from "result";
 import {
+  createOperationLogger,
   type Id,
   type Logger,
   type UnknownError,
-  createOperationLogger,
   withStoreResultHandling,
 } from "src/shared/domain";
 import type { StoreError } from "src/shared/domain/interfaces/store.error";
 import type { Finder } from "../interfaces";
+import type { ChapterDetail } from "../types";
 
 export const detail =
   (logger: Logger, store: Finder) =>

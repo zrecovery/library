@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
 import { Err, Ok } from "result";
-import { findMany } from "./list";
 import { InvalidationError, UnknownError } from "src/shared/domain";
 import { UnknownStoreError } from "src/shared/domain/interfaces/store.error";
 import type { Lister } from "../interfaces";
-import type { ArticleQuery, ArticleListResponse } from "../types";
+import type { ArticleListResponse, ArticleQuery } from "../types";
+import { findMany } from "./list";
 
 // Mock logger
 const mockLogger = {

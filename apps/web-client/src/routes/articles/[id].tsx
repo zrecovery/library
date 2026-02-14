@@ -1,6 +1,6 @@
 import { useParams } from "@solidjs/router";
 import type { ArticleDetail } from "core";
-import { Show, createResource, mergeProps } from "solid-js";
+import { createResource, mergeProps, Show } from "solid-js";
 import { ResultHandler } from "~/components/result-handler";
 import { Button } from "~/components/ui/button";
 import { articleRepository } from "~/libs/repository";

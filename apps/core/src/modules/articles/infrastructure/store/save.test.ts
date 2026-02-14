@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { eq } from "drizzle-orm";
-import { DrizzleSaver } from "./save";
 import { articles, series } from "src/shared/infrastructure/store/schema";
 import { withTestDb } from "src/utils/test";
 import type { ArticleCreate } from "../../domain";
+import { DrizzleSaver } from "./save";
 
 beforeEach(() => {});
 afterEach(() => {});

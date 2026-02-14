@@ -1,4 +1,4 @@
-import { type JSX, children } from "solid-js";
+import { children, type JSX } from "solid-js";
 
 export const PaginationLayout = (props: { children: JSX.Element }) => {
   const Children = children(() => props.children);

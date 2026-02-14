@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 
 import { Err, Ok, type Result } from "result";
-import { type FindResult, toModel } from "./dto.ts";
 import type { Id } from "src/shared/domain/index.ts";
 import {
   NotFoundStoreError,
@@ -10,6 +9,7 @@ import {
 import type { Database } from "src/shared/infrastructure/store/db.ts";
 import { libraryView } from "src/shared/infrastructure/store/schema.ts";
 import type { ArticleDetail, Finder } from "../../domain/index.ts";
+import { type FindResult, toModel } from "./dto.ts";
 
 // ============================================================================
 // Pure Functions - Data Transformation

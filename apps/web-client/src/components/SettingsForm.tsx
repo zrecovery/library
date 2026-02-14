@@ -1,4 +1,4 @@
-import { For, createSignal } from "solid-js";
+import { createSignal, For } from "solid-js";
 
 interface SettingsFormProps {
   initialSettings?: Record<string, any>;

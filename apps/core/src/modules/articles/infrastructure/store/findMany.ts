@@ -1,11 +1,11 @@
 import { type SQL, sql } from "drizzle-orm";
 import { Err, Ok, type Result } from "result";
-import type { ArticleListResponse, ArticleMeta } from "../../domain/types/list";
 import type { Pagination } from "src/shared/domain";
 import { UnknownStoreError } from "src/shared/domain/interfaces/store.error";
 import type { Database } from "src/shared/infrastructure/store/db";
 import { libraryView } from "src/shared/infrastructure/store/schema";
 import type { Lister } from "../../domain";
+import type { ArticleListResponse, ArticleMeta } from "../../domain/types/list";
 
 // ============================================================================
 // Types

@@ -1,8 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
-
-import { Err, Ok } from "result";
-import { edit } from "./edit";
 import { NotFoundError } from "elysia";
+import { Err, Ok } from "result";
 import { InvalidationError, UnknownError } from "src/shared/domain";
 import {
   NotFoundStoreError,
@@ -10,6 +8,7 @@ import {
 } from "src/shared/domain/interfaces/store.error";
 import type { Updater } from "../interfaces";
 import type { ArticleUpdate } from "../types";
+import { edit } from "./edit";
 
 // Mock logger
 const mockLogger = {

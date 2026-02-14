@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
-import type { ChapterService } from "core";
-import type { ChapterDetail } from "core";
+import type { ChapterDetail, ChapterService } from "core";
 import {
   NotFoundError,
   UnknownError,

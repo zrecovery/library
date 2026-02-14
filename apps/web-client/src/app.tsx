@@ -3,14 +3,14 @@ import "virtual:uno.css";
 
 import { Route, Router } from "@solidjs/router";
 import { Suspense } from "solid-js";
-import Nav from "~/components/Nav";
 import { BaseLayout } from "~/components/base-layout";
-import ArticleReader from "./routes/articles/[id]";
-import ArticleList from "./routes/articles";
-import AuthorDetailDisplay from "./routes/authors/[id]";
-import ChapterDetailDisplay from "./routes/chapters/[id]";
+import Nav from "~/components/Nav";
 import Home from "./routes";
 import { NotFound } from "./routes/[...404]";
+import ArticleList from "./routes/articles";
+import ArticleReader from "./routes/articles/[id]";
+import AuthorDetailDisplay from "./routes/authors/[id]";
+import ChapterDetailDisplay from "./routes/chapters/[id]";
 
 export default function App() {
   const footer = <footer class="bg-gray-800 text-white p-4">Footer</footer>;

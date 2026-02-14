@@ -1,11 +1,9 @@
 import type { ArticleCreate } from "@articles/domain/types/create";
-
-import type { ArticleUpdate } from "@articles/domain/types/update";
-import type { Id } from "@shared/domain/types";
-
 import type { ArticleDetail } from "@articles/domain/types/detail";
 import type { ArticleListResponse } from "@articles/domain/types/list";
 import type { ArticleQuery } from "@articles/domain/types/query";
+import type { ArticleUpdate } from "@articles/domain/types/update";
+import type { Id } from "@shared/domain/types";
 import type {
   InvalidationError,
   NotFoundError,

@@ -6,8 +6,8 @@ import { create } from "../domain/services/create";
 import { detail } from "../domain/services/detail";
 import { edit } from "../domain/services/edit";
 import { findMany } from "../domain/services/list";
-import { createArticleStore } from "../infrastructure/store";
 import { remove } from "../domain/services/remove";
+import { createArticleStore } from "../infrastructure/store";
 
 export const createArticleService = (config: Config): ArticleService => {
   const db = connectDb(config);

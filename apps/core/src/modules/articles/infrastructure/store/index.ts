@@ -61,12 +61,11 @@ export const createArticleStore = (db: Database): ArticleStore => {
 // Exports
 // ============================================================================
 
-// Export factory functions for individual stores
-export { createDrizzleSaver } from "./save";
-export { createDrizzleFinder } from "./find";
-export { createDrizzleLister } from "./findMany";
-export { createDrizzleUpdater } from "./update";
-export { createDrizzleRemover } from "./remove";
-
 // Export utilities
 export { toModel } from "./dto";
+export { createDrizzleFinder } from "./find";
+export { createDrizzleLister } from "./findMany";
+export { createDrizzleRemover } from "./remove";
+// Export factory functions for individual stores
+export { createDrizzleSaver } from "./save";
+export { createDrizzleUpdater } from "./update";

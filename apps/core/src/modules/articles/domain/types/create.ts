@@ -1,4 +1,4 @@
-import { t as Type, type Static } from "elysia";
+import { type Static, t as Type } from "elysia";
 import { ArticleSchema } from "src/shared/domain/types/article";
 import { AuthorSchema } from "src/shared/domain/types/author";
 import { ChapterSchema } from "src/shared/domain/types/chapter";

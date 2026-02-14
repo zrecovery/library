@@ -1,10 +1,10 @@
 import type { NotFoundError } from "elysia";
 import type { Result } from "result";
 import {
+  createOperationLogger,
   type Id,
   type Logger,
   type UnknownError,
-  createOperationLogger,
   withStoreResultHandling,
 } from "src/shared/domain";
 import type { StoreError } from "src/shared/domain/interfaces/store.error";

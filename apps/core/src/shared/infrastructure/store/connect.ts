@@ -1,9 +1,9 @@
 import { SQL } from "bun";
-import * as schema from "./schema";
 import { drizzle } from "drizzle-orm/bun-sql";
 import type { Config } from "src/shared/domain/config";
-import { LogLevel, defaultLogger } from "src/shared/utils";
+import { defaultLogger, LogLevel } from "src/shared/utils";
 import type { Database } from "./db";
+import * as schema from "./schema";
 
 // Global database instance for singleton pattern
 let dbInstance: Database | null = null;

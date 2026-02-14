@@ -4,8 +4,8 @@ import { Err, Ok, type Result } from "result";
 import type { Finder } from "src/modules/articles/domain";
 import type { Id } from "src/shared/domain";
 import {
-  UnknownStoreError,
   NotFoundStoreError,
+  UnknownStoreError,
 } from "src/shared/domain/interfaces/store.error";
 import type { Database } from "src/shared/infrastructure/store/db";
 import { libraryView, series } from "src/shared/infrastructure/store/schema";

@@ -2,12 +2,12 @@ import { Value } from "@sinclair/typebox/value";
 import { Err, type Result } from "result";
 import {
   InvalidationError,
-  UnknownError,
   type Logger,
+  UnknownError,
 } from "src/shared/domain";
 import type { StoreError } from "src/shared/domain/interfaces/store.error";
 import type { Lister } from "../interfaces";
-import { ArticleQuery, type ArticleListResponse } from "../types";
+import { type ArticleListResponse, ArticleQuery } from "../types";
 
 // ============================================================================
 // Pure Functions - Validation

@@ -2,9 +2,9 @@ import { eq } from "drizzle-orm";
 import { Err, Ok, type Result } from "result";
 import type { Id } from "src/shared/domain";
 import {
-  UnknownStoreError,
   NotFoundStoreError,
   StoreError,
+  UnknownStoreError,
 } from "src/shared/domain/interfaces/store.error";
 import type { Database } from "src/shared/infrastructure/store/db";
 import {

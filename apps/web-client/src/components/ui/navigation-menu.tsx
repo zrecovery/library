@@ -6,11 +6,11 @@ import type {
 import { NavigationMenu as NavigationMenuPrimitive } from "@kobalte/core/navigation-menu";
 import type { PolymorphicProps } from "@kobalte/core/polymorphic";
 import {
+  mergeProps,
   type ParentProps,
   Show,
-  type ValidComponent,
-  mergeProps,
   splitProps,
+  type ValidComponent,
 } from "solid-js";
 import { cn } from "~/libs/cn";
 

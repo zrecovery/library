@@ -5,10 +5,10 @@ import { UnknownStoreError } from "src/shared/domain/interfaces/store.error";
 import type { Database } from "src/shared/infrastructure/store/db";
 import {
   articles,
-  people,
   authors,
-  series,
   chapters,
+  people,
+  series,
 } from "src/shared/infrastructure/store/schema";
 import type { ArticleCreate, Saver } from "../../domain";
 

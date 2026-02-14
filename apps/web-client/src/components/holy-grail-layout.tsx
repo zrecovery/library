@@ -1,4 +1,4 @@
-import { type JSX, Show, children } from "solid-js";
+import { children, type JSX, Show } from "solid-js";
 
 export const HolyGrailLayout = (props: {
   children: JSX.Element;

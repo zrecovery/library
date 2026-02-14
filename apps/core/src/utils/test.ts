@@ -2,10 +2,10 @@ import { expect } from "bun:test";
 
 import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/bun-sql";
-import * as schema from "../shared/infrastructure/store/schema";
 import type { StoreErrorTag } from "src/shared/domain";
 import { StoreError } from "src/shared/domain/interfaces/store.error";
 import type { Database } from "src/shared/infrastructure/store/db";
+import * as schema from "../shared/infrastructure/store/schema";
 
 const logger = console;
 

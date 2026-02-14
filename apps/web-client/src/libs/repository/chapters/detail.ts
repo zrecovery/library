@@ -1,10 +1,10 @@
+import type { ChapterDetail } from "core";
 import { Err, Ok, type Result } from "result";
 import { edenServer } from "../eden";
 import {
   NotFoundWebRepositoryError,
   UnknownWebRepositoryError,
 } from "../error";
-import type { ChapterDetail } from "core";
 
 export const detail = async (
   id: number,

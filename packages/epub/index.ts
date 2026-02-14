@@ -43,10 +43,21 @@ const ROOT_FILE_ATTR = "0";
 const CONTENT_ID = "t1";
 
 const METADATA_FIELDS = [
-  "dc:title", "dc:creator", "dc:contributor", "dc:coverage",
-  "dc:date", "dc:description", "dc:format", "dc:identifier",
-  "dc:language", "dc:publisher", "dc:rights", "dc:relation",
-  "dc:source", "dc:subject", "dc:type",
+  "dc:title",
+  "dc:creator",
+  "dc:contributor",
+  "dc:coverage",
+  "dc:date",
+  "dc:description",
+  "dc:format",
+  "dc:identifier",
+  "dc:language",
+  "dc:publisher",
+  "dc:rights",
+  "dc:relation",
+  "dc:source",
+  "dc:subject",
+  "dc:type",
 ] as const;
 
 const EMPTY_SECTION_REGEX = /<section\sxmlns:epub=.*\n.*\s*<h2><\/h2>/gm;
@@ -58,40 +69,53 @@ const EMPTY_SECTION_REGEX = /<section\sxmlns:epub=.*\n.*\s*<h2><\/h2>/gm;
 const decompress = (file: ArrayBuffer): Unzipped =>
   unzipSync(new Uint8Array(file));
 
-const decode = (decoder: TextDecoder) => (buffer: Uint8Array): string =>
-  decoder.decode(buffer);
+const decode =
+  (decoder: TextDecoder) =>
+  (buffer: Uint8Array): string =>
+    decoder.decode(buffer);
 
-const parseXml = (parser: DOMParser) => (mime: string) => (text: string): Document =>
-  parser.parseFromString(text, mime);
+const parseXml =
+  (parser: DOMParser) =>
+  (mime: string) =>
+  (text: string): Document =>
+    parser.parseFromString(text, mime);
 
-const getAttr = (doc: Document) => (id: string) => (attr: string): string | null =>
-  doc.getElementById(id)?.getAttribute(attr) ?? null;
+const getAttr =
+  (doc: Document) =>
+  (id: string) =>
+  (attr: string): string | null =>
+    doc.getElementById(id)?.getAttribute(attr) ?? null;
 
-const getText = (tag: string) => (doc: Document): string | null => {
-  const elems = doc.getElementsByTagName(tag);
-  return elems.length > 0 ? elems[0].textContent : null;
-};
+const getText =
+  (tag: string) =>
+  (doc: Document): string | null => {
+    const elems = doc.getElementsByTagName(tag);
+    return elems.length > 0 ? elems[0].textContent : null;
+  };
 
-const getMeta = (doc: Document) => (tag: string): string | null => {
-  try {
-    return getText(tag)(doc);
-  } catch {
-    return null;
-  }
-};
+const getMeta =
+  (doc: Document) =>
+  (tag: string): string | null => {
+    try {
+      return getText(tag)(doc);
+    } catch {
+      return null;
+    }
+  };
 
 const extractMetadata = (doc: Document): EpubMetadata => {
   const getVal = getMeta(doc);
   return METADATA_FIELDS.reduce(
     (acc, field) => ({ ...acc, [field.replace("dc:", "")]: getVal(field) }),
-    {} as EpubMetadata
+    {} as EpubMetadata,
   );
 };
 
 const cleanBody = (text: string): string =>
-  text.replaceAll("<br/>", "\n")
-      .replaceAll("</section>", "")
-      .replaceAll(EMPTY_SECTION_REGEX, "");
+  text
+    .replaceAll("<br/>", "\n")
+    .replaceAll("</section>", "")
+    .replaceAll(EMPTY_SECTION_REGEX, "");
 
 const extractBody = (doc: Document | undefined): string => {
   const section = doc?.getElementsByTagName("section")[0];

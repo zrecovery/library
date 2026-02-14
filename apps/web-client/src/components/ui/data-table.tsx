@@ -6,7 +6,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
 } from "@tanstack/solid-table";
-import { type Accessor, For, Show, createSignal, splitProps } from "solid-js";
+import { type Accessor, createSignal, For, Show, splitProps } from "solid-js";
 import {
   Table,
   TableBody,

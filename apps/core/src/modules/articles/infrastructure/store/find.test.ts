@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 
 import { eq } from "drizzle-orm";
-import { createDrizzleFinder } from "./find";
 import { articles } from "src/shared/infrastructure/store/schema";
 import { withTestDb } from "src/utils/test";
+import { createDrizzleFinder } from "./find";
 
 describe("Success Cases", () => {
   test(

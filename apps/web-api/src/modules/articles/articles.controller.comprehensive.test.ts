@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "bun:test";
-import type { ArticleService } from "core";
 import type {
   ArticleCreate,
   ArticleDetail,
   ArticleListResponse,
+  ArticleService,
   ArticleUpdate,
 } from "core";
 import {

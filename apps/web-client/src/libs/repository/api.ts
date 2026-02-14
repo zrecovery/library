@@ -1,3 +1,6 @@
+import type { ArticleDetail, ArticleListResponse } from "@core/articles/domain";
+import type { AuthorDetail } from "@core/authors/domain";
+import type { ChapterDetail } from "@core/chapters/domain";
 import type { Result } from "result";
 import type { CreatedSchema, ListQuery } from "../schema";
 import type {
@@ -5,9 +8,6 @@ import type {
   NotFoundWebRepositoryError,
   UnknownWebRepositoryError,
 } from "./error";
-import type { ArticleDetail, ArticleListResponse } from "@core/articles/domain";
-import type { AuthorDetail } from "@core/authors/domain";
-import type { ChapterDetail } from "@core/chapters/domain";
 
 export interface ArticleRepository {
   create: (

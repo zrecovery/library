@@ -1,5 +1,6 @@
 import type { NonUndefined, Result } from "result";
 import type { JSX, Resource } from "solid-js";
+
 interface ResultHandlerProps<T extends NonUndefined, E extends NonUndefined> {
   /**
    * Result 对象实例

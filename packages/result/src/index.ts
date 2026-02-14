@@ -1,2 +1,2 @@
-export * from "./result/result";
 export * from "./option/option";
+export * from "./result/result";

@@ -1,13 +1,13 @@
 import { describe, expect, test } from "bun:test";
-import { DrizzleFinder } from "./finder";
 import {
-  people,
-  series,
   articles,
   authors,
   chapters,
+  people,
+  series,
 } from "src/shared/infrastructure/store/schema";
 import { withTestDb } from "src/utils/test";
+import { DrizzleFinder } from "./finder";
 
 describe("Chapter Finder Success Cases", () => {
   test(

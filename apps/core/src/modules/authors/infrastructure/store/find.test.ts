@@ -1,14 +1,13 @@
 import { describe, expect, test } from "bun:test";
-
-import { Finder } from "./find";
 import {
-  people,
   articles,
-  series,
   authors,
   chapters,
+  people,
+  series,
 } from "src/shared/infrastructure/store/schema";
 import { withTestDb } from "src/utils/test";
+import { Finder } from "./find";
 
 describe("Author Finder Success Cases", () => {
   test(

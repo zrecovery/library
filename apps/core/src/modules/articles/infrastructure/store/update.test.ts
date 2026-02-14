@@ -1,10 +1,9 @@
 import { describe, expect, test } from "bun:test";
-
-import { DrizzleUpdater } from "./update";
 import { StoreErrorTag } from "src/shared/domain";
 import type { Database } from "src/shared/infrastructure/store/db";
 import { findArticleById } from "src/shared/infrastructure/store/test/query";
-import { withTestDb, expectError } from "src/utils/test";
+import { expectError, withTestDb } from "src/utils/test";
+import { DrizzleUpdater } from "./update";
 
 describe("Article Update", () => {
   const cases = [

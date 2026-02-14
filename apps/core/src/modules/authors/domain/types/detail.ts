@@ -3,8 +3,8 @@ import { IdSchema } from "src/shared/domain";
 import { ArticleMetaSchema } from "src/shared/domain/types/article";
 import { AuthorSchema } from "src/shared/domain/types/author";
 import {
-  ChapterSchema,
   ChapterMetaSchema,
+  ChapterSchema,
 } from "src/shared/domain/types/chapter";
 
 export const AuthorDetail = Type.Composite([

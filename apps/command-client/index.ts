@@ -6,8 +6,8 @@ import {
   type Config,
   type Created,
   FileFormat,
-  type Raw,
   format,
+  type Raw,
 } from "./src/model.ts";
 import { readArticle } from "./src/read.ts";
 

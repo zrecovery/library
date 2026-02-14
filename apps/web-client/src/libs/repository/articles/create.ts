@@ -1,10 +1,10 @@
 import { Err, Ok, type Result } from "result";
+import type { CreatedSchema } from "../../schema";
 import { edenServer } from "../eden";
 import {
   InvalidateWebRepositoryError,
   UnknownWebRepositoryError,
 } from "../error";
-import type { CreatedSchema } from "../../schema";
 
 export const create = async (
   data: CreatedSchema,

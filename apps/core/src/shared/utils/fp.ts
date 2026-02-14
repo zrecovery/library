@@ -1,10 +1,10 @@
 import type { Result } from "result";
+import { type Id, NotFoundError, UnknownError } from "../domain";
 import type { Logger } from "../domain/interfaces/logger";
 import {
-  StoreErrorTag,
   type StoreError,
+  StoreErrorTag,
 } from "../domain/interfaces/store.error";
-import { NotFoundError, UnknownError, type Id } from "../domain";
 
 /**
  * Creates a function that maps store errors to appropriate domain errors

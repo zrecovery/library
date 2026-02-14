@@ -1,5 +1,4 @@
-import type { Setter } from "solid-js";
-import type { Accessor } from "solid-js";
+import type { Accessor, Setter } from "solid-js";
 import { Button } from "./ui/button";
 import {
   Popover,
