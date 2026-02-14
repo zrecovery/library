@@ -1,6 +1,6 @@
 import type { Result } from "result";
 import {
-  UnknownError,
+  type UnknownError,
   createOperationLogger,
   withStoreResultHandling,
   type Logger,

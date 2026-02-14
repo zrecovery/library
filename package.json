@@ -5,11 +5,12 @@
   "scripts": {
     "lint": "bunx @biomejs/biome lint --write ./",
     "format": "bunx @biomejs/biome format --write ./",
-    "check": "bunx @biomejs/biome check --write ./"
+    "check": "bunx @biomejs/biome check --write ./",
+    "test:unit": "bun test apps/core/src/shared/infrastructure/store/connect-bun.test.ts apps/core/src/shared/infrastructure/store/schema-bun.test.ts apps/core/src/shared/utils/fp.test.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "latest",
-    "@types/bun": "^1.3.6",
+    "@types/bun": "^1.3.9",
     "@unocss/preset-mini": "^66.6.0",
     "@unocss/vite": "^66.6.0",
     "unocss": "^66.6.0",
@@ -26,7 +27,7 @@
   ],
   "dependencies": {
     "@elysiajs/cors": "^1.4.1",
-    "@elysiajs/eden": "^1.4.6",
+    "@elysiajs/eden": "^1.4.8",
     "@elysiajs/static": "^1.4.7",
     "@kobalte/core": "^0.13.11",
     "@sinclair/typebox": "^0.34.48",
@@ -37,7 +38,7 @@
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.44.7",
     "drizzle-typebox": "^0.3.3",
-    "elysia": "^1.4.22",
+    "elysia": "^1.4.25",
     "fflate": "^0.8.2",
     "result": "workspace:*",
     "solid-js": "^1.9.11",

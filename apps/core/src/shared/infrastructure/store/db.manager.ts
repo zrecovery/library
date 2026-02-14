@@ -1,34 +1,37 @@
 import type { Config } from "src/shared/domain/config";
-import { connectDbAsync, disconnectDb, getConnectionState } from "./connect";
-import type { Database } from "./db";
 import { defaultLogger, LogLevel } from "src/shared/utils";
+import { createDatabaseConnection } from "./db.factory";
 
-/**
- * Database Manager that provides comprehensive database lifecycle management
- */
+type DatabaseClient = unknown;
+
 export class DatabaseManager {
   private config: Config;
-  private dbInstance: Database | null = null;
+  private dbClient: DatabaseClient | null = null;
   private isInitialized = false;
 
   constructor(config: Config) {
     this.config = config;
   }
 
-  /**
-   * Initialize the database connection
-   */
   async initialize(): Promise<void> {
     if (this.isInitialized) {
       return;
     }
 
     try {
-      this.dbInstance = await connectDbAsync(this.config);
+      const connection = createDatabaseConnection(this.config);
+      const result = await connection.connectAsync(this.config);
+
+      if (result.isErr()) {
+        throw result.unwrapErr();
+      }
+
+      this.dbClient = result.unwrap();
       this.isInitialized = true;
+
       defaultLogger.log(
         LogLevel.Info,
-        "Database manager initialized successfully",
+        `Database manager initialized: ${this.config.database.type}`,
       );
     } catch (error) {
       defaultLogger.log(
@@ -39,37 +42,31 @@ export class DatabaseManager {
     }
   }
 
-  /**
-   * Get the database instance (synchronous, assumes initialization was called first)
-   */
-  getDb(): Database {
-    if (!this.isInitialized || !this.dbInstance) {
+  getDb(): DatabaseClient {
+    if (!this.isInitialized || !this.dbClient) {
       throw new Error("Database not initialized. Call initialize() first.");
     }
-    return this.dbInstance;
+    return this.dbClient;
   }
 
-  /**
-   * Get the current connection state
-   */
-  getState(): ReturnType<typeof getConnectionState> {
-    return getConnectionState();
+  getState(): string {
+    const connection = createDatabaseConnection(this.config);
+    return connection.getConnectionState();
   }
 
-  /**
-   * Check database health by running a simple query
-   */
   async healthCheck(): Promise<{
     status: "healthy" | "unhealthy";
     message?: string;
   }> {
     try {
-      if (!this.dbInstance) {
+      if (!this.dbClient) {
         return { status: "unhealthy", message: "Database not connected" };
       }
 
-      // Run a simple health check query
-      await this.dbInstance.execute("SELECT 1 as health_check");
+      const db = this.dbClient as {
+        execute: (sql: string) => Promise<unknown>;
+      };
+      await db.execute("SELECT 1");
 
       return { status: "healthy" };
     } catch (error) {
@@ -84,12 +81,10 @@ export class DatabaseManager {
     }
   }
 
-  /**
-   * Perform a graceful shutdown
-   */
   async shutdown(): Promise<void> {
     try {
-      disconnectDb();
+      const connection = createDatabaseConnection(this.config);
+      connection.disconnect();
       this.isInitialized = false;
       defaultLogger.log(
         LogLevel.Info,
@@ -104,26 +99,20 @@ export class DatabaseManager {
     }
   }
 
-  /**
-   * Reconnect to the database
-   */
   async reconnect(): Promise<void> {
     await this.shutdown();
     await this.initialize();
   }
 
-  /**
-   * Get database statistics (connection pool info, etc.)
-   */
   getStats(): { initialized: boolean; connectionState: string } {
+    const connection = createDatabaseConnection(this.config);
     return {
       initialized: this.isInitialized,
-      connectionState: getConnectionState(),
+      connectionState: connection.getConnectionState(),
     };
   }
 }
 
-// Singleton instance for easy access
 let databaseManager: DatabaseManager | null = null;
 
 export const getDatabaseManager = (config: Config): DatabaseManager => {

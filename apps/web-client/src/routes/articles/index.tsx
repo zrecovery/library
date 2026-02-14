@@ -1,21 +1,19 @@
+import type { ArticleListResponse } from "core";
 import {
   type Accessor,
-  type Setter,
-  Show,
   createResource,
   createSignal,
   mergeProps,
+  type Setter,
+  Show,
 } from "solid-js";
-
-import { articleRepository } from "~/libs/repository";
-
-import type { ArticleListResponse } from "core";
 import { ArticleGrid } from "~/components/article-grid";
 import { HolyGrailLayout } from "~/components/holy-grail-layout";
 import { ListPagination } from "~/components/list-pagination";
 import { PaginationLayout } from "~/components/pagination-layout";
 import { ResultHandler } from "~/components/result-handler";
 import { SearchButton } from "~/components/search-button";
+import { articleRepository } from "~/libs/repository";
 import {
   type WebRepositoryError,
   WebRepositoryErrorTag,
@@ -71,15 +69,13 @@ const ErrorHandler = (props: { error: WebRepositoryError }) => {
 };
 
 const searchKeyword = (keyword: string, native: string) => {
-  const keywords = keyword
-    .split(" ")
-    .map((word) => word.trim())
-    .map((word) => `+${word}`);
-  const nativeKeywords = native
-    .split(" ")
-    .map((word) => word.trim())
-    .map((word) => `-${word}`);
-  return keywords.join(" ") + " " + nativeKeywords.join(" ");
+  const normalize = (str: string, prefix: string) =>
+    str
+      .trim()
+      .split(" ")
+      .filter(Boolean)
+      .map((w) => prefix + w);
+  return [...normalize(keyword, "+"), ...normalize(native, "-")].join(" ");
 };
 
 export default function ArticleList() {

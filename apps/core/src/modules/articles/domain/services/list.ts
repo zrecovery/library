@@ -7,7 +7,7 @@ import {
 } from "src/shared/domain";
 import type { StoreError } from "src/shared/domain/interfaces/store.error";
 import type { Lister } from "../interfaces";
-import { ArticleQuery, ArticleListResponse } from "../types";
+import { ArticleQuery, type ArticleListResponse } from "../types";
 
 // ============================================================================
 // Pure Functions - Validation

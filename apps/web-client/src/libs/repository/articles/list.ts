@@ -1,8 +1,8 @@
+import type { ArticleListResponse } from "core";
 import { Err, Ok, type Result } from "result";
 import type { ListQuery } from "../../schema";
 import { edenServer } from "../eden";
 import { UnknownWebRepositoryError } from "../error";
-import type { ArticleListResponse } from "core";
 
 export const list = async (
   query: ListQuery,
@@ -15,7 +15,6 @@ export const list = async (
           keyword: query.keyword,
         }
       : { page: query.page ?? 1, size: query.size ?? 10 };
-  console.log(queryCondition);
 
   const { data, error } = await edenServer.api.articles.get({
     query: queryCondition,

@@ -3,7 +3,7 @@ import type { Result } from "result";
 import {
   type Id,
   type Logger,
-  UnknownError,
+  type UnknownError,
   createOperationLogger,
   withStoreResultHandling,
 } from "src/shared/domain";

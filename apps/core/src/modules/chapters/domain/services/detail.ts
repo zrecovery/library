@@ -4,7 +4,7 @@ import type { NotFoundError } from "elysia";
 import {
   type Id,
   type Logger,
-  UnknownError,
+  type UnknownError,
   createOperationLogger,
   withStoreResultHandling,
 } from "src/shared/domain";
