@@ -1,118 +1,145 @@
-import { DOMParser, XMLSerializer } from "@xmldom/xmldom";
+/**
+ * EPUB 解析器
+ * 用于解析 EPUB 电子书文件并提取元数据与内容
+ * @see https://www.w3.org/publishing/epub/
+ */
+import { DOMParser } from "@xmldom/xmldom";
 import { type Unzipped, unzipSync } from "fflate";
 
-const un = (file: ArrayBuffer) => {
-  const u8 = new Uint8Array(file);
-  return unzipSync(u8);
-};
+// ============================================================================
+// 类型定义
+// ============================================================================
+
+export interface EpubInfo {
+  title: string | null;
+  author: { name: string | null };
+  body: string;
+}
+
+export interface EpubMetadata {
+  title: string | null;
+  creator: string | null;
+  contributor: string | null;
+  coverage: string | null;
+  date: string | null;
+  description: string | null;
+  format: string | null;
+  identifier: string | null;
+  language: string | null;
+  publisher: string | null;
+  rights: string | null;
+  relation: string | null;
+  source: string | null;
+  subject: string | null;
+  type: string | null;
+}
+
+// ============================================================================
+// 常量
+// ============================================================================
+
 const CONTAINER_PATH = "META-INF/container.xml";
+const ROOT_FILE_ATTR = "0";
+const CONTENT_ID = "t1";
+
+const METADATA_FIELDS = [
+  "dc:title", "dc:creator", "dc:contributor", "dc:coverage",
+  "dc:date", "dc:description", "dc:format", "dc:identifier",
+  "dc:language", "dc:publisher", "dc:rights", "dc:relation",
+  "dc:source", "dc:subject", "dc:type",
+] as const;
+
+const EMPTY_SECTION_REGEX = /<section\sxmlns:epub=.*\n.*\s*<h2><\/h2>/gm;
+
+// ============================================================================
+// 纯函数 (每个 < 20 行)
+// ============================================================================
+
+const decompress = (file: ArrayBuffer): Unzipped =>
+  unzipSync(new Uint8Array(file));
+
+const decode = (decoder: TextDecoder) => (buffer: Uint8Array): string =>
+  decoder.decode(buffer);
+
+const parseXml = (parser: DOMParser) => (mime: string) => (text: string): Document =>
+  parser.parseFromString(text, mime);
+
+const getAttr = (doc: Document) => (id: string) => (attr: string): string | null =>
+  doc.getElementById(id)?.getAttribute(attr) ?? null;
+
+const getText = (tag: string) => (doc: Document): string | null => {
+  const elems = doc.getElementsByTagName(tag);
+  return elems.length > 0 ? elems[0].textContent : null;
+};
+
+const getMeta = (doc: Document) => (tag: string): string | null => {
+  try {
+    return getText(tag)(doc);
+  } catch {
+    return null;
+  }
+};
+
+const extractMetadata = (doc: Document): EpubMetadata => {
+  const getVal = getMeta(doc);
+  return METADATA_FIELDS.reduce(
+    (acc, field) => ({ ...acc, [field.replace("dc:", "")]: getVal(field) }),
+    {} as EpubMetadata
+  );
+};
+
+const cleanBody = (text: string): string =>
+  text.replaceAll("<br/>", "\n")
+      .replaceAll("</section>", "")
+      .replaceAll(EMPTY_SECTION_REGEX, "");
+
+const extractBody = (doc: Document | undefined): string => {
+  const section = doc?.getElementsByTagName("section")[0];
+  if (!section) throw new Error("Failed to get body section");
+  return cleanBody(section.textContent ?? "");
+};
+
+// ============================================================================
+// Epub 类
+// ============================================================================
 
 export class Epub {
-  // file's arraybuffer
-  readonly #package: Unzipped;
-  #decoder: TextDecoder;
-  #parser: DOMParser;
-  container: Document;
-  opf: Document;
-  content?: Document;
+  readonly #opf: Document;
+  readonly #content?: Document;
 
   constructor(file: ArrayBuffer) {
-    this.#package = un(file);
-    this.#decoder = new TextDecoder();
-    this.#parser = new DOMParser();
+    const data = decompress(file);
+    const decoder = new TextDecoder();
+    const parser = new DOMParser();
 
-    this.container = this.#readXmlDocument(CONTAINER_PATH, "text/xml");
-    const opfPath =
-      this.container.getElementsByTagName("rootfile")[0].attributes["0"].value;
-    this.opf = this.#readXmlDocument(opfPath, "text/xml");
-    const contentPath = this.opf.getElementById("t1")?.getAttribute("href");
-    if (contentPath) {
-      this.content = this.#readXmlDocument2(
-        `EPUB/${contentPath}`,
-        "application/xhtml+xml",
-      );
-    }
+    const dec = decode(decoder);
+    const parse = parseXml(parser);
+
+    // 解析容器
+    const container = parse("text/xml")(dec(data[CONTAINER_PATH]));
+
+    // 解析 OPF
+    const root = container.getElementsByTagName("rootfile")[0];
+    const opfPath = root?.attributes[ROOT_FILE_ATTR]?.value;
+    if (!opfPath) throw new Error("Missing OPF path");
+
+    this.#opf = parse("text/xml")(dec(data[opfPath]));
+
+    // 解析内容（可选）
+    const contentPath = getAttr(this.#opf)(CONTENT_ID)("href");
+    this.#content = contentPath
+      ? parse("application/xhtml+xml")(dec(data[`EPUB/${contentPath}`]))
+      : undefined;
   }
 
-  #readXmlDocument = (path: string, format: string) => {
-    const buffer = this.#package[path];
-    const text = this.#decoder.decode(buffer);
-    return this.#parser.parseFromString(text, format);
-  };
-  #readXmlDocument2 = (path: string, format: string) => {
-    const buffer = this.#package[path];
-    const text = this.#decoder.decode(buffer);
-    const result = this.#parser.parseFromString(text, format);
-    return result;
-  };
+  getOpfMetadata = (): EpubMetadata => extractMetadata(this.#opf);
 
-  opfMeta = () => {
-    const identifier = this.#getOpfMetaValue("dc:identifier");
-    const title = this.#getOpfMetaValue("dc:title");
-    const creator = this.#getOpfMetaValue("dc:creator");
-    const language = this.#getOpfMetaValue("dc:language");
-    const contributor = this.#getOpfMetaValue("dc:contributor");
-    const coverage = this.#getOpfMetaValue("dc:coverage");
-    const date = this.#getOpfMetaValue("dc:date");
-    const description = this.#getOpfMetaValue("dc:description");
-    const format = this.#getOpfMetaValue("dc:format");
-    const publisher = this.#getOpfMetaValue("dc:publisher");
-    const rights = this.#getOpfMetaValue("dc:rights");
-    const relation = this.#getOpfMetaValue("dc:relation");
-    const source = this.#getOpfMetaValue("dc:source");
-    const subject = this.#getOpfMetaValue("dc:subject");
-    const type = this.#getOpfMetaValue("dc:type");
-
+  getEpubInfo = (): EpubInfo => {
+    const meta = this.getOpfMetadata();
     return {
-      title,
-      creator,
-      contributor,
-      coverage,
-      date,
-      description,
-      format,
-      publisher,
-      identifier,
-      language,
-      rights,
-      relation,
-      source,
-      subject,
-      type,
-    };
-  };
-
-  #getOpfMetaValue = (tagName: string) => {
-    try {
-      const element = this.opf.getElementsByTagName(tagName);
-      if (element.length === 0) {
-        return null;
-      }
-      return element[0].textContent;
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  getInfo = () => {
-    const info = this.opfMeta();
-    const { title, creator } = info;
-    const s = new XMLSerializer();
-    const r = /<section\sxmlns:epub=.*\n.*\s*<h2><\/h2>/gm;
-
-    const bodyNode = this.content?.getElementsByTagName("section")[0];
-    if (!bodyNode) {
-      throw new Error("Failed to get body node");
-    }
-
-    const body = bodyNode.textContent
-      .replaceAll("<br/>", "\n")
-      .replaceAll("</section>", "")
-      .replaceAll(r, "");
-    return {
-      title,
-      author: { name: creator },
-      body,
+      title: meta.title,
+      author: { name: meta.creator },
+      body: extractBody(this.#content),
     };
   };
 }

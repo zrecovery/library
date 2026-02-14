@@ -1,4 +1,21 @@
-export const mockArticles = [
+/**
+ * 示例文章数据
+ * 用于开发和测试目的
+ */
+
+/**
+ * 文章接口
+ */
+export interface Article {
+  id: number;
+  title: string;
+  body: string;
+}
+
+/**
+ * 示例文章列表
+ */
+export const sampleArticles: Article[] = [
   {
     title: "How to Learn TypeScript",
     body: "TypeScript is a superset of JavaScript that adds static typing. It helps in building large applications with better scalability and maintainability.",
