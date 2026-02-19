@@ -5,7 +5,9 @@ import solidPlugin from "vite-plugin-solid";
 
 export default defineConfig({
   plugins: [
-    solidPlugin(),
+    solidPlugin({
+      ssr: false,
+    }),
     UnocssPlugin({
       // your config or in uno.config.ts
     }),

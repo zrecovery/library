@@ -42,12 +42,12 @@ async function initializeApp() {
   });
 
   const app = new Elysia()
-    .get("/", () => file("./public/index.html"))
-    .use(staticPlugin({ prefix: "/" }))
+    .get("/", file("./index.html"))
+    .use(staticPlugin({ prefix: "/assets", assets: "./assets" }))
     .group("/api", (api) =>
       api.use(articleController).use(authorController).use(chapterController),
     )
-    .listen(3001);
+    .listen(3004);
 
   return app;
 }

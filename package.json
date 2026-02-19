@@ -42,6 +42,6 @@
     "fflate": "^0.8.2",
     "result": "workspace:*",
     "solid-js": "^1.9.11",
-    "tailwind-merge": "^3.4.1"
+    "tailwind-merge": "^3.5.0"
   }
 }
