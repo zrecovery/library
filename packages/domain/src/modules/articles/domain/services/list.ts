@@ -1,11 +1,7 @@
 import { Value } from "@sinclair/typebox/value";
 import { Err, type Result } from "result";
-import {
-  InvalidationError,
-  type Logger,
-  UnknownError,
-} from "../../../../shared/domain";
-import type { StoreError } from "../../../../shared/domain/interfaces/store.error";
+import { InvalidationError, type Logger, UnknownError } from "@shared/domain";
+import type { StoreError } from "@shared/domain/interfaces/store.error";
 import type { Lister } from "../interfaces";
 import { type ArticleListResponse, ArticleQuery } from "../types";
 

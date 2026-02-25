@@ -1,7 +1,7 @@
 import { type Static, t as Type } from "elysia";
-import { ArticleSchema } from "../../../../shared/domain/types/article";
-import { AuthorSchema } from "../../../../shared/domain/types/author";
-import { ChapterSchema } from "../../../../shared/domain/types/chapter";
+import { ArticleSchema } from "@shared/domain/types/article";
+import { AuthorSchema } from "@shared/domain/types/author";
+import { ChapterSchema } from "@shared/domain/types/chapter";
 
 export const ArticleCreate = Type.Composite([
   ArticleSchema,

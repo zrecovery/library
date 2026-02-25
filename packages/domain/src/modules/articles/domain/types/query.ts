@@ -1,5 +1,5 @@
 import { type Static, Type } from "@sinclair/typebox";
-import { PaginationQuerySchema } from "../../../../shared/domain";
+import { PaginationQuerySchema } from "@shared/domain";
 
 export const ArticleQuery = Type.Composite([
   Type.Object({

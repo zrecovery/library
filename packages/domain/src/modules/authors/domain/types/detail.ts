@@ -1,11 +1,8 @@
 import { type Static, Type } from "@sinclair/typebox";
-import { IdSchema } from "../../../../shared/domain";
-import { ArticleMetaSchema } from "../../../../shared/domain/types/article";
-import { AuthorSchema } from "../../../../shared/domain/types/author";
-import {
-  ChapterMetaSchema,
-  ChapterSchema,
-} from "../../../../shared/domain/types/chapter";
+import { IdSchema } from "@shared/domain";
+import { ArticleMetaSchema } from "@shared/domain/types/article";
+import { AuthorSchema } from "@shared/domain/types/author";
+import { ChapterMetaSchema, ChapterSchema } from "@shared/domain/types/chapter";
 
 export const AuthorDetail = Type.Composite([
   IdSchema,

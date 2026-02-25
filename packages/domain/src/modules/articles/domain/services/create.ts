@@ -4,8 +4,8 @@ import {
   type Logger,
   type UnknownError,
   withStoreResultHandling,
-} from "../../../../shared/domain";
-import type { StoreError } from "../../../../shared/domain/interfaces/store.error";
+} from "@shared/domain";
+import type { StoreError } from "@shared/domain/interfaces/store.error";
 import type { Saver } from "../interfaces";
 import type { ArticleCreate } from "../types";
 

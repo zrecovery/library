@@ -5,8 +5,8 @@ import {
   NotFoundError,
   StoreErrorTag,
   UnknownError,
-} from "../../../../shared/domain";
-import type { StoreError } from "../../../../shared/domain/interfaces/store.error";
+} from "@shared/domain";
+import type { StoreError } from "@shared/domain/interfaces/store.error";
 import type { Remover } from "../interfaces";
 
 // ============================================================================

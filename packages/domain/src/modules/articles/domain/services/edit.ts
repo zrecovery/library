@@ -7,8 +7,8 @@ import {
   type Logger,
   StoreErrorTag,
   UnknownError,
-} from "../../../../shared/domain";
-import type { StoreError } from "../../../../shared/domain/interfaces/store.error";
+} from "@shared/domain";
+import type { StoreError } from "@shared/domain/interfaces/store.error";
 import type { Updater } from "../interfaces";
 import { ArticleUpdate } from "../types";
 
