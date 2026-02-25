@@ -1,13 +1,15 @@
-import type { Config } from "src/shared/domain/config";
-import { connectDb } from "src/shared/infrastructure/store/connect";
+import type { ArticleService } from "@library/domain/articles";
+import {
+  create,
+  detail,
+  edit,
+  findMany,
+  remove,
+} from "@library/domain-services";
+import type { Config } from "@library/domain-services/config";
+import { connectDb } from "@library/infrastructure";
+import { createArticleStore } from "@library/infrastructure/articles";
 import { createConsoleLogger } from "src/shared/utils";
-import type { ArticleService } from "../domain";
-import { create } from "../domain/services/create";
-import { detail } from "../domain/services/detail";
-import { edit } from "../domain/services/edit";
-import { findMany } from "../domain/services/list";
-import { remove } from "../domain/services/remove";
-import { createArticleStore } from "../infrastructure/store";
 
 export const createArticleService = (config: Config): ArticleService => {
   const db = connectDb(config);

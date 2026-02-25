@@ -1,7 +1,7 @@
-import type { Config } from "src/shared/domain/config";
-import { connectDb } from "src/shared/infrastructure/store/connect";
-import { detail } from "../domain/services/detail";
-import { createAuthorStore } from "../infrastructure/store";
+import { detail } from "@library/domain-services/authors";
+import type { Config } from "@library/domain-services/config";
+import { connectDb } from "@library/infrastructure";
+import { createAuthorStore } from "@library/infrastructure/authors";
 
 export const createAuthorService = (config: Config) => {
   const db = connectDb(config);

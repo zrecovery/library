@@ -1,5 +1,6 @@
 {
   "name": "library",
+  "type": "module",
   "module": "index.ts",
   "private": true,
   "scripts": {

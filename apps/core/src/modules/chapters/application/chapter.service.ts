@@ -1,8 +1,8 @@
-import type { Config } from "src/shared/domain/config";
-import { connectDb } from "src/shared/infrastructure/store/connect";
-import type { ChapterService } from "../domain";
-import { detail } from "../domain/services/detail";
-import { createChapterStore } from "../infrastructure/store";
+import type { ChapterService } from "@library/domain/chapters";
+import { chapterDetail as detail } from "@library/domain-services";
+import type { Config } from "@library/domain-services/config";
+import { connectDb } from "@library/infrastructure";
+import { createChapterStore } from "@library/infrastructure/chapters";
 
 export const createChapterService = (config: Config): ChapterService => {
   const db = connectDb(config);

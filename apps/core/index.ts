@@ -1,14 +1,15 @@
-export * from "./src/modules";
-export * from "./src/shared/domain";
-export { readConfig } from "./src/shared/domain/config";
+export * from "../../packages/domain/src/shared/domain/index";
+export {
+  type Config,
+  readConfig,
+} from "../../packages/domain-services/src/shared/domain/config";
 export {
   connectDb,
   connectDbAsync,
+  DatabaseManager,
   disconnectDb,
   getConnectionState,
-} from "./src/shared/infrastructure/store/connect";
-export {
-  DatabaseManager,
   getDatabaseManager,
-} from "./src/shared/infrastructure/store/db.manager";
-export * from "./src/shared/utils";
+} from "../../packages/infrastructure/src/shared/store";
+export * from "./src/modules";
+export { createConsoleLogger, defaultLogger } from "./src/shared/utils";

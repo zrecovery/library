@@ -1,0 +1,17 @@
+{
+  "name": "@library/infrastructure",
+  "exports": {
+    ".": "./src/index.ts",
+    "./authors": "./src/modules/authors/store/index.ts",
+    "./chapters": "./src/modules/chapters/store/index.ts",
+    "./articles": "./src/modules/articles/store/index.ts",
+    "./connect": "./src/shared/store/connect.ts",
+    "./db-manager": "./src/shared/store/db.manager.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "latest"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

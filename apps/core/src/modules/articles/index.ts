@@ -1,5 +1,4 @@
-export { createArticleService } from "./application/article.service";
-export type { ArticleService } from "./domain/interfaces/service";
+export type { ArticleService } from "@library/domain/articles";
 export {
   ArticleCreate,
   ArticleDetail,
@@ -7,4 +6,5 @@ export {
   ArticleListResponse,
   ArticleQuery,
   ArticleUpdate,
-} from "./domain/types";
+} from "@library/domain/articles/types";
+export { createArticleService } from "./application/article.service";
