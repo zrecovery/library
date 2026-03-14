@@ -1,0 +1,7 @@
+{
+  "name": "@library/usecase",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@library/domain": "workspace:*"
+  }
+}

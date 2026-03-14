@@ -1,1 +1,0 @@
-export { detail } from "./detail";

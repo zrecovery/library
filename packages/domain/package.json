@@ -1,15 +1,5 @@
 {
   "name": "@library/domain",
-  "exports": {
-    ".": "./src/shared/domain/index.ts",
-    "./interfaces/store.error": "./src/shared/domain/interfaces/store.error.ts",
-    "./authors": "./src/modules/authors/domain/index.ts",
-    "./authors/types": "./src/modules/authors/domain/types/index.ts",
-    "./chapters": "./src/modules/chapters/domain/index.ts",
-    "./chapters/types": "./src/modules/chapters/domain/types/index.ts",
-    "./articles": "./src/modules/articles/domain/index.ts",
-    "./articles/types": "./src/modules/articles/domain/types/index.ts"
-  },
   "devDependencies": {
     "@types/bun": "latest"
   }

@@ -28,19 +28,20 @@
  * }
  * ```
  */
-export class TaggedError extends Error {
+export class TaggedError<T> extends Error {
   /**
    * 附加在错误上的标签/上下文数据
    * 可以包含任何有助于调试的信息，如文件名、行号、相关数据等
    */
-  tag: unknown;
+  tag: T;
 
   /**
    * 创建带标签的错误实例
    * @param message - 错误消息描述
-   * @param tag - 附加的上下文数据，可以是任意类型
+   * @param tag - 附加的上下文数据，可以是枚举
+   * @param raw - 可选的原始错误堆栈，用于保留原始错误的堆栈信息
    */
-  constructor(message: string, tag: unknown) {
+  constructor(message: string, tag: T, raw?: string) {
     super(message);
     this.name = "TaggedError";
     this.tag = tag;

@@ -79,9 +79,6 @@ CREATE TRIGGER update_timestamps
   FOR EACH ROW
 EXECUTE PROCEDURE update_timestamps();
 
-CREATE EXTENSION IF NOT EXISTS pgroonga;
-CREATE INDEX pgroonga_content_index ON articles USING pgroonga (title,body);
-
 
 CREATE MATERIALIZED VIEW library AS
 SELECT articles.id AS id,
@@ -99,6 +96,3 @@ LEFT JOIN authors ON authors.article_id = articles.id
 LEFT JOIN people ON authors.person_id = people.id
 LEFT JOIN chapters ON chapters.article_id = articles.id
 LEFT JOIN series ON chapters.series_id = series.id;
-
-
-CREATE INDEX pgroonga_view_content_index ON library USING pgroonga (title,body);
