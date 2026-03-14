@@ -1,6 +1,6 @@
-import { ArticleSchema } from "@library/domain/article";
+import { ArticleMetaSchema, ArticleSchema } from "@library/domain/article";
 import { ChapterSchema } from "@library/domain/chapter";
-import { Id } from "@library/domain/common";
+import { Id, IdSchema } from "@library/domain/common";
 import { type Static, Type } from "@sinclair/typebox";
 import type { Result } from "result";
 import type { TaggedError } from "tag-error";
@@ -12,7 +12,7 @@ export const ChapterDetailResultPort = Type.Composite([
   Type.Object({ id: Type.Number() }),
   ChapterSchema,
   Type.Object({
-    articles: Type.Array(ArticleSchema),
+    articles: Type.Array(Type.Composite([IdSchema, ArticleMetaSchema])),
   }),
 ]);
 
