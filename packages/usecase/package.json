@@ -2,8 +2,14 @@
   "name": "@library/usecase",
   "exports": {
     "./authors": "./src/modules/authors/",
+    "./authors/find-detail": "./src/modules/authors/usecase/find-detail/index.ts",
     "./chapters": "./src/modules/chapters/",
-    "./articles/create": "./src/modules/articles/create/index.ts"
+    "./chapters/find-detail": "./src/modules/chapters/usecase/find-detail/index.ts",
+    "./articles/create": "./src/modules/articles/create/index.ts",
+    "./articles/delete": "./src/modules/articles/delete/index.ts",
+    "./articles/find-detail": "./src/modules/articles/find-detail/index.ts",
+    "./articles/find-list": "./src/modules/articles/find-list/index.ts",
+    "./articles/update": "./src/modules/articles/update/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
