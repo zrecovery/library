@@ -1,98 +1,258 @@
+PRAGMA foreign_keys = ON;
+
+--------------------------------------------------
+-- articles
+--------------------------------------------------
+
 CREATE TABLE articles (
-  id SERIAL PRIMARY KEY,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now(),
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   title TEXT NOT NULL,
   body TEXT NOT NULL
 );
 
+CREATE INDEX idx_articles_created_at
+ON articles(created_at);
+
+--------------------------------------------------
+-- people
+--------------------------------------------------
+
 CREATE TABLE people (
-  id SERIAL PRIMARY KEY,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now(),
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   name TEXT NOT NULL
 );
 
--- 关系表，表示文章作者
+CREATE INDEX idx_people_name
+ON people(name);
+
+--------------------------------------------------
+-- authors
+--------------------------------------------------
+
 CREATE TABLE authors (
-  id SERIAL PRIMARY KEY,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now(),
-  person_id INTEGER REFERENCES people(id) ON DELETE CASCADE,
-  article_id INTEGER REFERENCES articles(id) ON DELETE CASCADE
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  person_id INTEGER NOT NULL,
+  article_id INTEGER NOT NULL,
+
+  FOREIGN KEY (person_id)
+    REFERENCES people(id)
+    ON DELETE CASCADE,
+
+  FOREIGN KEY (article_id)
+    REFERENCES articles(id)
+    ON DELETE CASCADE,
+
+  UNIQUE(person_id, article_id)
 );
 
--- 表示系列
+CREATE INDEX idx_authors_article
+ON authors(article_id);
+
+CREATE INDEX idx_authors_person
+ON authors(person_id);
+
+--------------------------------------------------
+-- series
+--------------------------------------------------
+
 CREATE TABLE series (
-  id SERIAL PRIMARY KEY,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now(),
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   title TEXT NOT NULL UNIQUE
 );
 
--- 表示文章在系列
+--------------------------------------------------
+-- chapters
+--------------------------------------------------
+
 CREATE TABLE chapters (
-  id SERIAL PRIMARY KEY,
-  created_at TIMESTAMP NOT NULL DEFAULT now(),
-  updated_at TIMESTAMP NOT NULL DEFAULT now(),
-  article_id INTEGER REFERENCES articles(id) ON DELETE CASCADE,
-  series_id INTEGER REFERENCES series(id) ON DELETE CASCADE,
-  "order" INTEGER NOT NULL DEFAULT 1
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  article_id INTEGER NOT NULL,
+  series_id INTEGER NOT NULL,
+
+  "order" INTEGER NOT NULL DEFAULT 1,
+
+  FOREIGN KEY (article_id)
+    REFERENCES articles(id)
+    ON DELETE CASCADE,
+
+  FOREIGN KEY (series_id)
+    REFERENCES series(id)
+    ON DELETE CASCADE,
+
+  UNIQUE(series_id, "order"),
+  UNIQUE(article_id, series_id)
 );
 
-CREATE OR REPLACE FUNCTION update_timestamps()
-RETURNS TRIGGER AS $$
+CREATE INDEX idx_chapters_article
+ON chapters(article_id);
+
+CREATE INDEX idx_chapters_series
+ON chapters(series_id);
+
+--------------------------------------------------
+-- keywords
+--------------------------------------------------
+
+CREATE TABLE keywords (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  keyword TEXT NOT NULL UNIQUE
+);
+
+CREATE INDEX idx_keywords_keyword
+ON keywords(keyword);
+
+--------------------------------------------------
+-- article_keywords
+--------------------------------------------------
+
+CREATE TABLE article_keywords (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+  article_id INTEGER NOT NULL,
+  keyword_id INTEGER NOT NULL,
+
+  count INTEGER NOT NULL DEFAULT 1,
+
+  FOREIGN KEY (article_id)
+    REFERENCES articles(id)
+    ON DELETE CASCADE,
+
+  FOREIGN KEY (keyword_id)
+    REFERENCES keywords(id)
+    ON DELETE CASCADE,
+
+  UNIQUE(article_id, keyword_id)
+);
+
+CREATE INDEX idx_article_keywords_article
+ON article_keywords(article_id);
+
+CREATE INDEX idx_article_keywords_keyword
+ON article_keywords(keyword_id);
+
+--------------------------------------------------
+-- updated_at triggers
+--------------------------------------------------
+
+CREATE TRIGGER articles_update_timestamp
+AFTER UPDATE ON articles
+FOR EACH ROW
 BEGIN
-  NEW.updated_at = now();
-  RETURN NEW;
+  UPDATE articles
+  SET updated_at = CURRENT_TIMESTAMP
+  WHERE id = OLD.id;
 END;
-$$ LANGUAGE plpgsql;
 
--- 添加所有表触发器，自动更新时间戳
-CREATE TRIGGER update_timestamps
-  BEFORE UPDATE
-  ON articles
-  FOR EACH ROW
-EXECUTE PROCEDURE update_timestamps();
+CREATE TRIGGER people_update_timestamp
+AFTER UPDATE ON people
+FOR EACH ROW
+BEGIN
+  UPDATE people
+  SET updated_at = CURRENT_TIMESTAMP
+  WHERE id = OLD.id;
+END;
 
-CREATE TRIGGER update_timestamps
-  BEFORE UPDATE
-  ON people
-  FOR EACH ROW
-EXECUTE PROCEDURE update_timestamps();
+CREATE TRIGGER authors_update_timestamp
+AFTER UPDATE ON authors
+FOR EACH ROW
+BEGIN
+  UPDATE authors
+  SET updated_at = CURRENT_TIMESTAMP
+  WHERE id = OLD.id;
+END;
 
-CREATE TRIGGER update_timestamps
-  BEFORE UPDATE
-  ON authors
-  FOR EACH ROW
-EXECUTE PROCEDURE update_timestamps();
+CREATE TRIGGER series_update_timestamp
+AFTER UPDATE ON series
+FOR EACH ROW
+BEGIN
+  UPDATE series
+  SET updated_at = CURRENT_TIMESTAMP
+  WHERE id = OLD.id;
+END;
 
-CREATE TRIGGER update_timestamps
-  BEFORE UPDATE
-  ON series
-  FOR EACH ROW
-EXECUTE PROCEDURE update_timestamps();
+CREATE TRIGGER chapters_update_timestamp
+AFTER UPDATE ON chapters
+FOR EACH ROW
+BEGIN
+  UPDATE chapters
+  SET updated_at = CURRENT_TIMESTAMP
+  WHERE id = OLD.id;
+END;
 
-CREATE TRIGGER update_timestamps
-  BEFORE UPDATE
-  ON chapters
-  FOR EACH ROW
-EXECUTE PROCEDURE update_timestamps();
+CREATE TRIGGER keywords_update_timestamp
+AFTER UPDATE ON keywords
+FOR EACH ROW
+BEGIN
+  UPDATE keywords
+  SET updated_at = CURRENT_TIMESTAMP
+  WHERE id = OLD.id;
+END;
 
+CREATE TRIGGER article_keywords_update_timestamp
+AFTER UPDATE ON article_keywords
+FOR EACH ROW
+BEGIN
+  UPDATE article_keywords
+  SET updated_at = CURRENT_TIMESTAMP
+  WHERE id = OLD.id;
+END;
 
-CREATE MATERIALIZED VIEW library AS
-SELECT articles.id AS id,
-	articles.title AS title,
-	articles.body AS body,
-	chapters.id AS chapter_id,
-  chapters.order AS chapter_order,
+--------------------------------------------------
+-- library view
+--------------------------------------------------
+
+CREATE VIEW library AS
+SELECT
+  articles.id AS id,
+  articles.title AS title,
+  articles.body AS body,
+
+  chapters.id AS chapter_id,
+  chapters."order" AS chapter_order,
   chapters.series_id AS series_id,
+
   series.title AS series_title,
+
   authors.id AS author_id,
   people.id AS people_id,
   people.name AS people_name
+
 FROM articles
-LEFT JOIN authors ON authors.article_id = articles.id
-LEFT JOIN people ON authors.person_id = people.id
-LEFT JOIN chapters ON chapters.article_id = articles.id
-LEFT JOIN series ON chapters.series_id = series.id;
+LEFT JOIN authors
+  ON authors.article_id = articles.id
+
+LEFT JOIN people
+  ON authors.person_id = people.id
+
+LEFT JOIN chapters
+  ON chapters.article_id = articles.id
+
+LEFT JOIN series
+  ON chapters.series_id = series.id;
+
+
+CREATE VIEW keyword_index_view AS
+SELECT
+  article_keywords.article_id AS article_id,
+  keywords.keyword AS keyword,
+  article_keywords.count AS count
+FROM article_keywords
+JOIN keywords
+  ON article_keywords.keyword_id = keywords.id;

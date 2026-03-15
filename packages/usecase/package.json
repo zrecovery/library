@@ -1,5 +1,10 @@
 {
   "name": "@library/usecase",
+  "exports": {
+    "./authors": "./src/modules/authors/",
+    "./chapters": "./src/modules/chapters/",
+    "./articles/create": "./src/modules/articles/create/index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@library/domain": "workspace:*"
