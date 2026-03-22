@@ -1,4 +1,5 @@
 import type { Id } from "@library/domain/common";
+import type { Rollbackable } from "@shared/rollbackable";
 import { Type } from "@sinclair/typebox";
 import type { Static } from "elysia";
 import type { Result } from "result";
@@ -10,6 +11,6 @@ export const SearchDeleterErrorEnum = Type.Enum({
 
 export type SearchDeleterErrorEnum = Static<typeof SearchDeleterErrorEnum>;
 
-export interface SearchDeleter {
+export interface SearchDeleter extends Rollbackable {
   delete(id: Id): Promise<Result<null, TaggedError<SearchDeleterErrorEnum>>>;
 }

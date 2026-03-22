@@ -1,4 +1,4 @@
-import type { Transaction} from "@shared/db";
+import type { Transaction } from "@shared/db";
 import {
   ArticleSaverErrorEnum,
   type ArticleSaver,
@@ -8,7 +8,6 @@ import type { Rollbackable } from "@library/usecase/shared/rollbackable";
 import { Err, Ok, type Result } from "result";
 import { TaggedError } from "tag-error";
 import * as schema from "@shared/schema";
-
 
 export class ArticleSaverRepository implements ArticleSaver, Rollbackable {
   #tx: Transaction;

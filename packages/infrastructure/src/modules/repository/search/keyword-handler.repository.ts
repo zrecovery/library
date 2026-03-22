@@ -4,7 +4,7 @@ import type { SearchHandler } from "@library/usecase/articles/create";
 import type { TaggedError } from "tag-error";
 
 export class KeywordHandlerRepository implements SearchHandler {
-  #db:  Transaction;
+  #db: Transaction;
   constructor(readonly db: Transaction) {
     this.#db = db;
   }

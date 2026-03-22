@@ -4,7 +4,7 @@
     "./repository/articles": "./src/modules/repository/articles/index.ts",
     "./repository/chapters": "./src/modules/repository/chapters/index.ts",
     "./repository/authors": "./src/modules/repository/authors/index.ts",
-    "./repository/keywords": "./src/modules/repository/keywords/index.ts"
+    "./repository/search": "./src/modules/repository/search/index.ts"
   },
   "dependencies": {
     "drizzle-orm": "latest"

@@ -43,21 +43,25 @@ export class DeleteArticleUseCase {
   execute = async (port: ArticleDeletePort): Promise<ArticleDeleteResult> => {
     const searchDeleteResult = await this.#searchDeleter.delete(port);
     if (searchDeleteResult.isErr()) {
+      await this.#searchDeleter.rollback();
       return Err(this.#deleteErrorHandler(searchDeleteResult.unwrapErr()));
     }
 
     const chapterDeleteResult = await this.#chapterDeleter.delete(port);
     if (chapterDeleteResult.isErr()) {
+      await this.#chapterDeleter.rollback();
       return Err(this.#deleteErrorHandler(chapterDeleteResult.unwrapErr()));
     }
 
     const authorDeleteResult = await this.#authorDeleter.delete(port);
     if (authorDeleteResult.isErr()) {
+      await this.#authorDeleter.rollback();
       return Err(this.#deleteErrorHandler(authorDeleteResult.unwrapErr()));
     }
 
     const articleDeleteResult = await this.#articleDeleter.delete(port);
     if (articleDeleteResult.isErr()) {
+      await this.#articleDeleter.rollback();
       return Err(this.#deleteErrorHandler(articleDeleteResult.unwrapErr()));
     }
 
