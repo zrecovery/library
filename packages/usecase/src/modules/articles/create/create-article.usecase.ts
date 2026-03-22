@@ -49,13 +49,10 @@ export class CreateArticleUseCase {
     }
   };
 
-  #saveResultHandler = <T>(result: Result<number, TaggedError<T>>) => {
-    return result.map((id) => id).mapErr(this.#saverErrorHandler);
-  };
-
   execute = async (port: ArticleCreatePort): Promise<ArticleCreateResult> => {
     const articleSaveResult = await this.#articleSaver.save(port);
     if (articleSaveResult.isErr()) {
+      await this.#articleSaver.rollback();
       return articleSaveResult.map((id) => id).mapErr(this.#saverErrorHandler);
     }
     const articleId = articleSaveResult.unwrap();
@@ -67,6 +64,7 @@ export class CreateArticleUseCase {
       });
       if (chapterSaver.isErr()) {
         const err = chapterSaver.unwrapErr();
+        await this.#chapterSaver.rollback();
         return Err(this.#saverErrorHandler(err));
       }
     }
@@ -77,12 +75,14 @@ export class CreateArticleUseCase {
     });
     if (authorSaver.isErr()) {
       const err = authorSaver.unwrapErr();
+      await this.#authorSaver.rollback();
       return Err(this.#saverErrorHandler(err));
     }
 
     const searchHandlerResult = await this.#searchHandler.index(port.body);
     if (searchHandlerResult.isErr()) {
       const err = searchHandlerResult.unwrapErr();
+      await this.#searchHandler.rollback();
       return Err(this.#saverErrorHandler(err));
     }
 

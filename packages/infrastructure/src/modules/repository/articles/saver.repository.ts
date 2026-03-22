@@ -1,23 +1,28 @@
-import type { Database } from "@shared/db";
+import type { Transaction} from "@shared/db";
 import {
   ArticleSaverErrorEnum,
-  CreateArticleUseCase,
   type ArticleSaver,
 } from "@library/usecase/articles/create";
+import type { Rollbackable } from "@library/usecase/shared/rollbackable";
+
 import { Err, Ok, type Result } from "result";
 import { TaggedError } from "tag-error";
 import * as schema from "@shared/schema";
 
-export class ArticleSaverRepository implements ArticleSaver {
-  #db: Database;
-  constructor(readonly db: Database) {
-    this.#db = db;
+
+export class ArticleSaverRepository implements ArticleSaver, Rollbackable {
+  #tx: Transaction;
+  constructor(tx: Transaction) {
+    this.#tx = tx;
+  }
+  rollback(): Promise<void> {
+    return this.#tx.rollback();
   }
   save = async (data: {
     title: string;
     body: string;
   }): Promise<Result<number, TaggedError<"Not Found" | "Unknown Error">>> => {
-    const result = await this.#db
+    const result = await this.#tx
       .insert(schema.articles)
       .values({ title: data.title, body: data.body })
       .returning({ insertedId: schema.articles.id });

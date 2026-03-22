@@ -1,3 +1,4 @@
+import type { Rollbackable } from "@shared/rollbackable";
 import { Type } from "@sinclair/typebox";
 import type { Static } from "elysia";
 import type { Result } from "result";
@@ -9,7 +10,7 @@ export const SearchHandlerErrorEnum = Type.Enum({
 
 export type SearchHandlerErrorEnum = Static<typeof SearchHandlerErrorEnum>;
 
-export interface SearchHandler {
+export interface SearchHandler extends Rollbackable {
   index(
     content: string,
   ): Promise<Result<null, TaggedError<SearchHandlerErrorEnum>>>;

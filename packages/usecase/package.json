@@ -9,7 +9,8 @@
     "./articles/delete": "./src/modules/articles/delete/index.ts",
     "./articles/find-detail": "./src/modules/articles/find-detail/index.ts",
     "./articles/find-list": "./src/modules/articles/find-list/index.ts",
-    "./articles/update": "./src/modules/articles/update/index.ts"
+    "./articles/update": "./src/modules/articles/update/index.ts",
+    "./shared/rollbackable": "./src/shared/rollbackable.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",

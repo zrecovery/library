@@ -1,4 +1,5 @@
 import { ArticleSchema } from "@library/domain/article";
+import type { Rollbackable } from "@shared/rollbackable";
 import { Type, type Static } from "@sinclair/typebox";
 import type { Result } from "result";
 import type { TaggedError } from "tag-error";
@@ -13,7 +14,7 @@ export const ArticleSaverErrorEnum = Type.Enum({
 
 export type ArticleSaverErrorEnum = Static<typeof ArticleSaverErrorEnum>;
 
-export interface ArticleSaver {
+export interface ArticleSaver extends Rollbackable {
   save(
     data: ArticleCreate,
   ): Promise<Result<number, TaggedError<ArticleSaverErrorEnum>>>;

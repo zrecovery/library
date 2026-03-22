@@ -22,7 +22,7 @@ export const ArticleDetailResultPort = Type.Composite([
   }),
 ]);
 
-type ArticleDetailResultPort = Static<typeof ArticleDetailResultPort>;
+export type ArticleDetailResultPort = Static<typeof ArticleDetailResultPort>;
 
 export const ArticleDetailFinderErrorEnum = Type.Enum({
   NotFound: "Not Found",

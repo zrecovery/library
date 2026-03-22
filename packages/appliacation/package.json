@@ -1,0 +1,11 @@
+{
+  "name": "@library/application",
+  "dependencies": {
+    "drizzle-orm": "latest",
+    "@library/usecase": "workspace:*",
+    "@library/infrastructure": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

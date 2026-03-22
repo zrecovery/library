@@ -1,4 +1,5 @@
 import { ChapterSchema } from "@library/domain/chapter";
+import type { Rollbackable } from "@shared/rollbackable";
 import { Type, type Static } from "@sinclair/typebox";
 import type { Result } from "result";
 import type { TaggedError } from "tag-error";
@@ -15,7 +16,7 @@ export const ChapterSaverErrorEnum = Type.Enum({
 
 export type ChapterSaverErrorEnum = Static<typeof ChapterSaverErrorEnum>;
 
-export interface ChapterSaver {
+export interface ChapterSaver extends Rollbackable {
   save(
     data: ChapterCreateSchema,
   ): Promise<Result<number, TaggedError<ChapterSaverErrorEnum>>>;
