@@ -2,6 +2,7 @@ import { ArticleSchema } from "@library/domain/article";
 import { AuthorSchema } from "@library/domain/author";
 import { ChapterSchema } from "@library/domain/chapter";
 import { Id, IdSchema } from "@library/domain/common";
+import type { Rollbackable } from "@shared/rollbackable";
 import { Type, type Static } from "@sinclair/typebox";
 import type { Result } from "result";
 import type { TaggedError } from "tag-error";
@@ -33,7 +34,7 @@ export type ArticleDetailFinderErrorEnum = Static<
   typeof ArticleDetailFinderErrorEnum
 >;
 
-export interface ArticleDetailFinder {
+export interface ArticleDetailFinder extends Rollbackable {
   findDetailById(
     id: Id,
   ): Promise<

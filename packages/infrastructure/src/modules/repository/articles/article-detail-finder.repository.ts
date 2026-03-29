@@ -1,4 +1,4 @@
-import type { Database } from "@shared/db";
+import type { Transaction } from "@shared/db";
 import * as schema from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { Err, Ok, type Result } from "result";
@@ -12,16 +12,19 @@ import {
 import { Value } from "@sinclair/typebox/value";
 
 export class ArticleDetailFinderRepository implements ArticleDetailFinder {
-  #db: Database;
-  constructor(readonly db: Database) {
-    this.#db = db;
+  #tx: Transaction;
+  constructor(tx: Transaction) {
+    this.#tx = tx;
+  }
+  rollback(): Promise<void> {
+    this.#tx.rollback();
   }
   findDetailById = async (
     id: number,
   ): Promise<
     Result<ArticleDetailResultPort, TaggedError<ArticleDetailFinderErrorEnum>>
   > => {
-    const article = await this.#db
+    const article = await this.#tx
       .select({
         id: schema.library.id,
         title: schema.library.title,

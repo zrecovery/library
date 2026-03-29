@@ -17,6 +17,7 @@ export class FindArticleDetailUseCase {
   #FinderErrorHandler = <T>(
     e: TaggedError<T>,
   ): TaggedError<ArticleDetailErrorEnum> => {
+    this.#articleDetailFinder.rollback();
     switch (e.tag) {
       case ArticleDetailErrorEnum.NotFound:
         return new TaggedError(

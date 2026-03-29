@@ -15,12 +15,11 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
-    "baseUrl": "./src",
     "paths": {
-      "@articles/*": ["modules/articles/*"],
-      "@authors/*": ["modules/authors/*"],
-      "@chapters/*": ["modules/chapters/*"],
-      "@shared/*": ["shared/*"]
+      "@articles/*": ["./src/modules/articles/*"],
+      "@authors/*": ["./src/modules/authors/*"],
+      "@chapters/*": ["./src/modules/chapters/*"],
+      "@shared/*": ["./src/shared/*"]
     }
   }
 }

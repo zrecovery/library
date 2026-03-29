@@ -6,5 +6,7 @@ export {
 } from "./port/deps/ArticleDetailFinder";
 export type {
   ArticleDetailErrorEnum,
+  ArticleDetailPort,
   ArticleDetailResult,
+  FindArticleDetailUseCase,
 } from "./port/type/findDetail";
