@@ -8,19 +8,19 @@ import { ChapterDeleterRepository } from "@library/infrastructure/repository/cha
 import { AuthorDeleterRepository } from "@library/infrastructure/repository/authors";
 import { SearchDeleterRepository } from "@library/infrastructure/repository/search";
 
-const client = drizzle();
-export const DeleteArticleSerive = async (port: ArticleDeletePort) => {
-  return client.transaction(async (tx) => {
-    const articleDeleter = new ArticleDeleterRepository(tx);
-    const chapterDeleter = new ChapterDeleterRepository(tx);
-    const authorDeleter = new AuthorDeleterRepository(tx);
-    const keywordDeleter = new SearchDeleterRepository(tx);
-    const deleteArticleUseCase = new DeleteArticleUseCase(
-      articleDeleter,
-      authorDeleter,
-      chapterDeleter,
-      keywordDeleter,
-    );
-    return deleteArticleUseCase.execute(port);
-  });
-};
+export const DeleteArticleSerive =
+  (client: ReturnType<typeof drizzle>) => async (port: ArticleDeletePort) => {
+    return client.transaction(async (tx) => {
+      const articleDeleter = new ArticleDeleterRepository(tx);
+      const chapterDeleter = new ChapterDeleterRepository(tx);
+      const authorDeleter = new AuthorDeleterRepository(tx);
+      const keywordDeleter = new SearchDeleterRepository(tx);
+      const deleteArticleUseCase = new DeleteArticleUseCase(
+        articleDeleter,
+        authorDeleter,
+        chapterDeleter,
+        keywordDeleter,
+      );
+      return deleteArticleUseCase.execute(port);
+    });
+  };
