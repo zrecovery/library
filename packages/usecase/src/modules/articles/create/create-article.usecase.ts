@@ -8,7 +8,7 @@ import type {
 } from "./port/deps/AuthorSaver";
 import {
   ArticleCreateErrorEnum,
-  type ArticleCreatePort,
+  ArticleCreatePort,
   type ArticleCreateResult,
 } from "./port/type/create";
 import { Ok, Err, type Result } from "result";
@@ -18,6 +18,7 @@ import type {
 } from "./port/deps/ChapterSaver";
 import { TaggedError } from "tag-error";
 import type { SearchHandler } from "./port/deps/SearchHandler";
+import { Value } from "@sinclair/typebox/value";
 
 export class CreateArticleUseCase {
   readonly #articleSaver: ArticleSaver;
@@ -50,6 +51,11 @@ export class CreateArticleUseCase {
   };
 
   execute = async (port: ArticleCreatePort): Promise<ArticleCreateResult> => {
+    if (!Value.Check(ArticleCreatePort, port)) {
+      return Err(
+        new TaggedError("Invalid input", ArticleCreateErrorEnum.InvalidInput),
+      );
+    }
     const articleSaveResult = await this.#articleSaver.save(port);
     if (articleSaveResult.isErr()) {
       await this.#articleSaver.rollback();

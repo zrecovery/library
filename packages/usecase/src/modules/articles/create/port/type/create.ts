@@ -8,11 +8,9 @@ import type { Id } from "@library/domain/common";
 
 export const ArticleCreatePort = Type.Composite([
   ArticleSchema,
-  Type.Optional(
-    Type.Object({
-      chapter: ChapterSchema,
-    }),
-  ),
+  Type.Object({
+    chapter: Type.Optional(ChapterSchema),
+  }),
   Type.Object({
     author: AuthorSchema,
   }),
