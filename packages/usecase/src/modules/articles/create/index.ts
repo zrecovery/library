@@ -10,7 +10,10 @@ export {
   type ChapterSaver,
   ChapterSaverErrorEnum,
 } from "./port/deps/ChapterSaver";
-export type { SearchHandler } from "./port/deps/SearchHandler";
+export {
+  type SearchHandler,
+  SearchHandlerErrorEnum,
+} from "./port/deps/SearchHandler";
 
 export type {
   ArticleCreatePort,

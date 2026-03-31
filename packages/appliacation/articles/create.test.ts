@@ -89,6 +89,10 @@ const runTestCase =
         .query("SELECT * FROM library ORDER BY id DESC LIMIT 1")
         .get() as getSQLViewResult;
 
+      const readKeyword = db
+        .query(`SELECT * FROM keyword_index_view WHERE article_id = $id`)
+        .get({ id: articleId });
+      console.log(readKeyword);
       expect(articleId).toEqual(read.id);
       expect(read.title).toEqual(inputCase.input.title);
       expect(read.body).toEqual(inputCase.input.body);

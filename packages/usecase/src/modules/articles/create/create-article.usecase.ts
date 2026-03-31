@@ -85,7 +85,10 @@ export class CreateArticleUseCase {
       return Err(this.#saverErrorHandler(err));
     }
 
-    const searchHandlerResult = await this.#searchHandler.index(port.body);
+    const searchHandlerResult = await this.#searchHandler.index(
+      articleId,
+      port.body,
+    );
     if (searchHandlerResult.isErr()) {
       const err = searchHandlerResult.unwrapErr();
       await this.#searchHandler.rollback();
