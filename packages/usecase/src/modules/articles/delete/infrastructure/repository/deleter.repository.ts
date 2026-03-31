@@ -1,24 +1,27 @@
-import type { Database } from "@shared/db";
-import * as schema from "@shared/schema";
 import type {
   ArticleDeleter,
   ArticleDeleterErrorEnum,
 } from "@library/usecase/articles/delete";
+import type { Transaction } from "@shared/infrastructure/repostiory/db";
 import { eq } from "drizzle-orm";
 import { Err, Ok, type Result } from "result";
 import { TaggedError } from "tag-error";
+import * as schema from "@shared/infrastructure/repostiory/schema";
 
 export class ArticleDeleterRepository implements ArticleDeleter {
-  #db: Database;
-  constructor(readonly db: Database) {
-    this.#db = db;
+  #tx: Transaction;
+  constructor(tx: Transaction) {
+    this.#tx = tx;
+  }
+  rollback(): void {
+    this.#tx.rollback();
   }
 
   // 删除article时会级联删除对应其他表
   delete = async (
     id: number,
   ): Promise<Result<number, TaggedError<ArticleDeleterErrorEnum>>> => {
-    const existing = await this.#db
+    const existing = await this.#tx
       .select({
         id: schema.library.id,
       })
@@ -31,7 +34,7 @@ export class ArticleDeleterRepository implements ArticleDeleter {
     }
     existing;
 
-    const [deleted] = await this.#db
+    const [deleted] = await this.#tx
       .delete(schema.articles)
       .where(eq(schema.articles.id, id))
       .returning({ deletedId: schema.articles.id });

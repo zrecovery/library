@@ -1,5 +1,4 @@
 import type { ArticleDeleter } from "./port/deps/ArticleDelete";
-import type { AuthorDeleter } from "./port/deps/AuthorDelete";
 import {
   ArticleDeleteErrorEnum,
   type ArticleDeletePort,
@@ -8,23 +7,11 @@ import {
 import { Ok, Err } from "result";
 import type { ChapterDeleter } from "./port/deps/ChapterDelete";
 import { TaggedError } from "tag-error";
-import type { SearchDeleter } from "./port/deps/SearchDelete";
 
 export class DeleteArticleUseCase {
   readonly #articleDeleter: ArticleDeleter;
-  readonly #authorDeleter: AuthorDeleter;
-  readonly #chapterDeleter: ChapterDeleter;
-  readonly #searchDeleter: SearchDeleter;
-  constructor(
-    articleDeleter: ArticleDeleter,
-    authorDeleter: AuthorDeleter,
-    chapterDeleter: ChapterDeleter,
-    searchDeleter: SearchDeleter,
-  ) {
+  constructor(articleDeleter: ArticleDeleter) {
     this.#articleDeleter = articleDeleter;
-    this.#authorDeleter = authorDeleter;
-    this.#chapterDeleter = chapterDeleter;
-    this.#searchDeleter = searchDeleter;
   }
 
   #deleteErrorHandler = <T>(
@@ -41,27 +28,9 @@ export class DeleteArticleUseCase {
   };
 
   execute = async (port: ArticleDeletePort): Promise<ArticleDeleteResult> => {
-    const searchDeleteResult = await this.#searchDeleter.delete(port);
-    if (searchDeleteResult.isErr()) {
-      await this.#searchDeleter.rollback();
-      return Err(this.#deleteErrorHandler(searchDeleteResult.unwrapErr()));
-    }
-
-    const chapterDeleteResult = await this.#chapterDeleter.delete(port);
-    if (chapterDeleteResult.isErr()) {
-      await this.#chapterDeleter.rollback();
-      return Err(this.#deleteErrorHandler(chapterDeleteResult.unwrapErr()));
-    }
-
-    const authorDeleteResult = await this.#authorDeleter.delete(port);
-    if (authorDeleteResult.isErr()) {
-      await this.#authorDeleter.rollback();
-      return Err(this.#deleteErrorHandler(authorDeleteResult.unwrapErr()));
-    }
-
     const articleDeleteResult = await this.#articleDeleter.delete(port);
     if (articleDeleteResult.isErr()) {
-      await this.#articleDeleter.rollback();
+      this.#articleDeleter.rollback();
       return Err(this.#deleteErrorHandler(articleDeleteResult.unwrapErr()));
     }
 

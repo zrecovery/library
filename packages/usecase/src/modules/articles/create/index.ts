@@ -1,20 +1,3 @@
-export {
-  type ArticleSaver,
-  ArticleSaverErrorEnum,
-} from "./port/deps/ArticleSaver";
-export {
-  type AuthorSaver,
-  AuthorSaverErrorEnum,
-} from "./port/deps/AuthorSaver";
-export {
-  type ChapterSaver,
-  ChapterSaverErrorEnum,
-} from "./port/deps/ChapterSaver";
-export {
-  type SearchHandler,
-  SearchHandlerErrorEnum,
-} from "./port/deps/SearchHandler";
-
 export type {
   ArticleCreatePort,
   ArticleCreateErrorEnum,
@@ -22,3 +5,9 @@ export type {
 } from "./port/type/create";
 
 export { CreateArticleUseCase } from "./create-article.usecase";
+export {
+  ArticleSaverRepository,
+  AuthorSaverRepository,
+  ChapterSaverRepository,
+  SearchHandlerRepository,
+} from "./infrastructure/repository";
