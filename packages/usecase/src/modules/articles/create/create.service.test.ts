@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
 import { expect, test, describe } from "bun:test";
 import { drizzle } from "drizzle-orm/bun-sqlite";
-import { createArticleSerive } from "./create";
+import { createArticleSerive } from "./create.service";
 import { env } from "bun";
 
 const undefinedToNull = <T>(value: T | undefined): null | T => {
