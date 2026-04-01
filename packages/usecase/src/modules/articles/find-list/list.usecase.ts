@@ -4,7 +4,7 @@ import {
   ArticleListPort,
   type ArticleListResult,
 } from "./port/type/findList";
-import type { ArticleListFinder } from "./port/deps/ArticleDetailFinder";
+import type { ArticleListFinder } from "./port/deps/ArticleListlFinder";
 import type { KeywordHandler } from "./port/deps/KeywordHandler";
 import { Err } from "result";
 

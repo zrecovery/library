@@ -21,7 +21,7 @@ export const QueryKeywordsSchema = Type.Object({
 export type QueryKeywords = Static<typeof QueryKeywordsSchema>;
 
 export interface ArticleListFinder {
-  find(
+  findList(
     pagination: Pagination,
     keywords?: QueryKeywords,
   ): Promise<

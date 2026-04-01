@@ -1,4 +1,4 @@
-export { FindArticleDetailUseCase } from "./FindArticleDetailUseCase";
+export { FindArticleDetailUseCase } from "./find-detail.usecase";
 export {
   type ArticleDetailFinder,
   ArticleDetailFinderErrorEnum,
@@ -8,5 +8,4 @@ export type {
   ArticleDetailErrorEnum,
   ArticleDetailPort,
   ArticleDetailResult,
-  FindArticleDetailUseCase,
 } from "./port/type/findDetail";

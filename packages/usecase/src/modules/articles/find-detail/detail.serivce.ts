@@ -1,9 +1,9 @@
-import { ArticleDetailFinderRepository } from "@library/infrastructure/repository/articles";
 import {
   FindArticleDetailUseCase,
   type ArticleDetailPort,
 } from "@library/usecase/articles/find-detail";
 import type { drizzle } from "drizzle-orm/bun-sqlite";
+import { ArticleDetailFinderRepository } from "./infrastructure/repository";
 
 export const DetailArticleSerive =
   (client: ReturnType<typeof drizzle>) => async (port: ArticleDetailPort) => {

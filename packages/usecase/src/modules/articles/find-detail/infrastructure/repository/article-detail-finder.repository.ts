@@ -1,5 +1,5 @@
-import type { Transaction } from "@shared/db";
-import * as schema from "@shared/schema";
+import type { Transaction } from "@shared/infrastructure/repostiory/db";
+import * as schema from "@shared/infrastructure/repostiory/schema";
 import { eq } from "drizzle-orm";
 import { Err, Ok, type Result } from "result";
 import { TaggedError } from "tag-error";
@@ -7,7 +7,6 @@ import {
   ArticleDetailResultPort,
   ArticleDetailFinderErrorEnum,
   type ArticleDetailFinder,
-  type ArticleDetailResult,
 } from "@library/usecase/articles/find-detail";
 import { Value } from "@sinclair/typebox/value";
 

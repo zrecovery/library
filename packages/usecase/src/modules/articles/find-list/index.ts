@@ -1,5 +1,5 @@
-export { FindArticleListUseCase } from "./FindArticlListUseCase";
-export type { ArticleListFinder } from "./port/deps/ArticleDetailFinder";
+export { FindArticleListUseCase } from "./list.usecase";
+export type { ArticleListFinder } from "./port/deps/ArticleListlFinder";
 export type { KeywordHandler } from "./port/deps/KeywordHandler";
 export type {
   ArticleListErrorEnum,
