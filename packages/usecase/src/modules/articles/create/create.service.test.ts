@@ -76,9 +76,9 @@ const runTestCase =
     const db = createDb();
     const client = drizzle(db);
     db.run(createSql);
-    const service = createArticleSerive(client);
+    const service = await createArticleSerive(client);
 
-    const result = await service(inputCase.input);
+    const result = await service.execute(inputCase.input);
 
     if (inputCase.expectOk) {
       // 成功用例断言

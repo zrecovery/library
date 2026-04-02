@@ -1,7 +1,7 @@
 import {
-  ArticleSaverErrorEnum,
   type ArticleSaver,
-} from "@library/usecase/articles/create";
+  ArticleSaverErrorEnum,
+} from "@articles/create/port/deps/ArticleSaver";
 import type { Rollbackable } from "@library/usecase/shared/rollbackable";
 import type { Transaction } from "@shared/infrastructure/repostiory/db";
 import * as schema from "@shared/infrastructure/repostiory/schema";

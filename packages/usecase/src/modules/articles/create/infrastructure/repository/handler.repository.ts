@@ -1,8 +1,8 @@
-import type { Id } from "@library/domain/common";
 import {
   SearchHandlerErrorEnum,
   type SearchHandler,
-} from "@library/usecase/articles/create";
+} from "@articles/create/port/deps/SearchHandler";
+import type { Id } from "@library/domain/common";
 import type { Transaction } from "@shared/infrastructure/repostiory/db";
 import * as schema from "@shared/infrastructure/repostiory/schema";
 
@@ -47,6 +47,7 @@ export class SearchHandlerRepository implements SearchHandler {
         .values(keywordCounts)
         .execute();
     } catch (e) {
+      console.error(e);
       return Err(
         new TaggedError(
           "Unknown",

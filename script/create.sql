@@ -256,3 +256,5 @@ SELECT
 FROM article_keywords
 JOIN keywords
   ON article_keywords.keyword_id = keywords.id;
+
+INSERT INTO keywords (keyword) VALUES ('内容');

@@ -1,7 +1,7 @@
 import {
   AuthorSaverErrorEnum,
   type AuthorSaver,
-} from "@library/usecase/articles/create";
+} from "@articles/create/port/deps/AuthorSaver";
 import type { Transaction } from "@shared/infrastructure/repostiory/db";
 import * as schema from "@shared/infrastructure/repostiory/schema";
 import { Err, Ok, type Result } from "result";

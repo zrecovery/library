@@ -1,7 +1,7 @@
-export type {
-  ArticleCreatePort,
+export {
+  type ArticleCreatePort,
   ArticleCreateErrorEnum,
-  ArticleCreateResult,
+  type ArticleCreateResult,
 } from "./port/type/create";
 
 export { CreateArticleUseCase } from "./create-article.usecase";

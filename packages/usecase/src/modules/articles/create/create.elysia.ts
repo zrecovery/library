@@ -1,8 +1,7 @@
-import { Elysia, status } from "elysia";
+import { Elysia, status, t } from "elysia";
 import { CreateArticleUseCase } from "./create-article.usecase";
 import { ArticleCreatePort } from "./port/type/create";
 import { Id } from "@library/domain/common";
-import { ElysiaType } from "elysia/type-system";
 
 export const createArticleHttpService = (
   articleCreate: CreateArticleUseCase,
@@ -22,7 +21,7 @@ export const createArticleHttpService = (
       body: ArticleCreatePort,
       response: {
         200: Id,
-        500: ElysiaType.String(),
+        500: t.String(),
       },
     },
   );
