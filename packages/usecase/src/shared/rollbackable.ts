@@ -1,3 +1,3 @@
 export interface Rollbackable {
-  rollback(): void;
+  rollback(): Promise<void>;
 }

@@ -8,7 +8,7 @@ const ArticleCreate = ArticleSchema;
 type ArticleCreate = Static<typeof ArticleCreate>;
 
 export const ArticleSaverErrorEnum = Type.Enum({
-  NotFound: "Not Found",
+  InvalidInput: "Invalid Input",
   UnknownError: "Unknown Error",
 });
 

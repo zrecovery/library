@@ -7,6 +7,7 @@ import {
   sqliteView,
 } from "drizzle-orm/sqlite-core";
 import { eq, sql } from "drizzle-orm";
+import { createInsertSchema } from "drizzle-typebox";
 
 /* -------------------------------- articles -------------------------------- */
 
@@ -25,7 +26,7 @@ export const articles = sqliteTable(
   (table) => [index("idx_articles_created_at").on(table.createdAt)],
 );
 
-/* -------------------------------- people -------------------------------- */
+export const insertArticleSchema = createInsertSchema(articles);
 
 export const people = sqliteTable(
   "people",

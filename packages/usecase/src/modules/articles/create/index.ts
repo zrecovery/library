@@ -11,3 +11,4 @@ export {
   ChapterSaverRepository,
   SearchHandlerRepository,
 } from "./infrastructure/repository";
+export { createArticleHttpService } from "./create.elysia";

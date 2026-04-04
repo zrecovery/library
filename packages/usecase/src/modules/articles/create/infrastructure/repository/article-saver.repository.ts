@@ -5,6 +5,7 @@ import {
 import type { Rollbackable } from "@library/usecase/shared/rollbackable";
 import type { Transaction } from "@shared/infrastructure/repostiory/db";
 import * as schema from "@shared/infrastructure/repostiory/schema";
+import { Value } from "@sinclair/typebox/value";
 
 import { Err, Ok, type Result } from "result";
 import { TaggedError } from "tag-error";
@@ -20,7 +21,14 @@ export class ArticleSaverRepository implements ArticleSaver, Rollbackable {
   save = async (data: {
     title: string;
     body: string;
-  }): Promise<Result<number, TaggedError<"Not Found" | "Unknown Error">>> => {
+  }): Promise<Result<number, TaggedError<ArticleSaverErrorEnum>>> => {
+    const isArticleValid = Value.Check(schema.insertArticleSchema, data);
+    if (!isArticleValid) {
+      return Err(
+        new TaggedError("Invalid Input", ArticleSaverErrorEnum.InvalidInput),
+      );
+    }
+
     const result = await this.#tx
       .insert(schema.articles)
       .values({ title: data.title, body: data.body })
