@@ -5,7 +5,7 @@ import type { ExtractTablesWithRelations } from "drizzle-orm";
 
 export type Database = BunSQLiteDatabase<typeof schema>;
 export type Transaction = SQLiteTransaction<
-  "async",
+  "sync",
   void,
   Record<string, unknown>,
   ExtractTablesWithRelations<Record<string, unknown>>
