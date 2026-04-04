@@ -1,6 +1,3 @@
 {
-  "name": "@library/domain",
-  "devDependencies": {
-    "@types/bun": "latest"
-  }
+  "name": "@library/domain"
 }

@@ -1,6 +1,5 @@
 import { CreateArticleUseCase } from "./create-article.usecase";
-import { drizzle } from "drizzle-orm/bun-sqlite";
-import type { ArticleCreatePort } from "./port/type/create";
+import type { drizzle } from "drizzle-orm/bun-sqlite";
 import {
   ChapterSaverRepository,
   ArticleSaverRepository,

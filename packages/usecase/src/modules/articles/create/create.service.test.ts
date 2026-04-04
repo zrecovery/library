@@ -4,10 +4,6 @@ import { drizzle } from "drizzle-orm/bun-sqlite";
 import { createArticleSerive } from "./create.service";
 import { env } from "bun";
 
-const undefinedToNull = <T>(value: T | undefined): null | T => {
-  if (value === undefined) return null;
-  return value;
-};
 interface getSQLViewResult {
   id: number;
   title: string;
@@ -68,8 +64,6 @@ const testCases = Object.freeze([
 const createDb = (): Database =>
   new Database(env.DATABASE_URI, { create: true });
 
-const deleteTableSQL = await Bun.file("./script/delete.sql").text();
-
 // 运行单个测试用例
 const runTestCase =
   (inputCase: (typeof testCases)[number]) => async (): Promise<void> => {
@@ -118,5 +112,7 @@ const runTestCase =
   };
 
 describe("application articles - fully isolated functional tests", () => {
-  testCases.forEach((c) => test(c.name, runTestCase(c)));
+  testCases.forEach((c) => {
+    test(c.name, runTestCase(c));
+  });
 });

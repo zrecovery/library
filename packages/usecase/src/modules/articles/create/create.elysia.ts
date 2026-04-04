@@ -1,5 +1,5 @@
 import { Elysia, status, t } from "elysia";
-import { CreateArticleUseCase } from "./create-article.usecase";
+import type { CreateArticleUseCase } from "./create-article.usecase";
 import { ArticleCreatePort } from "./port/type/create";
 import { Id } from "@library/domain/common";
 

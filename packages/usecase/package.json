@@ -13,7 +13,6 @@
     "./shared/rollbackable": "./src/shared/rollbackable.ts"
   },
   "devDependencies": {
-    "@types/bun": "latest",
     "@library/domain": "workspace:*"
   }
 }
