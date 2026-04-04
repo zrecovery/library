@@ -6,14 +6,14 @@ import {
   index,
   sqliteView,
 } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 /* -------------------------------- articles -------------------------------- */
 
 export const articles = sqliteTable(
   "articles",
   {
-    id: integer("id").primaryKey({ autoIncrement: true }),
+    id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
 
     createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 
@@ -22,9 +22,7 @@ export const articles = sqliteTable(
     title: text("title").notNull(),
     body: text("body").notNull(),
   },
-  (table) => ({
-    createdAtIdx: index("idx_articles_created_at").on(table.createdAt),
-  }),
+  (table) => [index("idx_articles_created_at").on(table.createdAt)],
 );
 
 /* -------------------------------- people -------------------------------- */
@@ -40,9 +38,7 @@ export const people = sqliteTable(
 
     name: text("name").notNull(),
   },
-  (table) => ({
-    nameIdx: index("idx_people_name").on(table.name),
-  }),
+  (table) => [index("idx_people_name").on(table.name)],
 );
 
 /* -------------------------------- authors -------------------------------- */
@@ -64,16 +60,16 @@ export const authors = sqliteTable(
       .notNull()
       .references(() => articles.id, { onDelete: "cascade" }),
   },
-  (table) => ({
-    articleIdx: index("idx_authors_article").on(table.articleId),
+  (table) => [
+    index("idx_authors_article").on(table.articleId),
 
-    personIdx: index("idx_authors_person").on(table.personId),
+    index("idx_authors_person").on(table.personId),
 
-    uniqueAuthor: uniqueIndex("authors_unique_person_article").on(
+    uniqueIndex("authors_unique_person_article").on(
       table.personId,
       table.articleId,
     ),
-  }),
+  ],
 );
 
 /* -------------------------------- series -------------------------------- */
@@ -109,21 +105,18 @@ export const chapters = sqliteTable(
 
     order: integer("order").notNull().default(1),
   },
-  (table) => ({
-    articleIdx: index("idx_chapters_article").on(table.articleId),
+  (table) => [
+    index("idx_chapters_article").on(table.articleId),
 
-    seriesIdx: index("idx_chapters_series").on(table.seriesId),
+    index("idx_chapters_series").on(table.seriesId),
 
-    uniqueSeriesOrder: uniqueIndex("chapters_unique_series_order").on(
-      table.seriesId,
-      table.order,
-    ),
+    uniqueIndex("chapters_unique_series_order").on(table.seriesId, table.order),
 
-    uniqueArticleSeries: uniqueIndex("chapters_unique_article_series").on(
+    uniqueIndex("chapters_unique_article_series").on(
       table.articleId,
       table.seriesId,
     ),
-  }),
+  ],
 );
 
 /* -------------------------------- keywords -------------------------------- */
@@ -139,13 +132,11 @@ export const keywords = sqliteTable(
 
     keyword: text("keyword").notNull(),
   },
-  (table) => ({
-    keywordUnique: uniqueIndex("keywords_unique_keyword").on(table.keyword),
-    keywordIdx: index("idx_keywords_keyword").on(table.keyword),
-  }),
+  (table) => [
+    uniqueIndex("keywords_unique_keyword").on(table.keyword),
+    index("idx_keywords_keyword").on(table.keyword),
+  ],
 );
-
-/* ---------------------------- article_keywords ---------------------------- */
 
 export const articleKeywords = sqliteTable(
   "article_keywords",
@@ -166,16 +157,13 @@ export const articleKeywords = sqliteTable(
 
     count: integer("count").notNull().default(1),
   },
-  (table) => ({
-    articleIdx: index("idx_article_keywords_article").on(table.articleId),
+  (table) => [
+    index("idx_article_keywords_article").on(table.articleId),
 
-    keywordIdx: index("idx_article_keywords_keyword").on(table.keywordId),
+    index("idx_article_keywords_keyword").on(table.keywordId),
 
-    uniqueArticleKeyword: uniqueIndex("article_keywords_unique").on(
-      table.articleId,
-      table.keywordId,
-    ),
-  }),
+    uniqueIndex("article_keywords_unique").on(table.articleId, table.keywordId),
+  ],
 );
 
 export const library = sqliteView("library").as((qb) =>
@@ -196,10 +184,10 @@ export const library = sqliteView("library").as((qb) =>
       peopleName: people.name,
     })
     .from(articles)
-    .leftJoin(authors, sql`${authors.articleId} = ${articles.id}`)
-    .leftJoin(people, sql`${authors.personId} = ${people.id}`)
-    .leftJoin(chapters, sql`${chapters.articleId} = ${articles.id}`)
-    .leftJoin(series, sql`${chapters.seriesId} = ${series.id}`),
+    .leftJoin(authors, eq(authors.articleId, articles.id))
+    .leftJoin(people, eq(authors.personId, people.id))
+    .leftJoin(chapters, eq(chapters.articleId, articles.id))
+    .leftJoin(series, eq(chapters.seriesId, series.id)),
 );
 
 export const keywordIndexView = sqliteView("keyword_index_view").as((qb) =>
@@ -210,5 +198,5 @@ export const keywordIndexView = sqliteView("keyword_index_view").as((qb) =>
       count: articleKeywords.count,
     })
     .from(articleKeywords)
-    .innerJoin(keywords, sql`${articleKeywords.keywordId} = ${keywords.id}`),
+    .innerJoin(keywords, eq(articleKeywords.keywordId, keywords.id)),
 );
