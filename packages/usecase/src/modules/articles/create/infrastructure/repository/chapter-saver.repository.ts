@@ -3,20 +3,41 @@ import { Err, Ok, type Result } from "result";
 import { TaggedError } from "tag-error";
 import type { Transaction } from "@shared/infrastructure/repostiory/db";
 import * as schema from "@shared/infrastructure/repostiory/schema";
-import type { ChapterSaver } from "@articles/create/port/deps/ChapterSaver";
+import {
+  ChapterSaverErrorEnum,
+  type ChapterSaver,
+} from "@articles/create/port/deps/ChapterSaver";
+import { Value } from "@sinclair/typebox/value";
 export class ChapterSaverRepository implements ChapterSaver {
   #tx: Transaction;
   constructor(tx: Transaction) {
     this.#tx = tx;
   }
-  rollback = () => {
-    this.#tx.rollback();
+  rollback = async () => {
+    try {
+      this.#tx.rollback();
+    } catch (e) {
+      if (e instanceof Error && e.message !== "Rollback") {
+        throw e;
+      }
+    }
   };
   save = async (data: {
     articleId: number;
     title: string;
     order: number;
   }): Promise<Result<number, TaggedError<"Unknown Error">>> => {
+    const isSeriesValid = Value.Check(schema.insertSeriesSchema, {
+      title: data.title,
+    });
+    if (!isSeriesValid) {
+      return Err(
+        new TaggedError(
+          "Invalid Input About Series",
+          ChapterSaverErrorEnum.InvalidInput,
+        ),
+      );
+    }
     const [series] = await this.#tx
       .insert(schema.series)
       .values({ title: data.title })

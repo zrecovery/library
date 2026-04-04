@@ -15,7 +15,13 @@ export class SearchHandlerRepository implements SearchHandler {
     this.#tx = tx;
   }
   rollback = async (): Promise<void> => {
-    this.#tx.rollback();
+    try {
+      this.#tx.rollback();
+    } catch (e) {
+      if (e instanceof Error && e.message !== "Rollback") {
+        throw e;
+      }
+    }
   };
   #countKeyword = (content: string, keyword: string): number => {
     return content.split(keyword).length - 1;

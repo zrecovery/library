@@ -15,9 +15,15 @@ export class ArticleSaverRepository implements ArticleSaver, Rollbackable {
   constructor(tx: Transaction) {
     this.#tx = tx;
   }
-  rollback(): Promise<void> {
-    return this.#tx.rollback();
-  }
+  rollback = async (): Promise<void> => {
+    try {
+      this.#tx.rollback();
+    } catch (e) {
+      if (e instanceof Error && e.message !== "Rollback") {
+        throw e;
+      }
+    }
+  };
   save = async (data: {
     title: string;
     body: string;

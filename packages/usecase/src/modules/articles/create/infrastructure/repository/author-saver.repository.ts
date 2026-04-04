@@ -4,6 +4,8 @@ import {
 } from "@articles/create/port/deps/AuthorSaver";
 import type { Transaction } from "@shared/infrastructure/repostiory/db";
 import * as schema from "@shared/infrastructure/repostiory/schema";
+import { insertPersonSchema } from "@shared/infrastructure/repostiory/schema";
+import { Value } from "@sinclair/typebox/value";
 import { Err, Ok, type Result } from "result";
 import { TaggedError } from "tag-error";
 
@@ -12,13 +14,28 @@ export class AuthorSaverRepository implements AuthorSaver {
   constructor(tx: Transaction) {
     this.#tx = tx;
   }
-  rollback = (): Promise<void> => {
-    this.#tx.rollback();
+  rollback = async (): Promise<void> => {
+    try {
+      this.#tx.rollback();
+    } catch (e) {
+      if (e instanceof Error && e.message !== "Rollback") {
+        throw e;
+      }
+    }
   };
   save = async (data: {
     articleId: number;
     name: string;
-  }): Promise<Result<number, TaggedError<"Unknown Error">>> => {
+  }): Promise<Result<number, TaggedError<AuthorSaverErrorEnum>>> => {
+    const isPersonValid = Value.Check(insertPersonSchema, { name: data.name });
+    if (!isPersonValid) {
+      return Err(
+        new TaggedError(
+          "Invalid Input About Person",
+          AuthorSaverErrorEnum.InvalidInput,
+        ),
+      );
+    }
     const [person] = await this.#tx
       .insert(schema.people)
       .values({ name: data.name })

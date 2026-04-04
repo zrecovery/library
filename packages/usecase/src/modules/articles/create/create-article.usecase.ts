@@ -92,7 +92,7 @@ export class CreateArticleUseCase {
     if (searchHandlerResult.isErr()) {
       const err = searchHandlerResult.unwrapErr();
       console.error(err);
-      this.#searchHandler.rollback();
+      await this.#searchHandler.rollback();
       return Err(this.#saverErrorHandler(err));
     }
 

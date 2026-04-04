@@ -42,6 +42,8 @@ export const people = sqliteTable(
   (table) => [index("idx_people_name").on(table.name)],
 );
 
+export const insertPersonSchema = createInsertSchema(people);
+
 /* -------------------------------- authors -------------------------------- */
 
 export const authors = sqliteTable(
@@ -84,6 +86,8 @@ export const series = sqliteTable("series", {
 
   title: text("title").notNull().unique(),
 });
+
+export const insertSeriesSchema = createInsertSchema(series);
 
 /* -------------------------------- chapters -------------------------------- */
 
@@ -138,6 +142,8 @@ export const keywords = sqliteTable(
     index("idx_keywords_keyword").on(table.keyword),
   ],
 );
+
+export const insertKeywordSchema = createInsertSchema(keywords);
 
 export const articleKeywords = sqliteTable(
   "article_keywords",

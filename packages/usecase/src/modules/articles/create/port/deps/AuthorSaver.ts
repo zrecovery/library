@@ -12,6 +12,7 @@ export const AuthorCreateSchema = Type.Composite([
 export type AuthorCreateSchema = Static<typeof AuthorCreateSchema>;
 
 export const AuthorSaverErrorEnum = Type.Enum({
+  InvalidInput: "Invalid Input",
   UnknownError: "Unknown Error",
 });
 

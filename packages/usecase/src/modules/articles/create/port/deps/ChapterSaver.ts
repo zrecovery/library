@@ -11,6 +11,7 @@ export const ChapterCreateSchema = Type.Composite([
 export type ChapterCreateSchema = Static<typeof ChapterCreateSchema>;
 
 export const ChapterSaverErrorEnum = Type.Enum({
+  InvalidInput: "Invalid Input",
   UnknownError: "Unknown Error",
 });
 
