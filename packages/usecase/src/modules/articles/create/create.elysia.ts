@@ -1,7 +1,7 @@
 import { Elysia, status, t } from "elysia";
 import type { CreateArticleUseCase } from "./create-article.usecase";
 import { ArticleCreateErrorEnum, ArticleCreatePort } from "./port/type/create";
-import { Id } from "@library/domain/common";
+import { Id } from "@library/domain";
 
 export const createArticleHttpService = (
   articleCreate: CreateArticleUseCase,
@@ -9,19 +9,26 @@ export const createArticleHttpService = (
   return new Elysia().post(
     "/",
     async ({ body }) => {
-      const result = await articleCreate.execute(body);
-      const mappedResult = result.match({
-        ok: (id) => id,
-        err: (e) => {
-          switch (e.tag) {
-            case ArticleCreateErrorEnum.InvalidInput:
-              return status(400, e.message);
-            default:
-              return status(500, "未知错误");
-          }
-        },
-      });
-      return mappedResult;
+      try {
+        const result = await articleCreate.execute(body);
+        console.log(result);
+        const mappedResult = result.match({
+          ok: (id) => id,
+          err: (e) => {
+            switch (e.tag) {
+              case ArticleCreateErrorEnum.InvalidInput:
+                return status(400, e.message);
+              default:
+                console.error(e);
+                return status(500, "未知错误");
+            }
+          },
+        });
+        return mappedResult;
+      } catch (e) {
+        console.error(e);
+        return status(500, "未知错误");
+      }
     },
     {
       body: ArticleCreatePort,

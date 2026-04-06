@@ -1,9 +1,11 @@
-export type {
-  ArticleCreateErrorEnum,
-  ArticleCreatePort,
-  ArticleCreateResult,
+export {
+  type ArticleCreateErrorEnum,
+  type ArticleCreatePort,
+  type ArticleCreateResult,
+  createArticleHttpService,
 } from "./create";
 export { CreateArticleUseCase } from "./create";
+
 export type {
   ArticleDeleteErrorEnum,
   ArticleDeletePort,
@@ -14,6 +16,7 @@ export type {
   SearchDeleter,
 } from "./delete";
 export { DeleteArticleUseCase } from "./delete";
+
 export type {
   ArticleDetailErrorEnum,
   ArticleDetailFinder,
@@ -30,13 +33,13 @@ export type {
   KeywordHandler,
 } from "./find-list";
 export { FindArticleListUseCase } from "./find-list";
+
 export type {
   ArticleUpdateErrorEnum,
   ArticleUpdatePort,
   ArticleUpdateResult,
   ArticleUpdater,
-  AuthorUpdater,
-  ChapterUpdater,
-  SearchUpdateHandler,
 } from "./update";
 export { UpdateArticleUseCase } from "./update";
+
+export { articleHttpService } from "./api";

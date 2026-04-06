@@ -20,6 +20,7 @@
       "@authors/*": ["./src/modules/authors/*"],
       "@chapters/*": ["./src/modules/chapters/*"],
       "@shared/*": ["./src/shared/*"]
-    }
+    },
+    "types": ["bun"]
   }
 }
