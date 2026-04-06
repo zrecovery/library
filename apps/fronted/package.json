@@ -11,8 +11,9 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@library/usecase": "workspace:*",
+    "@library/backend": "workspace:*",
     "@library/domain": "workspace:*",
-    "@library/backend": "workspace:*"
+    "@library/usecase": "workspace:*",
+    "@solidjs/router": "^0.16.1"
   }
 }

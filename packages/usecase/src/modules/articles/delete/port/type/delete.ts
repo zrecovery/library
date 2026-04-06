@@ -1,7 +1,7 @@
 import { type Static, t as Type } from "elysia";
 import type { Result } from "result";
 import type { TaggedError } from "tag-error";
-import { Id } from "@library/domain/common";
+import { Id } from "@library/domain";
 
 export const ArticleDeletePort = Id;
 

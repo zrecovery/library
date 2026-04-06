@@ -1,8 +1,9 @@
 import "uno.css";
 import { render } from "solid-js/web";
 import "solid-devtools";
-
+import { Route, Router } from "@solidjs/router";
 import App from "./App";
+import ArticleCreatePage from "./routes/articles/create";
 
 const root = document.getElementById("root");
 
@@ -12,4 +13,11 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-render(() => <App />, root!);
+render(
+  () => (
+    <Router root={App}>
+      <Route path="/articles/create" component={ArticleCreatePage} />
+    </Router>
+  ),
+  root!,
+);

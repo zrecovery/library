@@ -1,10 +1,10 @@
 import { type Static, t as Type } from "elysia";
-import { ArticleSchema } from "@library/domain/article";
-import { ChapterSchema } from "@library/domain/chapter";
-import { AuthorSchema } from "@library/domain/author";
+import { ArticleSchema } from "@library/domain";
+import { ChapterSchema } from "@library/domain";
+import { AuthorSchema } from "@library/domain";
 import type { Result } from "result";
 import type { TaggedError } from "tag-error";
-import { Id, IdSchema } from "@library/domain/common";
+import { Id, IdSchema } from "@library/domain";
 
 export const ArticleUpdatePort = Type.Composite([
   Type.Object({ article: Type.Optional(Type.Partial(ArticleSchema)) }),

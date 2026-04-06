@@ -3,7 +3,7 @@ import solidPlugin from "vite-plugin-solid";
 import UnocssPlugin from "@unocss/vite";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-
+import solidDevtools from "solid-devtools/vite";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 

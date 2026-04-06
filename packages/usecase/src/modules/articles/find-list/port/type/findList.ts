@@ -1,7 +1,7 @@
 import { type Static, t as Type } from "elysia";
-import { ArticleMetaSchema, ArticleSchema } from "@library/domain/article";
-import { ChapterSchema } from "@library/domain/chapter";
-import { AuthorSchema } from "@library/domain/author";
+import { ArticleMetaSchema, ArticleSchema } from "@library/domain";
+import { ChapterSchema } from "@library/domain";
+import { AuthorSchema } from "@library/domain";
 import type { Result } from "result";
 import type { TaggedError } from "tag-error";
 import {
@@ -9,7 +9,7 @@ import {
   Id,
   PaginationQuerySchema,
   PaginationResponse,
-} from "@library/domain/common";
+} from "@library/domain";
 
 export const ArticleListPort = Type.Composite([
   Type.Object({ pagination: PaginationQuerySchema }),

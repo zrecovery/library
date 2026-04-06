@@ -1,4 +1,4 @@
-import { ChapterSchema } from "@library/domain/chapter";
+import { ChapterSchema } from "@library/domain";
 import type { Rollbackable } from "@shared/rollbackable";
 import { Type, type Static } from "@sinclair/typebox";
 import type { Result } from "result";

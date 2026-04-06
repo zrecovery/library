@@ -3,7 +3,7 @@ import { Type } from "@sinclair/typebox";
 import type { Static } from "elysia";
 import type { Result } from "result";
 import type { TaggedError } from "tag-error";
-import type { Id } from "@library/domain/common";
+import type { Id } from "@library/domain";
 
 export const SearchHandlerErrorEnum = Type.Enum({
   UnknownError: "Unknown Error",

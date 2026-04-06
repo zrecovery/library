@@ -1,7 +1,7 @@
-import { ArticleSchema } from "@library/domain/article";
-import { AuthorSchema } from "@library/domain/author";
-import { ChapterSchema } from "@library/domain/chapter";
-import { Id, IdSchema } from "@library/domain/common";
+import { ArticleSchema } from "@library/domain";
+import { AuthorSchema } from "@library/domain";
+import { ChapterSchema } from "@library/domain";
+import { Id, IdSchema } from "@library/domain";
 import type { Rollbackable } from "@shared/rollbackable";
 import { Type, type Static } from "@sinclair/typebox";
 import type { Result } from "result";

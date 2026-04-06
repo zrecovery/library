@@ -14,8 +14,8 @@ import {
 
 const components: { title: string; href: string; description: string }[] = [
   {
-    title: "Data Table",
-    href: "/docs/components/data-table",
+    title: "创建文章",
+    href: "/articles/create",
     description: "Powerful table and datagrids built using TanStack Table.",
   },
   {

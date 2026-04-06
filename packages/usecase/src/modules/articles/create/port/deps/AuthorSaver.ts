@@ -1,4 +1,4 @@
-import { AuthorSchema } from "@library/domain/author";
+import { AuthorSchema } from "@library/domain";
 import type { Rollbackable } from "@shared/rollbackable";
 import { Type, type Static } from "@sinclair/typebox";
 import type { Result } from "result";
