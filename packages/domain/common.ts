@@ -18,3 +18,5 @@ export const PaginationResponse = Type.Object({
   current: Type.Integer({ minimum: 0 }),
   size: Type.Integer({ minimum: 0 }),
 });
+
+export type PaginationResponse = Static<typeof PaginationResponse>;
