@@ -13,25 +13,25 @@ import {
 
 export const ArticleListPort = Type.Composite([
   Type.Object({ pagination: PaginationQuerySchema }),
-  Type.Optional(
-    Type.Object({
-      keyword: Type.String(),
-    }),
-  ),
+  Type.Object({
+    keyword: Type.Optional(Type.String()),
+  }),
 ]);
 export type ArticleListPort = Static<typeof ArticleListPort>;
 export const ArticleListResultPort = Type.Object({
   pagination: PaginationResponse,
-  data: Type.Composite([
-    IdSchema,
-    ArticleMetaSchema,
-    Type.Object({
-      chapter: Type.Optional(Type.Composite([IdSchema, ChapterSchema])),
-    }),
-    Type.Object({
-      author: Type.Composite([IdSchema, AuthorSchema]),
-    }),
-  ]),
+  data: Type.Array(
+    Type.Composite([
+      IdSchema,
+      ArticleMetaSchema,
+      Type.Object({
+        chapter: Type.Optional(Type.Composite([IdSchema, ChapterSchema])),
+      }),
+      Type.Object({
+        author: Type.Composite([IdSchema, AuthorSchema]),
+      }),
+    ]),
+  ),
 });
 
 export type ArticleListResultPort = Static<typeof ArticleListResultPort>;

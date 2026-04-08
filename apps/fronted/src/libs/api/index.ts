@@ -1,9 +1,23 @@
 import { treaty } from "@elysiajs/eden";
 import type { App } from "@library/backend";
+import type { Pagination } from "@library/domain";
 import type { ArticleCreatePort } from "@library/usecase";
 
-export const api = treaty<App>("localhost:3001");
+export const server = treaty<App>("localhost:3001");
 
 export const createArticle = async (articleCreated: ArticleCreatePort) => {
-  return api.api.articles.post(articleCreated);
+  return server.api.articles.post(articleCreated);
+};
+
+export const getArticleList = async (query?: {
+  pagination?: Pagination;
+  keywords?: string;
+}) => {
+  return server.api.articles.get({
+    query: {
+      size: query?.pagination?.size,
+      page: query?.pagination?.page,
+      keywords: query?.keywords,
+    },
+  });
 };

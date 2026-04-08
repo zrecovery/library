@@ -1,7 +1,6 @@
 import { Elysia, status, t } from "elysia";
 import type { CreateArticleUseCase } from "./create-article.usecase";
 import { ArticleCreateErrorEnum, ArticleCreatePort } from "./port/type/create";
-import { Id } from "@library/domain";
 
 export const createArticleHttpService = (
   articleCreate: CreateArticleUseCase,
@@ -11,9 +10,8 @@ export const createArticleHttpService = (
     async ({ body }) => {
       try {
         const result = await articleCreate.execute(body);
-        console.log(result);
         const mappedResult = result.match({
-          ok: (id) => id,
+          ok: (id) => status(201),
           err: (e) => {
             switch (e.tag) {
               case ArticleCreateErrorEnum.InvalidInput:
@@ -33,7 +31,7 @@ export const createArticleHttpService = (
     {
       body: ArticleCreatePort,
       response: {
-        200: Id,
+        201: t.String(),
         400: t.String(),
         500: t.String(),
       },

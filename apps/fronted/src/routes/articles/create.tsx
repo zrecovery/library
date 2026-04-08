@@ -37,8 +37,7 @@ export const ArticleCreatePage = () => {
     };
     const result = await createArticle(article);
     switch (result.status) {
-      case 200:
-        console.log(result.data);
+      case 201:
         showToast({ title: "成功", message: "创建成功", level: "info" });
         break;
       case 422:

@@ -1,3 +1,4 @@
+import type { Rollbackable } from "@shared/rollbackable";
 import { Type, Unknown, type Static } from "@sinclair/typebox";
 import type { Result } from "result";
 
@@ -14,7 +15,7 @@ export const KeywordHandlerErrorEnum = Type.Enum({
 
 export type KeywordHandlerError = Static<typeof KeywordHandlerErrorEnum>;
 
-export interface KeywordHandler {
+export interface KeywordHandler extends Rollbackable {
   handle(
     queryKeywords: string,
   ): Promise<Result<QueryKeywordsSchemaPort, KeywordHandlerError>>;

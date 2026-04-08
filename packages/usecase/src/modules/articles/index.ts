@@ -32,7 +32,10 @@ export type {
   ArticleListResultPort,
   KeywordHandler,
 } from "./find-list";
-export { FindArticleListUseCase } from "./find-list";
+export {
+  FindArticleListUseCase,
+  createArticleListHttpService,
+} from "./find-list";
 
 export type {
   ArticleUpdateErrorEnum,

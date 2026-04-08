@@ -4,6 +4,7 @@ import "solid-devtools";
 import { Route, Router } from "@solidjs/router";
 import App from "./App";
 import ArticleCreatePage from "./routes/articles/create";
+import ArticleList from "./routes/articles/list";
 
 const root = document.getElementById("root");
 
@@ -17,6 +18,7 @@ render(
   () => (
     <Router root={App}>
       <Route path="/articles/create" component={ArticleCreatePage} />
+      <Route path="/articles/list" component={ArticleList} />
     </Router>
   ),
   root!,

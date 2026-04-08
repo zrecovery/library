@@ -1,1 +1,1 @@
-export { ArticleDetailFinderRepository } from "./article-list.repository";
+export { ArticleListRepository } from "./article-list.repository";

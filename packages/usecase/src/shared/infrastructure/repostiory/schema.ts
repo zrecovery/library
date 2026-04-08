@@ -5,9 +5,10 @@ import {
   uniqueIndex,
   index,
   sqliteView,
+  real,
 } from "drizzle-orm/sqlite-core";
 import { eq, sql } from "drizzle-orm";
-import { createInsertSchema } from "drizzle-typebox";
+import { createInsertSchema, createSelectSchema } from "drizzle-typebox";
 
 /* -------------------------------- articles -------------------------------- */
 
@@ -173,29 +174,16 @@ export const articleKeywords = sqliteTable(
   ],
 );
 
-export const library = sqliteView("library").as((qb) =>
-  qb
-    .select({
-      id: articles.id,
-      title: articles.title,
-      body: articles.body,
-
-      chapterId: chapters.id,
-      chapterOrder: chapters.order,
-      seriesId: chapters.seriesId,
-
-      seriesTitle: series.title,
-
-      authorId: authors.id,
-      peopleId: people.id,
-      peopleName: people.name,
-    })
-    .from(articles)
-    .leftJoin(authors, eq(authors.articleId, articles.id))
-    .leftJoin(people, eq(authors.personId, people.id))
-    .leftJoin(chapters, eq(chapters.articleId, articles.id))
-    .leftJoin(series, eq(chapters.seriesId, series.id)),
-);
+export const library = sqliteView("library", {
+  id: integer("id").primaryKey(),
+  title: text("title"),
+  chapterId: integer("series_id"),
+  chapterTitle: text("series_title"),
+  chapterOrder: real("chapter_order"),
+  authorId: integer("author_id"),
+  authorName: text("people_name"),
+}).existing();
+export const selectLibraryViewSchema = createSelectSchema(library);
 
 export const keywordIndexView = sqliteView("keyword_index_view").as((qb) =>
   qb

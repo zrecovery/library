@@ -42,6 +42,7 @@ export class CreateArticleUseCase {
   };
 
   execute = async (port: ArticleCreatePort): Promise<ArticleCreateResult> => {
+    console.log(port);
     if (!Value.Check(ArticleCreatePort, port)) {
       return Err(
         new TaggedError("Invalid input", ArticleCreateErrorEnum.InvalidInput),
@@ -59,6 +60,9 @@ export class CreateArticleUseCase {
         articleId,
         ...port.chapter,
       });
+      console.log("chapter:");
+
+      console.log(chapterSaver);
       if (chapterSaver.isErr()) {
         const err = chapterSaver.unwrapErr();
         await this.#chapterSaver.rollback();

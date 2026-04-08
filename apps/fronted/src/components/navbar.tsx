@@ -19,8 +19,8 @@ const components: { title: string; href: string; description: string }[] = [
     description: "Powerful table and datagrids built using TanStack Table.",
   },
   {
-    title: "Date Picker",
-    href: "/docs/components/date-picker",
+    title: "文章列表",
+    href: "/articles/list",
     description:
       "A component that allows users to select a date from a calendar.",
   },

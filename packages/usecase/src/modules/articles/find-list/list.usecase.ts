@@ -34,23 +34,28 @@ export class FindArticleListUseCase {
 
   execute = async (port: ArticleListPort): Promise<ArticleListResult> => {
     const { pagination, keyword } = port;
-    const queryKeywordsResult = await this.#keywordHandler.handle(keyword);
-    if (queryKeywordsResult.isErr()) {
-      return Err(
-        new TaggedError(
-          queryKeywordsResult.unwrapErr(),
-          ArticleListErrorEnum.UnknownError,
-        ),
-      );
-    }
-    const queryKeywords = queryKeywordsResult.match({
-      ok: (keywords) => keywords,
-      err: () => undefined,
-    });
-    const articleListFinderResult = await this.#articleListFinder.find(
+    const queryKeyword = async (keyword?: string) => {
+      if (keyword) {
+        const queryKeywordsResult = await this.#keywordHandler.handle(keyword);
+        if (queryKeywordsResult.isErr()) {
+          return undefined;
+        }
+
+        const queryKeywords = queryKeywordsResult.match({
+          ok: (keywords) => keywords,
+          err: () => undefined,
+        });
+        return queryKeywords;
+      }
+      return undefined;
+    };
+    const queryKeywords = await queryKeyword(keyword);
+
+    const articleListFinderResult = await this.#articleListFinder.findList(
       pagination,
       queryKeywords,
     );
+
     return articleListFinderResult
       .map((result) => result)
       .mapErr(this.#FinderErrorHandler);
