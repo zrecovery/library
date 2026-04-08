@@ -7,6 +7,8 @@ import {
 import type { ArticleListFinder } from "./port/deps/ArticleListlFinder";
 import type { KeywordHandler } from "./port/deps/KeywordHandler";
 import { Err } from "result";
+import { Value } from "@sinclair/typebox/value";
+import { PaginationQuerySchema } from "@library/domain";
 
 export class FindArticleListUseCase {
   readonly #articleListFinder: ArticleListFinder;
@@ -34,6 +36,13 @@ export class FindArticleListUseCase {
 
   execute = async (port: ArticleListPort): Promise<ArticleListResult> => {
     const { pagination, keyword } = port;
+    try {
+      Value.Check(PaginationQuerySchema, pagination);
+    } catch {
+      return Err(
+        new TaggedError("分页参数错误", ArticleListErrorEnum.InvalidInput),
+      );
+    }
     const queryKeyword = async (keyword?: string) => {
       if (keyword) {
         const queryKeywordsResult = await this.#keywordHandler.handle(keyword);

@@ -1,6 +1,6 @@
 import type { Transaction } from "@shared/infrastructure/repostiory/db";
 import * as schema from "@shared/infrastructure/repostiory/schema";
-import { eq, and, SQL, inArray } from "drizzle-orm";
+import { and, count, inArray, SQL } from "drizzle-orm";
 import { Err, Ok, type Result } from "result";
 import { TaggedError } from "tag-error";
 import { Value } from "@sinclair/typebox/value";
@@ -50,6 +50,35 @@ export class ArticleListRepository implements ArticleListFinder {
     });
   };
 
+  #queryArticlesByKeyword = async (keywords: QueryKeywords) => {
+    return (
+      await this.#tx
+        .select({
+          articleId: schema.keywordIndexView.articleId,
+        })
+        .from(schema.keywordIndexView)
+        .where(
+          and(
+            keywords?.positive
+              ? inArray(schema.keywords.keyword, keywords.positive)
+              : undefined,
+            keywords?.negative
+              ? inArray(schema.keywords.keyword, keywords.negative)
+              : undefined,
+          ),
+        )
+    ).map(({ articleId }) => articleId);
+  };
+
+  #queryItemsWithoutKeyword = async (condition?: SQL) => {
+    return this.#tx
+      .select({
+        items: count(schema.library.id),
+      })
+      .from(schema.library)
+      .where(condition);
+  };
+
   findList = async (
     pagination: Pagination,
     keywords?: QueryKeywords,
@@ -59,37 +88,25 @@ export class ArticleListRepository implements ArticleListFinder {
     try {
       const { page, size } = pagination;
       const offset = (page - 1) * size;
-      if (page <= 0) {
-        return Err(
-          new TaggedError(
-            "Page must be greater than 0",
-            ArticleListFinderErrorEnum.NotFound,
-          ),
-        );
-      }
 
-      const articleIdResult = keywords
-        ? (
-            await this.#tx
-              .select({
-                articleId: schema.keywordIndexView.articleId,
-              })
-              .from(schema.keywordIndexView)
-              .where(
-                and(
-                  keywords?.positive
-                    ? inArray(schema.keywords.keyword, keywords.positive)
-                    : undefined,
-                  keywords?.negative
-                    ? inArray(schema.keywords.keyword, keywords.negative)
-                    : undefined,
-                ),
-              )
-          ).map(({ articleId }) => articleId)
-        : undefined;
-      const keywordQueryCondition = keywords
-        ? inArray(schema.library.id, articleIdResult)
-        : undefined;
+      const queryArticlesIdByKeywords = async (keywords: QueryKeywords) => {
+        const articleIdResult = await this.#queryArticlesByKeyword(keywords);
+        return {
+          idList: articleIdResult,
+          condition: inArray(schema.library.id, articleIdResult),
+        };
+      };
+
+      const queryArticlesIdByKeywordsResult: {
+        idList: number[];
+        condition: SQL | undefined;
+      } = keywords
+        ? await queryArticlesIdByKeywords(keywords)
+        : { idList: [], condition: undefined };
+
+      const items = keywords
+        ? queryArticlesIdByKeywordsResult.idList.length
+        : (await this.#queryItemsWithoutKeyword())[0].items;
 
       const articleList = await this.#tx
         .select({
@@ -106,7 +123,7 @@ export class ArticleListRepository implements ArticleListFinder {
           },
         })
         .from(schema.library)
-        .where(keywordQueryCondition)
+        .where(queryArticlesIdByKeywordsResult.condition)
         .limit(size)
         .offset(offset);
 
@@ -116,7 +133,7 @@ export class ArticleListRepository implements ArticleListFinder {
           current: page,
           size,
           pages: Math.ceil(queryResult.length / size),
-          items: queryResult.length,
+          items: items,
         },
         data: queryResult,
       });
