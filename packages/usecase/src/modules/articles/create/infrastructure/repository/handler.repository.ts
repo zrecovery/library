@@ -48,10 +48,12 @@ export class SearchHandlerRepository implements SearchHandler {
       .filter((keyword) => keyword.count > 0);
 
     try {
-      const saveIndex = await this.#tx
-        .insert(schema.articleKeywords)
-        .values(keywordCounts)
-        .execute();
+      if (keywordCounts.length > 0) {
+        const saveIndex = await this.#tx
+          .insert(schema.articleKeywords)
+          .values(keywordCounts)
+          .execute();
+      }
     } catch (e) {
       console.error(e);
       return Err(

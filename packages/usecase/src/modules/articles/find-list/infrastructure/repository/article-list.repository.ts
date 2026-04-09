@@ -174,11 +174,14 @@ export class ArticleListRepository implements ArticleListFinder {
         queryResult,
         this.#countPagination(size, items, page),
       );
-    } catch {
+    } catch(e) {
+
+      console.error(e)
       return Err(
         new TaggedError(
           "数据库读取数据异常",
           ArticleListFinderErrorEnum.UnknownError,
+          e.stack
         ),
       );
     }

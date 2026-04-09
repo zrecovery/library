@@ -2,9 +2,9 @@ import {
   type ArticleSaver,
   ArticleSaverErrorEnum,
 } from "@articles/create/port/deps/ArticleSaver";
-import type { Rollbackable } from "@library/usecase/shared/rollbackable";
 import type { Transaction } from "@shared/infrastructure/repostiory/db";
 import * as schema from "@shared/infrastructure/repostiory/schema";
+import type { Rollbackable } from "@shared/rollbackable";
 import { Value } from "@sinclair/typebox/value";
 
 import { Err, Ok, type Result } from "result";

@@ -26,6 +26,7 @@ export class FindArticleListUseCase {
   ): TaggedError<ArticleListErrorEnum> => {
     switch (e.tag) {
       default:
+      console.error(e)
         return new TaggedError(
           e.message,
           ArticleListErrorEnum.UnknownError,
