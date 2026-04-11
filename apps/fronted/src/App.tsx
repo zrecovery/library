@@ -10,7 +10,7 @@ const App: Component = (props) => (
     <div
       class="
         grid
-        h-[100dvh]
+        h-screen
         grid-rows-[auto_1fr]
         "
       style="

@@ -10,7 +10,7 @@ import {
   type QueryKeywords,
 } from "@articles/find-list/port/deps/ArticleListlFinder";
 import { ArticleListResultPort } from "@articles/find-list/port/type/findList";
-import { PaginationResponse, type Pagination } from "@library/domain";
+import { type PaginationResponse, type Pagination, Id } from "@library/domain";
 
 export class ArticleListRepository implements ArticleListFinder {
   #tx: Transaction;
@@ -153,9 +153,13 @@ export class ArticleListRepository implements ArticleListFinder {
 
   #queryArticlesIdByKeywords = async (keywords: QueryKeywords) => {
     const articleIdResult = await this.#queryArticlesByKeyword(keywords);
+
     return {
       items: articleIdResult.length,
-      condition: inArray(schema.library.id, articleIdResult),
+      condition: inArray(
+        schema.library.id,
+        articleIdResult.filter((a) => a !== null),
+      ),
     };
   };
 
@@ -186,14 +190,22 @@ export class ArticleListRepository implements ArticleListFinder {
         this.#countPagination(size, items, page),
       );
     } catch (e) {
-      console.error(e);
-      return Err(
-        new TaggedError(
-          "数据库读取数据异常",
-          ArticleListFinderErrorEnum.UnknownError,
-          e.stack,
-        ),
-      );
+      if (e instanceof Error) {
+        return Err(
+          new TaggedError(
+            "数据库读取数据异常",
+            ArticleListFinderErrorEnum.UnknownError,
+            e.stack,
+          ),
+        );
+      } else {
+        return Err(
+          new TaggedError(
+            "数据库读取数据异常",
+            ArticleListFinderErrorEnum.UnknownError,
+          ),
+        );
+      }
     }
   };
 

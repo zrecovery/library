@@ -26,13 +26,16 @@ type ArticleMetaInfo = Static<typeof ArticleMetaInfo>;
 const ArticleRow = (props: { article: ArticleMetaInfo }) => {
   const article = () => props.article;
   return (
-    <Card>
+    <Card class="w-screen-sm">
       <CardHeader>
         <CardTitle>{article().title}</CardTitle>
         <CardDescription>{article().author.name}</CardDescription>
       </CardHeader>
       <Show when={article().chapter}>
         <CardContent class="text-sm">{article().chapter?.title}</CardContent>
+      </Show>
+      <Show when={!article().chapter}>
+        <CardContent class="text-sm"></CardContent>
       </Show>
     </Card>
   );
