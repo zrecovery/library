@@ -92,7 +92,7 @@ export const ArticleCreatePage = () => {
           <SwitchControl>
             <SwitchThumb />
           </SwitchControl>
-          <SwitchLabel>Airplane Mode</SwitchLabel>
+          <SwitchLabel>章节</SwitchLabel>
         </Switch>
         <Show when={getChapterSwitch()}>
           <TextFieldLabel>章节标题</TextFieldLabel>
