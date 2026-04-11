@@ -1,12 +1,16 @@
 import { treaty } from "@elysiajs/eden";
 import type { App } from "@library/backend";
-import type { Pagination } from "@library/domain";
+import type { Id, Pagination } from "@library/domain";
 import type { ArticleCreatePort } from "@library/usecase";
 
 export const server = treaty<App>("localhost:3001");
 
 export const createArticle = async (articleCreated: ArticleCreatePort) => {
   return server.api.articles.post(articleCreated);
+};
+
+export const getArticleDetail = async (id: Id) => {
+  return server.api.articles({ id: id }).get();
 };
 
 export const getArticleList = async (query?: {

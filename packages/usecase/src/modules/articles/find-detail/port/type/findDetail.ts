@@ -11,11 +11,9 @@ export type ArticleDetailPort = Static<typeof ArticleDetailPort>;
 export const ArticleDetailResultPort = Type.Composite([
   IdSchema,
   ArticleSchema,
-  Type.Optional(
-    Type.Object({
-      chapter: Type.Composite([IdSchema, ChapterSchema]),
-    }),
-  ),
+  Type.Object({
+    chapter: Type.Optional(Type.Composite([IdSchema, ChapterSchema])),
+  }),
   Type.Object({
     author: Type.Composite([IdSchema, AuthorSchema]),
   }),

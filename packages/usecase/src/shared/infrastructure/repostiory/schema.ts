@@ -177,6 +177,7 @@ export const articleKeywords = sqliteTable(
 export const library = sqliteView("library", {
   id: integer("id").primaryKey(),
   title: text("title"),
+  body: text("body"),
   chapterId: integer("series_id"),
   chapterTitle: text("series_title"),
   chapterOrder: real("chapter_order"),

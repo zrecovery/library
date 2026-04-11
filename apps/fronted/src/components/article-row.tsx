@@ -12,6 +12,7 @@ import {
   IdSchema,
 } from "@library/domain";
 import { Type, type Static } from "@sinclair/typebox";
+import { A } from "@solidjs/router";
 import { Show } from "solid-js";
 
 const ArticleMetaInfo = Type.Composite([
@@ -28,7 +29,9 @@ const ArticleRow = (props: { article: ArticleMetaInfo }) => {
   return (
     <Card class="w-screen-sm">
       <CardHeader>
-        <CardTitle>{article().title}</CardTitle>
+        <A href={`/articles/${article().id}`}>
+          <CardTitle>{article().title}</CardTitle>
+        </A>
         <CardDescription>{article().author.name}</CardDescription>
       </CardHeader>
       <Show when={article().chapter}>
