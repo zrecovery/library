@@ -185,13 +185,8 @@ export const library = sqliteView("library", {
 }).existing();
 export const selectLibraryViewSchema = createSelectSchema(library);
 
-export const keywordIndexView = sqliteView("keyword_index_view").as((qb) =>
-  qb
-    .select({
-      articleId: articleKeywords.articleId,
-      keyword: keywords.keyword,
-      count: articleKeywords.count,
-    })
-    .from(articleKeywords)
-    .innerJoin(keywords, eq(articleKeywords.keywordId, keywords.id)),
-);
+export const keywordIndexView = sqliteView("keyword_index_view", {
+  articleId: integer("article_id"),
+  keyword: text("keyword"),
+  count: integer("count"),
+}).existing();

@@ -1,6 +1,6 @@
 import type { Transaction } from "@shared/infrastructure/repostiory/db";
 import * as schema from "@shared/infrastructure/repostiory/schema";
-import { and, count, inArray, SQL } from "drizzle-orm";
+import { and, count, inArray, not, SQL } from "drizzle-orm";
 import { Err, Ok, type Result } from "result";
 import { TaggedError } from "tag-error";
 import { Value } from "@sinclair/typebox/value";
@@ -51,22 +51,33 @@ export class ArticleListRepository implements ArticleListFinder {
   };
 
   #queryArticlesByKeyword = async (keywords: QueryKeywords) => {
+    const { positive, negative } = keywords;
+    const postiveCondition = inArray(
+      schema.keywordIndexView.keyword,
+      keywords.positive,
+    );
+    const negativeCondition = not(
+      inArray(schema.keywordIndexView.keyword, keywords.negative),
+    );
+    const condition = () => {
+      if (positive && negative) {
+        return and(postiveCondition, negativeCondition);
+      }
+      if (positive) {
+        return postiveCondition;
+      }
+      if (negative) {
+        return negativeCondition;
+      }
+      return undefined;
+    };
     return (
       await this.#tx
         .select({
           articleId: schema.keywordIndexView.articleId,
         })
         .from(schema.keywordIndexView)
-        .where(
-          and(
-            keywords?.positive
-              ? inArray(schema.keywords.keyword, keywords.positive)
-              : undefined,
-            keywords?.negative
-              ? inArray(schema.keywords.keyword, keywords.negative)
-              : undefined,
-          ),
-        )
+        .where(condition)
     ).map(({ articleId }) => articleId);
   };
 
@@ -116,7 +127,7 @@ export class ArticleListRepository implements ArticleListFinder {
       size,
       current,
       items,
-      pages: items / size,
+      pages: Math.ceil(items / size),
     };
   };
 
@@ -174,14 +185,13 @@ export class ArticleListRepository implements ArticleListFinder {
         queryResult,
         this.#countPagination(size, items, page),
       );
-    } catch(e) {
-
-      console.error(e)
+    } catch (e) {
+      console.error(e);
       return Err(
         new TaggedError(
           "数据库读取数据异常",
           ArticleListFinderErrorEnum.UnknownError,
-          e.stack
+          e.stack,
         ),
       );
     }
