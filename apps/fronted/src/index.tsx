@@ -5,7 +5,7 @@ import { Route, Router } from "@solidjs/router";
 import App from "./App";
 import ArticleCreatePage from "./routes/articles/create";
 import ArticleList from "./routes/articles/list";
-import ArticleDetailPage from "./routes/articles/detail";
+import ArticleDetailPage from "./routes/articles/detail/detail";
 
 const root = document.getElementById("root");
 

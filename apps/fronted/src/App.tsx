@@ -3,7 +3,7 @@ import Navbar from "./components/navbar";
 import "./app.css";
 import "./components/app-toast.css";
 import { Toast, Root } from "@kobalte/core/toast";
-import { Portal } from "solid-js/web";
+import { Portal, Suspense } from "solid-js/web";
 
 const App: Component = (props) => (
   <>
@@ -22,7 +22,7 @@ const App: Component = (props) => (
         <Navbar />
       </nav>
       <main class="[grid-area:main] bg-white w-full h-full">
-        {props.children}
+        <Suspense fallback={<p>Loading...</p>}>{props.children}</Suspense>
       </main>
     </div>
     <Portal>
