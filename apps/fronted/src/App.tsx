@@ -21,7 +21,7 @@ const App: Component = (props) => (
       <nav class="[grid-area:nav] bg-gray-100">
         <Navbar />
       </nav>
-      <main class="[grid-area:main] bg-white justify-self-center w-full">
+      <main class="[grid-area:main] bg-white w-full h-full">
         {props.children}
       </main>
     </div>

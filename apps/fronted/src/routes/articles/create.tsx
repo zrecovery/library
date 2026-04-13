@@ -17,12 +17,14 @@ import { createSignal, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import { showToast } from "@/components/app-toast";
 import { Separator } from "@/components/ui/separator";
+import CreateFileField from "@/components/create-file-field";
 
 export const ArticleCreatePage = () => {
   const [getChapterSwitch, setChapterSwitch] = createSignal<boolean>(false);
   const [getArticle, setArticle] = createStore<{ title: string; body: string }>(
     { title: "", body: "" },
   );
+  const [getBody, setBody] = createSignal("");
   const [getChapter, setChapter] = createStore<{
     title: string;
     order: number;
@@ -31,7 +33,8 @@ export const ArticleCreatePage = () => {
   const submit = async () => {
     const chapter = getChapterSwitch() ? { ...getChapter } : undefined;
     const article = {
-      ...getArticle,
+      title: getArticle.title,
+      body: getBody(),
       chapter,
       author: getAuthor,
     };
@@ -109,10 +112,11 @@ export const ArticleCreatePage = () => {
           />
         </Show>
         <TextFieldLabel>内容</TextFieldLabel>
+        <CreateFileField content={setBody} />
         <TextFieldTextArea
           placeholder="文章内容"
-          value={getArticle.body}
-          onChange={(e) => setArticle("body", e.currentTarget.value)}
+          value={getBody()}
+          onChange={(e) => setBody(e.currentTarget.value)}
         />
       </TextField>
       <Separator orientation="vertical" />
