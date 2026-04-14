@@ -44,52 +44,52 @@ const ArticleDetailPage = () => {
   return (
     <Show when={article()}>
       <Show when={reader()}>
-      <div class="grid md-grid-auto-cols-2 h-full md-grid-cols-[min(10rem)_1fr]">
-        <aside>
-          <h2>{article()?.author.name}</h2>
+        <div class="grid md-grid-auto-cols-2 h-full md-grid-cols-[min(10rem)_1fr]">
+          <aside>
+            <h2>{article()?.author.name}</h2>
 
-          <div class="text-sm opacity-60">
-            Page {currentPage() + 1} / {total()}
-          </div>
+            <div class="text-sm opacity-60">
+              Page {currentPage() + 1} / {total()}
+            </div>
 
-          <button
-            onClick={() => {
-              const p = currentPage();
-              if (p > 0) {
-                setCurrentPage(p - 1);
-                containerRef.textContent = reader()?.getPageContent(p - 1);
-              }
-            }}
-          >
-            Prev
-          </button>
+            <button
+              onClick={() => {
+                const p = currentPage();
+                if (p > 0) {
+                  setCurrentPage(p - 1);
+                  containerRef.textContent = reader()?.getPageContent(p - 1);
+                }
+              }}
+            >
+              Prev
+            </button>
 
-          <button
-            onClick={() => {
-              const p = currentPage();
-              if (p + 1 < total()) {
-                setCurrentPage(p + 1);
-                containerRef.textContent = reader()?.getPageContent(p + 1);
-              }
-            }}
-          >
-            Next
-          </button>
-        </aside>
+            <button
+              onClick={() => {
+                const p = currentPage();
+                if (p + 1 < total()) {
+                  setCurrentPage(p + 1);
+                  containerRef.textContent = reader()?.getPageContent(p + 1);
+                }
+              }}
+            >
+              Next
+            </button>
+          </aside>
 
-        <main class="h-full">
-          <h1>{article()?.title}</h1>
-          <Separator />
+          <main class="grid grid-rows-[auto_auto_1fr] h-full">
+            <h1>{article()?.title}</h1>
+            <Separator />
 
-          {/* Reader container */}
-          <article
-            ref={containerRef}
-            class="whitespace-pre-wrap word-wrap h-full"
-          >
-            {reader()?.getPageContent(currentPage())}
-          </article>
-        </main>
-      </div>
+            {/* Reader container */}
+            <article
+              ref={containerRef}
+              class="whitespace-pre-wrap word-wrap overflow-hidden"
+            >
+              {reader()?.getPageContent(currentPage())}
+            </article>
+          </main>
+        </div>
       </Show>
     </Show>
   );

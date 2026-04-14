@@ -6,7 +6,6 @@ function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = window.indexedDB.open(DB_NAME, 2);
 
-    console.error(`[open db]${reject}`);
     req.onupgradeneeded = () => {
       req.result.createObjectStore(STORE);
     };
@@ -48,8 +47,6 @@ export async function setCache(key: string, value: number[]) {
       reject(e);
     };
 
-    tx.oncomplete = () => {
-      d;
-    };
+    tx.oncomplete = () => {};
   });
 }

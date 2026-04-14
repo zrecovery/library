@@ -1,25 +1,38 @@
 import { createSignal } from "solid-js";
 import { getCache, setCache } from "./db";
+import { Value } from "@sinclair/typebox/value";
+import { Type } from "@sinclair/typebox";
+import type { Id } from "@library/domain";
 
 type ReaderSignals = {
   setCurrentPage: (n: number) => void;
   setTotal: (n: number) => void;
 };
 
-export async function useReader(
+const getPagesFromIdx = async (id: Id) => {
+  const pageFromCache = await getCache(String(id));
+  try {
+    return Value.Parse(Type.Array(Type.Integer()), pageFromCache);
+  } catch {
+    return [];
+  }
+};
+
+export const useReader = async (
   body: () => string | undefined,
   container: () => HTMLElement | undefined,
   signals: ReaderSignals,
   id: number,
-) {
+) => {
   const [pageIndex, setPageIndex] = createSignal<number[]>([]);
 
   async function build() {
     let pages: number[] = [];
-    const pa = await getCache(String(id));
-    if (pa.length > 1) {
-      console.log(pa);
-      pages = pa;
+
+    const pagesCache = await getPagesFromIdx(id);
+
+    if (pagesCache.length > 0) {
+      pages = pagesCache;
     } else {
       pages = [];
       const el = container();
@@ -31,20 +44,24 @@ export async function useReader(
       const style = getComputedStyle(el);
 
       measure.style.cssText = `
-      position: absolute;
-      visibility: hidden;
-      width: ${el.clientWidth}px; 
-      font-size: ${style.fontSize};
-      line-height: ${style.lineHeight};
-      font-family: ${style.fontFamily};
-      white-space: pre-wrap;
-      word-break: break-word;
-    `;
+  position: absolute;
+  visibility: hidden;
+  width: ${el.clientWidth}px;
+  font-size: ${style.fontSize};
+  line-height: ${style.lineHeight};
+  font-family: ${style.fontFamily};
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding: ${style.padding};
+  box-sizing: ${style.boxSizing};
+`;
 
       document.body.appendChild(measure);
 
       const lines = text.split("\n");
       const pageHeight = el.clientHeight;
+
+      console.log(`[PageHeight]: ${pageHeight}`);
 
       let start = 0;
 
@@ -55,13 +72,11 @@ export async function useReader(
 
         while (end < lines.length) {
           measure.textContent += lines[end] + "\n";
-          const style = getComputedStyle(el);
-          measure.style.cssText = style.cssText;
           measure.style.position = "absolute";
           measure.style.visibility = "hidden";
           const lineHeight =
             parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.5;
-          const safeHeight = pageHeight - 2 * lineHeight;
+          const safeHeight = pageHeight - 3 * lineHeight;
           if (measure.scrollHeight > safeHeight) break;
 
           end++;
@@ -74,13 +89,13 @@ export async function useReader(
         start = end;
       }
 
-      console.log(pages)
-      setPageIndex(pages);
-      signals.setTotal(pages.length);
-
       document.body.removeChild(measure);
     }
+    console.log(pages);
+    setPageIndex(pages);
+    signals.setTotal(pages.length);
   }
+
   function getPageContent(page: number) {
     const el = container();
     const text = body();
@@ -101,4 +116,4 @@ export async function useReader(
     getPageContent,
     pageIndex,
   };
-}
+};
