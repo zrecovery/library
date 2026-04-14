@@ -1,7 +1,6 @@
+// use-reader.ts
 import { createSignal } from "solid-js";
 import { getCache, setCache } from "./db";
-import { Value } from "@sinclair/typebox/value";
-import { Type } from "@sinclair/typebox";
 import type { Id } from "@library/domain";
 
 type ReaderSignals = {
@@ -9,14 +8,63 @@ type ReaderSignals = {
   setTotal: (n: number) => void;
 };
 
-const getPagesFromIdx = async (id: Id) => {
-  const pageFromCache = await getCache(String(id));
-  try {
-    return Value.Parse(Type.Array(Type.Integer()), pageFromCache);
-  } catch {
-    return [];
-  }
+const getLayoutKey = (id: Id, el: HTMLElement, style: CSSStyleDeclaration) => {
+  return `${id}-${el.clientWidth}-${el.clientHeight}-${style.fontSize}-${style.lineHeight}-${style.fontFamily}-${style.padding}`;
 };
+
+async function doBuild(
+  el: HTMLElement,
+  text: string,
+  style: CSSStyleDeclaration,
+) {
+  const measure = document.createElement("div");
+
+  measure.style.cssText = `
+    position: absolute;
+    visibility: hidden;
+    width: ${el.clientWidth}px;
+    font-size: ${style.fontSize};
+    line-height: ${style.lineHeight};
+    font-family: ${style.fontFamily};
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: ${style.padding};
+    box-sizing: ${style.boxSizing};
+  `;
+
+  document.body.appendChild(measure);
+
+  const lines = text.split("\n");
+  const pageHeight = el.clientHeight;
+
+  let pages: number[] = [];
+  let start = 0;
+
+  while (start < lines.length) {
+    let buffer = "";
+    let end = start;
+
+    while (end < lines.length) {
+      const next = buffer + lines[end] + "\n";
+      measure.textContent = next;
+
+      if (measure.scrollHeight > pageHeight) break;
+
+      buffer = next;
+      end++;
+    }
+
+    if (start < lines.length) {
+      pages.push(start);
+    }
+
+    start = end;
+  }
+
+  document.body.removeChild(measure);
+
+  return pages;
+}
 
 export const useReader = async (
   body: () => string | undefined,
@@ -27,81 +75,47 @@ export const useReader = async (
   const [pageIndex, setPageIndex] = createSignal<number[]>([]);
 
   async function build() {
-    let pages: number[] = [];
+    await rebuild(true);
+  }
 
-    const pagesCache = await getPagesFromIdx(id);
+  async function rebuild(initial = false) {
+    const el = container();
+    const text = body();
+    if (!el || !text) return;
 
-    if (pagesCache.length > 0) {
-      pages = pagesCache;
-    } else {
-      pages = [];
-      const el = container();
-      const text = body();
-      if (!el || !text) return;
+    const style = getComputedStyle(el);
+    const key = getLayoutKey(id, el, style);
 
-      const measure = document.createElement("div");
-
-      const style = getComputedStyle(el);
-
-      measure.style.cssText = `
-  position: absolute;
-  visibility: hidden;
-  width: ${el.clientWidth}px;
-  font-size: ${style.fontSize};
-  line-height: ${style.lineHeight};
-  font-family: ${style.fontFamily};
-  white-space: pre-wrap;
-  word-break: break-word;
-  padding: ${style.padding};
-  box-sizing: ${style.boxSizing};
-`;
-
-      document.body.appendChild(measure);
-
-      const lines = text.split("\n");
-      const pageHeight = el.clientHeight;
-
-      console.log(`[PageHeight]: ${pageHeight}`);
-
-      let start = 0;
-
-      while (start < lines.length) {
-        measure.textContent = "";
-
-        let end = start;
-
-        while (end < lines.length) {
-          measure.textContent += lines[end] + "\n";
-          measure.style.position = "absolute";
-          measure.style.visibility = "hidden";
-          const lineHeight =
-            parseFloat(style.lineHeight) || parseFloat(style.fontSize) * 1.5;
-          const safeHeight = pageHeight - 3 * lineHeight;
-          if (measure.scrollHeight > safeHeight) break;
-
-          end++;
-        }
-
-        if (end === start) end++;
-
-        pages.push(start);
-        setCache(String(id), pages);
-        start = end;
-      }
-
-      document.body.removeChild(measure);
+    const cached = await getCache(key);
+    if (cached && cached.length > 0) {
+      setPageIndex(cached);
+      signals.setTotal(cached.length);
+      return;
     }
-    console.log(pages);
+
+    const oldIdx = pageIndex();
+    const oldPage = oldIdx.length ? signals : null;
+    const current = oldIdx.length ? oldIdx[0] : 0;
+
+    const pages = await doBuild(el, text, style);
+
     setPageIndex(pages);
     signals.setTotal(pages.length);
+
+    if (!initial && oldIdx.length > 0) {
+      const oldStart = oldIdx[current] ?? 0;
+      const newPage = pages.findIndex((i) => i >= oldStart);
+      signals.setCurrentPage(newPage === -1 ? 0 : newPage);
+    }
+
+    await setCache(key, pages);
   }
 
   function getPageContent(page: number) {
-    const el = container();
     const text = body();
     const idx = pageIndex();
 
-    if (!el || !text || idx.length === 0) return "";
+    if (!text || idx.length === 0) return "";
 
     const lines = text.split("\n");
 
@@ -113,6 +127,7 @@ export const useReader = async (
 
   return {
     build,
+    rebuild,
     getPageContent,
     pageIndex,
   };

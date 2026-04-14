@@ -1,9 +1,16 @@
+// ArticleDetailPage.tsx
 import { Separator } from "@/components/ui/separator";
 import { getArticleDetail } from "@/libs/api";
 import { useParams } from "@solidjs/router";
-import { createEffect, createResource, Show } from "solid-js";
+import {
+  createEffect,
+  createResource,
+  createSignal,
+  onCleanup,
+  onMount,
+  Show,
+} from "solid-js";
 
-import { createSignal } from "solid-js";
 import { useReader } from "./use-reader";
 
 const ArticleDetailPage = () => {
@@ -15,9 +22,6 @@ const ArticleDetailPage = () => {
     return response.data;
   });
 
-  // =========================
-  // Reader state（你要的 signals）
-  // =========================
   const [currentPage, setCurrentPage] = createSignal(0);
   const [total, setTotal] = createSignal(0);
 
@@ -32,19 +36,42 @@ const ArticleDetailPage = () => {
     ),
   );
 
-  // =========================
-  // 数据加载后 build分页
-  // =========================
   createEffect(() => {
-    if (article()?.body && containerRef) {
+    if (article()?.body && containerRef && reader()) {
       reader().build();
+    }
+  });
+
+  let ro: ResizeObserver;
+  let timer: number | undefined;
+
+  onMount(() => {
+    ro = new ResizeObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        reader()?.rebuild();
+      }, 200);
+    });
+
+    if (containerRef) {
+      ro.observe(containerRef);
+    }
+  });
+
+  onCleanup(() => {
+    ro?.disconnect();
+  });
+
+  createEffect(() => {
+    if (reader() && total() > 0) {
+      containerRef.textContent = reader().getPageContent(currentPage());
     }
   });
 
   return (
     <Show when={article()}>
       <Show when={reader()}>
-        <div class="grid md-grid-auto-cols-2 h-full md-grid-cols-[min(10rem)_1fr]">
+        <div class="grid md:grid-cols-[min(10rem)_1fr] h-full">
           <aside>
             <h2>{article()?.author.name}</h2>
 
@@ -55,10 +82,7 @@ const ArticleDetailPage = () => {
             <button
               onClick={() => {
                 const p = currentPage();
-                if (p > 0) {
-                  setCurrentPage(p - 1);
-                  containerRef.textContent = reader()?.getPageContent(p - 1);
-                }
+                if (p > 0) setCurrentPage(p - 1);
               }}
             >
               Prev
@@ -67,10 +91,7 @@ const ArticleDetailPage = () => {
             <button
               onClick={() => {
                 const p = currentPage();
-                if (p + 1 < total()) {
-                  setCurrentPage(p + 1);
-                  containerRef.textContent = reader()?.getPageContent(p + 1);
-                }
+                if (p + 1 < total()) setCurrentPage(p + 1);
               }}
             >
               Next
@@ -81,13 +102,10 @@ const ArticleDetailPage = () => {
             <h1>{article()?.title}</h1>
             <Separator />
 
-            {/* Reader container */}
             <article
               ref={containerRef}
-              class="whitespace-pre-wrap word-wrap overflow-hidden"
-            >
-              {reader()?.getPageContent(currentPage())}
-            </article>
+              class="whitespace-pre-wrap break-words overflow-hidden"
+            />
           </main>
         </div>
       </Show>
