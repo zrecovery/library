@@ -1,15 +1,18 @@
-// use-reader.ts
 import { createSignal } from "solid-js";
-import { getCache, setCache } from "./db";
-import type { Id } from "@library/domain";
+import { getCache, getCurrentPageCache, setCache } from "./db";
 
 type ReaderSignals = {
   setCurrentPage: (n: number) => void;
   setTotal: (n: number) => void;
 };
-
-const getLayoutKey = (id: Id, el: HTMLElement, style: CSSStyleDeclaration) => {
-  return `${id}-${el.clientWidth}-${el.clientHeight}-${style.fontSize}-${style.lineHeight}-${style.fontFamily}-${style.padding}`;
+let currentKey = "";
+const getLayoutKey = (
+  id: number,
+  el: HTMLElement,
+  style: CSSStyleDeclaration,
+) => {
+  // ❗去掉 height，避免缓存失效
+  return `${id}-${el.clientWidth}-${style.fontSize}-${style.lineHeight}-${style.fontFamily}-${style.padding}`;
 };
 
 async function doBuild(
@@ -54,10 +57,7 @@ async function doBuild(
       end++;
     }
 
-    if (start < lines.length) {
-      pages.push(start);
-    }
-
+    pages.push(start);
     start = end;
   }
 
@@ -77,7 +77,9 @@ export const useReader = async (
   async function build() {
     await rebuild(true);
   }
-
+  function getKey() {
+    return currentKey;
+  }
   async function rebuild(initial = false) {
     const el = container();
     const text = body();
@@ -86,27 +88,33 @@ export const useReader = async (
     const style = getComputedStyle(el);
     const key = getLayoutKey(id, el, style);
 
+    currentKey = key;
+    // ✅ 先尝试缓存
     const cached = await getCache(key);
-    if (cached && cached.length > 0) {
-      setPageIndex(cached);
-      signals.setTotal(cached.length);
-      return;
+    const currentCached = await getCurrentPageCache(key);
+
+    if (cached.isOk() && cached.unwrap().length > 0) {
+      const idx = cached.unwrap();
+
+      setPageIndex(idx);
+
+      if (currentCached.isOk()) {
+        queueMicrotask(() => {
+          const page = currentCached.unwrap();
+          const safePage = Math.min(page, idx.length - 1);
+
+          signals.setCurrentPage(safePage);
+        });
+      }
+      signals.setTotal(idx.length);
+      return; // ⭐⭐⭐ 核心：命中缓存直接退出
     }
 
-    const oldIdx = pageIndex();
-    const oldPage = oldIdx.length ? signals : null;
-    const current = oldIdx.length ? oldIdx[0] : 0;
-
+    // ❗没有缓存才计算
     const pages = await doBuild(el, text, style);
 
     setPageIndex(pages);
     signals.setTotal(pages.length);
-
-    if (!initial && oldIdx.length > 0) {
-      const oldStart = oldIdx[current] ?? 0;
-      const newPage = pages.findIndex((i) => i >= oldStart);
-      signals.setCurrentPage(newPage === -1 ? 0 : newPage);
-    }
 
     await setCache(key, pages);
   }
@@ -130,5 +138,7 @@ export const useReader = async (
     rebuild,
     getPageContent,
     pageIndex,
+    getLayoutKey, // 暴露给外部写 currentPage
+    getKey,
   };
 };

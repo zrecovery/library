@@ -1,4 +1,3 @@
-// ArticleDetailPage.tsx
 import { Separator } from "@/components/ui/separator";
 import { getArticleDetail } from "@/libs/api";
 import { useParams } from "@solidjs/router";
@@ -12,6 +11,7 @@ import {
 } from "solid-js";
 
 import { useReader } from "./use-reader";
+import { setCurrentPageCache } from "./db";
 
 const ArticleDetailPage = () => {
   const params = useParams<{ id: string }>();
@@ -36,36 +36,63 @@ const ArticleDetailPage = () => {
     ),
   );
 
+  // ✅ 初次 build（只触发一次）
   createEffect(() => {
     if (article()?.body && containerRef && reader()) {
-      reader().build();
+      reader()!.build();
     }
   });
 
+  // ✅ 渲染内容
+  createEffect(() => {
+    if (reader() && total() > 0) {
+      containerRef.textContent = reader()!.getPageContent(currentPage());
+    }
+  });
+
+  // ✅ ⭐记录阅读进度（关键）
+  let initialized = false;
+
+  createEffect(() => {
+    const r = reader();
+    if (!r) return;
+
+    const key = r.getKey();
+    if (!key) return;
+
+    const page = currentPage();
+
+    // ⭐跳过第一次（关键）
+    if (!initialized) {
+      initialized = true;
+      return;
+    }
+    if (page === 0 && total() > 0) return;
+    setCurrentPageCache(key, page);
+  });
+
+  // ✅ Resize 触发 rebuild（防抖）
   let ro: ResizeObserver;
   let timer: number | undefined;
+  let lastWidth = 0;
 
   onMount(() => {
-    ro = new ResizeObserver(() => {
+    ro = new ResizeObserver((entries) => {
+      const width = Math.round(entries[0].contentRect.width);
+      if (width === lastWidth) return;
+
+      lastWidth = width;
       clearTimeout(timer);
       timer = setTimeout(() => {
         reader()?.rebuild();
       }, 200);
     });
 
-    if (containerRef) {
-      ro.observe(containerRef);
-    }
+    ro.observe(containerRef);
   });
 
   onCleanup(() => {
     ro?.disconnect();
-  });
-
-  createEffect(() => {
-    if (reader() && total() > 0) {
-      containerRef.textContent = reader().getPageContent(currentPage());
-    }
   });
 
   return (

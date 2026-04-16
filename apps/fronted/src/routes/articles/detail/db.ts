@@ -1,52 +1,63 @@
-// db.ts
+import { Type } from "@sinclair/typebox";
+import { Value } from "@sinclair/typebox/value";
+import { openDB } from "idb";
+import { Err, Ok, type Result } from "result";
+import { TaggedError } from "tag-error";
+
 const DB_NAME = "reader-db";
 const STORE = "pages";
+const CURRENTSTORE = "current";
+const VERSION = 9;
 
-function openDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const req = window.indexedDB.open(DB_NAME, 2);
+const db = await openDB(DB_NAME, VERSION, {
+  upgrade(db) {
+    if (db.objectStoreNames.contains(STORE)) {
+      db.deleteObjectStore(STORE);
+    }
 
-    req.onupgradeneeded = () => {
-      req.result.createObjectStore(STORE);
-    };
+    if (db.objectStoreNames.contains(CURRENTSTORE)) {
+      db.deleteObjectStore(CURRENTSTORE);
+    }
 
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = reject;
-  });
-}
+    db.createObjectStore(STORE);
+    db.createObjectStore(CURRENTSTORE);
+  },
+});
 
-export async function getCache(key: string) {
-  console.log("📖 READ CACHE:", key);
+export const getCache = async (key: string) => {
+  const tx = db.transaction(STORE, "readonly");
+  const result = await tx.objectStore(STORE).get(key);
 
-  const db = await openDB();
+  try {
+    if (!result) return Ok([]);
+    const typed = Value.Parse(Type.Array(Type.Integer()), result);
+    return Ok(typed);
+  } catch (e) {
+    return Err(new TaggedError(`读取idx失败：${e}`, "UnknownError"));
+  }
+};
 
-  return new Promise((resolve) => {
-    const tx = db.transaction(STORE, "readonly");
-    const req = tx.objectStore(STORE).get(key);
+export const setCache = async (key: string, value: number[]) => {
+  const tx = db.transaction(STORE, "readwrite");
+  await tx.objectStore(STORE).put(value, key);
+  await tx.done;
+};
 
-    req.onsuccess = () => {
-      resolve(req.result ?? null);
-    };
-  });
-}
-export async function setCache(key: string, value: number[]) {
-  const db = await openDB();
+export const setCurrentPageCache = async (key: string, value: number) => {
+  const tx = db.transaction(CURRENTSTORE, "readwrite");
+  await tx.objectStore(CURRENTSTORE).put(value, key);
+  await tx.done;
+};
 
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE, "readwrite");
-    const store = tx.objectStore(STORE);
+export const getCurrentPageCache = async (key: string) => {
+  const tx = db.transaction(CURRENTSTORE, "readonly");
+  const result = await tx.objectStore(CURRENTSTORE).get(key);
 
-    const req = store.put(value, key);
-
-    req.onsuccess = () => {
-      resolve(true);
-    };
-
-    req.onerror = (e) => {
-      console.error("❌ CACHE FAILED", e);
-      reject(e);
-    };
-
-    tx.oncomplete = () => {};
-  });
-}
+  try {
+    if (result === undefined) return Ok(0);
+    const typed = Value.Parse(Type.Integer(), result);
+    return Ok(typed);
+  } catch (e) {
+    return Err(new TaggedError(`读取current失败：${e}`, "UnknownError"));
+  }
+};
