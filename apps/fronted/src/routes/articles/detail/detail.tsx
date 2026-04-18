@@ -12,6 +12,7 @@ import {
 
 import { useReader } from "./use-reader";
 import { setCurrentPageCache } from "./db";
+import ListPagination from "@/components/list-pagination";
 
 const ArticleDetailPage = () => {
   const params = useParams<{ id: string }>();
@@ -22,8 +23,8 @@ const ArticleDetailPage = () => {
     return response.data;
   });
 
-  const [currentPage, setCurrentPage] = createSignal(0);
-  const [total, setTotal] = createSignal(0);
+  const [currentPage, setCurrentPage] = createSignal(1);
+  const [total, setTotal] = createSignal(1);
 
   let containerRef!: HTMLDivElement;
 
@@ -102,27 +103,11 @@ const ArticleDetailPage = () => {
           <aside>
             <h2>{article()?.author.name}</h2>
 
-            <div class="text-sm opacity-60">
-              Page {currentPage() + 1} / {total()}
-            </div>
-
-            <button
-              onClick={() => {
-                const p = currentPage();
-                if (p > 0) setCurrentPage(p - 1);
-              }}
-            >
-              Prev
-            </button>
-
-            <button
-              onClick={() => {
-                const p = currentPage();
-                if (p + 1 < total()) setCurrentPage(p + 1);
-              }}
-            >
-              Next
-            </button>
+            <ListPagination
+              pages={total}
+              change={setCurrentPage}
+              current={currentPage}
+            ></ListPagination>
           </aside>
 
           <main class="grid grid-rows-[auto_auto_1fr] h-full">

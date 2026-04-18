@@ -106,7 +106,16 @@ export const useReader = async (
           signals.setCurrentPage(safePage);
         });
       }
-      signals.setTotal(idx.length);
+      console.log(`        [idx]: ${3}`);
+
+      try {
+        console.log(`        [idx1]: ${idx.length}`);
+        signals.setTotal(idx.length);
+      } catch (e) {
+        console.log(`        [idx]: ${idx.length}`);
+        console.error(`      [未知错误]：${e}`);
+      }
+      console.log(`        [idx]: ${4}`);
       return; // ⭐⭐⭐ 核心：命中缓存直接退出
     }
 
