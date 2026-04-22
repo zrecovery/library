@@ -12,7 +12,7 @@ import {
 
 import { useReader } from "./use-reader";
 import { setCurrentPageCache } from "./db";
-import ListPagination from "@/components/list-pagination";
+import ReaderPagination from "@/components/reader-pagination";
 
 const ArticleDetailPage = () => {
   const params = useParams<{ id: string }>();
@@ -102,15 +102,9 @@ const ArticleDetailPage = () => {
         <div class="grid md:grid-cols-[min(10rem)_1fr] h-full">
           <aside>
             <h2>{article()?.author.name}</h2>
-
-            <ListPagination
-              pages={total}
-              change={setCurrentPage}
-              current={currentPage}
-            ></ListPagination>
           </aside>
 
-          <main class="grid grid-rows-[auto_auto_1fr] h-full">
+          <main class="grid grid-rows-[auto_auto_1fr_auto] h-full">
             <h1>{article()?.title}</h1>
             <Separator />
 
@@ -118,6 +112,13 @@ const ArticleDetailPage = () => {
               ref={containerRef}
               class="whitespace-pre-wrap break-words overflow-hidden"
             />
+            <div class="p-[2rem]">
+              <ReaderPagination
+                pages={total}
+                change={setCurrentPage}
+                current={currentPage}
+              ></ReaderPagination>
+            </div>
           </main>
         </div>
       </Show>

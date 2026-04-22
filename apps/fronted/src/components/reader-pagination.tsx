@@ -13,11 +13,11 @@ interface Page {
   pages: Accessor<number>;
   change: Setter<number>;
 }
-const ListPagination = (props: Page) => {
+const ReaderPagination = (props: Page) => {
   return (
     <Pagination
       page={props.current() >= 1 ? props.current() : 1}
-      count={props.pages() >= 1 ? props.pages() : 1}
+      count={props.pages() >= 2 ? props.pages() - 1 : 1}
       defaultPage={1}
       onPageChange={props.change}
       itemComponent={(props) => (
@@ -32,4 +32,4 @@ const ListPagination = (props: Page) => {
   );
 };
 
-export default ListPagination;
+export default ReaderPagination;
