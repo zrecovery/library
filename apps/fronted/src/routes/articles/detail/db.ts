@@ -7,7 +7,7 @@ import { TaggedError } from "tag-error";
 const DB_NAME = "reader-db";
 const STORE = "pages";
 const CURRENTSTORE = "current";
-const VERSION = 9;
+const VERSION = 10;
 
 const db = await openDB(DB_NAME, VERSION, {
   upgrade(db) {

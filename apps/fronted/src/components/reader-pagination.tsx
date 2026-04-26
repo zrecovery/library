@@ -6,7 +6,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { ErrorBoundary, Show, type Accessor, type Setter } from "solid-js";
+import { type Accessor, type Setter } from "solid-js";
 
 interface Page {
   current: Accessor<number>;
@@ -17,7 +17,7 @@ const ReaderPagination = (props: Page) => {
   return (
     <Pagination
       page={props.current() >= 1 ? props.current() : 1}
-      count={props.pages() >= 2 ? props.pages() - 1 : 1}
+      count={props.pages() >= 1 ? props.pages() : 1}
       defaultPage={1}
       onPageChange={props.change}
       itemComponent={(props) => (
