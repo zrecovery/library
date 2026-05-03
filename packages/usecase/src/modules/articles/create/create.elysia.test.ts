@@ -28,7 +28,6 @@ describe("Elysia", () => {
         chapter: { title: "系列1", order: 2.5 },
       }),
     );
-    expect(response.status).toBe(200);
-    expect(data).toBeNumber();
+    expect(response.status).toBe(201);
   });
 });

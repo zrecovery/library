@@ -1,42 +1,14 @@
-export enum DomainErrorTag {
-  NotFound = "Not Found",
-  Invalidation = "Invalidation",
-  Unknown = "Unknown",
-}
+/**
+ * 领域层统一错误标签。
+ *
+ * 使用 TaggedError 模式：所有领域错误都通过 `new TaggedError(msg, tag)` 创建，
+ * 摒弃传统的 Error 子类继承体系，以获得更好的类型安全和模式匹配能力。
+ */
+export const DomainErrorTag = {
+  NotFound: "Not Found",
+  Invalidation: "Invalidation",
+  Unknown: "Unknown",
+} as const;
 
-export class DomainError extends Error {
-  constructor(
-    message: string,
-    readonly _tag: DomainErrorTag,
-    readonly raw?: Error,
-  ) {
-    super(message);
-  }
-}
-
-export class NotFoundError extends DomainError {
-  constructor(
-    message: string,
-    readonly raw?: Error,
-  ) {
-    super(message, DomainErrorTag.NotFound, raw);
-  }
-}
-
-export class UnknownError extends DomainError {
-  constructor(
-    message: string,
-    readonly raw?: Error,
-  ) {
-    super(message, DomainErrorTag.Unknown, raw);
-  }
-}
-
-export class InvalidationError extends DomainError {
-  constructor(
-    message: string,
-    readonly raw?: Error,
-  ) {
-    super(message, DomainErrorTag.Invalidation, raw);
-  }
-}
+export type DomainErrorTag =
+  (typeof DomainErrorTag)[keyof typeof DomainErrorTag];
