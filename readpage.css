@@ -6,7 +6,9 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-.read-layer, .read-text, .read-control-cover {
+.read-layer,
+.read-text,
+.read-control-cover {
   position: absolute;
   top: 0;
   left: 0;
@@ -100,10 +102,18 @@
   display: block;
 }
 
-.read-control .icon-speech-stop { display: none; }
-.read-speech .read-control .icon-speech-stop { display: inline; }
-.read-control .icon-speech { display: inline; }
-.read-speech .read-control .icon-speech { display: none; }
+.read-control .icon-speech-stop {
+  display: none;
+}
+.read-speech .read-control .icon-speech-stop {
+  display: inline;
+}
+.read-control .icon-speech {
+  display: inline;
+}
+.read-speech .read-control .icon-speech {
+  display: none;
+}
 
 .read-control-disabled {
   display: none;
@@ -389,7 +399,6 @@ button.contents-history-clear {
   background: var(--highlight-background);
 }
 
-
 .bookmark-contents {
   margin-left: 10px;
   flex: 1 1 auto;
@@ -605,4 +614,3 @@ button.contents-history-clear {
     --index-width: 500px;
   }
 }
-

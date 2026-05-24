@@ -1,9 +1,6 @@
 /**
- * Solid Reader - main application.
- * TXT file reader with pagination, built with Solid.js.
- * Target: Safari on MacBook Pro + iOS.
+ * Solid Reader — TXT reader with chapters, search, bookmarks, IndexedDB persistence.
  */
-
 import {
   createSignal,
   createEffect,
@@ -11,13 +8,15 @@ import {
   Show,
   batch,
   onMount,
+  For,
   type JSX,
 } from "solid-js";
 import { FlipPage } from "./FlipPage";
 import type { ReaderConfig } from "./types";
 import { defaultConfig, createViewport } from "./types";
-
-// ---- Sample text ----
+import { generateContents, type ContentEntry } from "./contents";
+import { saveBook, updateCursor, listBooks, loadBook } from "./storage";
+import { IndexPanel } from "./IndexPanel";
 
 const sampleText = `第一章　楔子
 
@@ -201,137 +200,173 @@ const sampleText = `第一章　楔子
 
 第三章未完待续`;
 
-// ---- File uploader ----
-
 function FileUploader(props: {
-  onFileLoad: (text: string, title: string) => void;
+  onLoad: (text: string, title: string) => void;
 }) {
-  let fileInput!: HTMLInputElement;
-
-  const handleFileChange = (e: Event) => {
-    const input = e.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const text = reader.result as string;
-      props.onFileLoad(text, file.name.replace(/\.(txt|gz)$/i, ""));
-    };
-    reader.readAsText(file, "UTF-8");
-  };
-
+  let input!: HTMLInputElement;
   return (
-    <div
-      class="file-uploader"
-      style={{ padding: "20px", "text-align": "center" }}
-    >
+    <div style={{ padding: "20px", "text-align": "center" }}>
       <input
-        ref={fileInput}
+        ref={input}
         type="file"
-        onChange={handleFileChange}
+        onChange={(e) => {
+          const f = e.currentTarget.files?.[0];
+          if (f) {
+            const r = new FileReader();
+            r.onload = () =>
+              props.onLoad(
+                r.result as string,
+                f.name.replace(/\.(txt|gz)$/i, ""),
+              );
+            r.readAsText(f, "UTF-8");
+          }
+        }}
         style={{ display: "none" }}
       />
-      <button
-        onClick={() => fileInput.click()}
-        style={{
-          padding: "12px 32px",
-          "font-size": "16px",
-          border: "2px solid #999",
-          "border-radius": "8px",
-          background: "transparent",
-          cursor: "pointer",
-          color: "#333",
-        }}
-      >
+      <button onClick={() => input.click()} style={btnStyle}>
         Open TXT File
       </button>
     </div>
   );
 }
 
-// ---- Main App ----
+type View =
+  | "reader"
+  | "menu"
+  | "index"
+  | "searchPanel"
+  | "uploader"
+  | "library"
+  | "jump";
 
 export function App() {
   const [text, setText] = createSignal(sampleText);
   const [title, setTitle] = createSignal("Sample");
+  const [bookId, setBookId] = createSignal<string | null>(null);
   const [cursor, setCursor] = createSignal(0);
-  const [showMenu, setShowMenu] = createSignal(false);
-  const [showUploader, setShowUploader] = createSignal(false);
+  const [view, setView] = createSignal<View>("reader");
   const [config, setConfig] = createSignal<ReaderConfig>(defaultConfig);
   const [viewportW, setViewportW] = createSignal(createViewport().width);
   const [viewportH, setViewportH] = createSignal(createViewport().height);
   const [darkMode, setDarkMode] = createSignal(false);
+  const [jumpPercent, setJumpPercent] = createSignal("");
+  const [savedBooks, setSavedBooks] = createSignal<
+    Awaited<ReturnType<typeof listBooks>>
+  >([]);
 
-  // Viewport tracking - use document.documentElement for iOS accuracy
+  const contents = createMemo<ContentEntry[]>(() => generateContents(text()));
+
   onMount(() => {
-    const update = () => {
+    const u = () => {
       setViewportW(document.documentElement.clientWidth);
       setViewportH(document.documentElement.clientHeight);
     };
-    update();
-    window.addEventListener("resize", update);
-    window.addEventListener("orientationchange", update);
-    // iOS Safari may change viewport when scroll address bar shows/hides
-    window.visualViewport?.addEventListener("resize", update);
+    u();
+    window.addEventListener("resize", u);
+    window.addEventListener("orientationchange", u);
+    window.visualViewport?.addEventListener("resize", u);
+    listBooks()
+      .then(async (books) => {
+        setSavedBooks(books);
+        // Auto-open the most recently read book on startup
+        if (books.length > 0) {
+          const r = await loadBook(books[0].id);
+          if (r)
+            batch(() => {
+              setText(r.text);
+              setTitle(r.title);
+              setBookId(r.id);
+              setCursor(r.cursor);
+            });
+        }
+      })
+      .catch(() => {});
     return () => {
-      window.removeEventListener("resize", update);
-      window.removeEventListener("orientationchange", update);
-      window.visualViewport?.removeEventListener("resize", update);
+      window.removeEventListener("resize", u);
+      window.removeEventListener("orientationchange", u);
+      window.visualViewport?.removeEventListener("resize", u);
     };
   });
 
-  // Config sync with dark mode
   createEffect(() => {
-    const dm = darkMode();
-    setConfig((prev) => ({
-      ...prev,
-      textColor: dm ? "#d4d4d4" : "#333333",
-      backgroundColor: dm ? "#1a1a1a" : "#faf8f0",
-    }));
+    const id = bookId(),
+      c = cursor();
+    if (id && c >= 0) {
+      const t = setTimeout(() => updateCursor(id, c), 1000);
+      return () => clearTimeout(t);
+    }
   });
 
-  const handleFileLoad = (newText: string, newTitle: string) => {
+  createEffect(() =>
+    setConfig((p) => ({
+      ...p,
+      textColor: darkMode() ? "#d4d4d4" : "#333333",
+      backgroundColor: darkMode() ? "#1a1a1a" : "#faf8f0",
+    })),
+  );
+
+  const handleFileLoad = async (t: string, title: string) => {
+    const id = Date.now().toString(36);
+    await saveBook(id, title, t, 0);
     batch(() => {
-      setText(newText);
-      setTitle(newTitle);
+      setText(t);
+      setTitle(title);
+      setBookId(id);
       setCursor(0);
-      setShowUploader(false);
+      setView("reader");
     });
+    listBooks()
+      .then(setSavedBooks)
+      .catch(() => {});
   };
 
-  const handleCursorChange = (newCursor: number) => {
-    setCursor(newCursor);
+  const goReader = () => setView("reader");
+  const goMenu = () => setView("menu");
+  const goIndex = () => setView("index");
+  const goSearch = () => setView("searchPanel");
+  const goUploader = () => setView("uploader");
+  const goLibrary = () => {
+    listBooks()
+      .then(setSavedBooks)
+      .catch(() => {});
+    setView("library");
+  };
+  const goJump = () => {
+    setJumpPercent("");
+    setView("jump");
   };
 
-  const toggleMenu = () => {
-    setShowMenu((prev) => !prev);
-  };
-
-  const progressPercent = createMemo(() => {
-    const len = text().length;
-    if (len === 0) return 0;
-    return ((cursor() / len) * 100).toFixed(1);
+  const progress = createMemo(() => {
+    const l = text().length;
+    return l ? ((cursor() / l) * 100).toFixed(1) : "0";
   });
 
-  const rootStyle = createMemo(() => ({
+  const handleJump = () => {
+    const p = parseFloat(jumpPercent());
+    if (!isNaN(p) && p >= 0 && p <= 100) {
+      setCursor(Math.floor((p / 100) * text().length));
+      goReader();
+    }
+  };
+
+  const rootStyle = () => ({
     position: "fixed" as const,
-    top: "0" as const,
-    left: "0" as const,
-    right: "0" as const,
-    bottom: "0" as const,
+    top: "0",
+    left: "0",
+    right: "0",
+    bottom: "0",
     overflow: "hidden",
     "background-color": config().backgroundColor,
     color: config().textColor,
     "font-family":
       '-apple-system, "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif',
     transition: "background-color 0.3s, color 0.3s",
-    "-webkit-overflow-scrolling": "touch" as const,
-  }));
+  });
 
   return (
     <div class="app-root" style={rootStyle()}>
-      <Show when={!showUploader()}>
+      {/* READER */}
+      <Show when={view() === "reader"}>
         <FlipPage
           content={text()}
           cursor={cursor()}
@@ -344,53 +379,48 @@ export function App() {
           backgroundColor={config().backgroundColor}
           twoColumnThreshold={config().twoColumnThreshold}
           touchActions={config().touchActions}
-          contentsList={[]}
-          onCursorChange={handleCursorChange}
-          onMenuRequest={toggleMenu}
+          contentsList={contents()}
+          onCursorChange={setCursor}
+          onMenuRequest={goMenu}
         />
       </Show>
 
-      {/* Menu overlay */}
-      <Show when={showMenu()}>
+      {/* MENU */}
+      <Show when={view() === "menu"}>
         <div
-          class="menu-overlay"
-          onClick={toggleMenu}
           style={{
             position: "absolute",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            background: "rgba(0,0,0,0.5)",
             "z-index": 10,
             display: "flex",
             "flex-direction": "column",
             "justify-content": "flex-end",
           }}
         >
+          <div onClick={goReader} style={{ flex: 1 }} />
           <div
-            class="menu-panel"
             onClick={(e) => e.stopPropagation()}
             style={{
               background: config().backgroundColor,
               color: config().textColor,
-              padding: "24px 16px 32px",
+              padding: "24px 16px",
               "padding-bottom":
                 "max(32px, env(safe-area-inset-bottom, 0px) + 16px)",
               "border-radius": "16px 16px 0 0",
-              "max-height": "60vh",
+              "max-height": "70vh",
               "overflow-y": "auto",
             }}
           >
             <h2 style={{ margin: "0 0 16px", "font-size": "18px" }}>
-              {title()} – {progressPercent()}%
+              {title()} – {progress()}%
             </h2>
-
-            {/* Progress bar */}
             <div
               style={{
                 height: "4px",
-                background: "rgba(128,128,128,0.2)",
+                background: config().textColor + "20",
                 "border-radius": "2px",
                 margin: "0 0 20px",
                 overflow: "hidden",
@@ -399,14 +429,13 @@ export function App() {
               <div
                 style={{
                   height: "100%",
-                  width: `${progressPercent()}%`,
+                  width: `${progress()}%`,
                   background: config().textColor,
                   "border-radius": "2px",
                   transition: "width 0.3s",
                 }}
               />
             </div>
-
             <div
               style={{
                 display: "flex",
@@ -414,55 +443,92 @@ export function App() {
                 gap: "8px",
               }}
             >
-              <button
-                onClick={() => {
-                  setShowUploader(true);
-                  setShowMenu(false);
-                }}
-                style={menuButtonStyle}
-              >
-                Open File
-              </button>
-
-              <button
-                onClick={() => {
-                  setConfig((prev) => ({
-                    ...prev,
-                    fontSize: Math.max(12, Math.min(32, prev.fontSize + 1)),
-                  }));
-                }}
-                style={menuButtonStyle}
-              >
-                Font + ({config().fontSize}px)
-              </button>
-
-              <button
-                onClick={() => {
-                  setConfig((prev) => ({
-                    ...prev,
-                    fontSize: Math.max(12, Math.min(32, prev.fontSize - 1)),
-                  }));
-                }}
-                style={menuButtonStyle}
-              >
-                Font -
-              </button>
-
-              <button
-                onClick={() => setDarkMode((prev) => !prev)}
-                style={menuButtonStyle}
-              >
-                {darkMode() ? "Light Mode" : "Dark Mode"}
-              </button>
-
-              <button onClick={() => setCursor(0)} style={menuButtonStyle}>
-                Go to Start
-              </button>
-
-              <button
-                onClick={() => setShowMenu(false)}
+              {/* Icon toolbar — single row */}
+              <div
                 style={{
-                  ...menuButtonStyle,
+                  display: "flex",
+                  gap: "6px",
+                  "justify-content": "center",
+                  "flex-wrap": "wrap",
+                }}
+              >
+                <button
+                  onClick={goIndex}
+                  style={iconBtnStyle}
+                  title="Chapters / Bookmarks"
+                >
+                  📑
+                </button>
+                <button onClick={goSearch} style={iconBtnStyle} title="Search">
+                  🔍
+                </button>
+                <button
+                  onClick={goJump}
+                  style={iconBtnStyle}
+                  title="Jump to Progress"
+                >
+                  📍
+                </button>
+                <button
+                  onClick={goLibrary}
+                  style={iconBtnStyle}
+                  title="Library"
+                >
+                  📚
+                </button>
+                <button
+                  onClick={goUploader}
+                  style={iconBtnStyle}
+                  title="Open File"
+                >
+                  📂
+                </button>
+                <button
+                  onClick={() =>
+                    setConfig((p) => ({
+                      ...p,
+                      fontSize: Math.max(12, Math.min(32, p.fontSize - 1)),
+                    }))
+                  }
+                  style={iconBtnStyle}
+                  title="Font -"
+                >
+                  A⁻
+                </button>
+                <button
+                  onClick={() =>
+                    setConfig((p) => ({
+                      ...p,
+                      fontSize: Math.max(12, Math.min(32, p.fontSize + 1)),
+                    }))
+                  }
+                  style={iconBtnStyle}
+                  title="Font +"
+                >
+                  A⁺
+                </button>
+                <button
+                  onClick={() => setDarkMode((p) => !p)}
+                  style={iconBtnStyle}
+                  title={darkMode() ? "Light Mode" : "Dark Mode"}
+                >
+                  {darkMode() ? "☀️" : "🌙"}
+                </button>
+                <button
+                  onClick={() => {
+                    setCursor(0);
+                    goReader();
+                  }}
+                  style={iconBtnStyle}
+                  title="Go to Start"
+                >
+                  ⏮
+                </button>
+              </div>
+              <button
+                onClick={goReader}
+                style={{
+                  ...btnStyle,
                   background: config().textColor,
                   color: config().backgroundColor,
                 }}
@@ -474,8 +540,41 @@ export function App() {
         </div>
       </Show>
 
-      {/* File uploader */}
-      <Show when={showUploader()}>
+      {/* SEARCH PANEL */}
+      <Show when={view() === "searchPanel"}>
+        <IndexPanel
+          text={text()}
+          cursor={cursor()}
+          contents={contents()}
+          textColor={config().textColor}
+          backgroundColor={config().backgroundColor}
+          initialTab="search"
+          onNavigate={(c) => {
+            setCursor(c);
+            goReader();
+          }}
+          onClose={goReader}
+        />
+      </Show>
+
+      {/* INDEX (chapters / bookmarks) */}
+      <Show when={view() === "index"}>
+        <IndexPanel
+          text={text()}
+          cursor={cursor()}
+          contents={contents()}
+          textColor={config().textColor}
+          backgroundColor={config().backgroundColor}
+          onNavigate={(c) => {
+            setCursor(c);
+            goReader();
+          }}
+          onClose={goReader}
+        />
+      </Show>
+
+      {/* JUMP */}
+      <Show when={view() === "jump"}>
         <div
           style={{
             position: "absolute",
@@ -486,17 +585,164 @@ export function App() {
             "z-index": 20,
             display: "flex",
             "flex-direction": "column",
+            "justify-content": "flex-end",
+          }}
+        >
+          <div onClick={goReader} style={{ flex: 1 }} />
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: config().backgroundColor,
+              color: config().textColor,
+              padding: "24px 16px",
+              "padding-bottom":
+                "max(32px, env(safe-area-inset-bottom, 0px) + 16px)",
+              "border-radius": "16px 16px 0 0",
+            }}
+          >
+            <h2 style={{ margin: "0 0 16px", "font-size": "18px" }}>
+              Jump to Progress
+            </h2>
+            <div
+              style={{ display: "flex", gap: "8px", "align-items": "center" }}
+            >
+              <input
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                value={jumpPercent()}
+                onInput={(e) => setJumpPercent(e.currentTarget.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleJump();
+                }}
+                placeholder="0-100"
+                autofocus
+                style={{
+                  flex: "1",
+                  padding: "10px 12px",
+                  "font-size": "16px",
+                  border: `1px solid ${config().textColor}33`,
+                  "border-radius": "8px",
+                  background: "transparent",
+                  color: config().textColor,
+                  outline: "none",
+                }}
+              />
+              <span style={{ "font-size": "18px" }}>%</span>
+            </div>
+            <button
+              onClick={handleJump}
+              style={{ ...btnStyle, "margin-top": "12px" }}
+            >
+              Go
+            </button>
+          </div>
+        </div>
+      </Show>
+
+      {/* LIBRARY */}
+      <Show when={view() === "library"}>
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            "z-index": 20,
+            display: "flex",
+            "flex-direction": "column",
+            padding: "max(16px, env(safe-area-inset-top, 0px)) 16px 16px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              "align-items": "center",
+              "margin-bottom": "16px",
+              gap: "8px",
+            }}
+          >
+            <button
+              onClick={goReader}
+              style={{
+                border: "none",
+                background: "transparent",
+                color: "inherit",
+                cursor: "pointer",
+                "font-size": "18px",
+                padding: "4px 8px",
+              }}
+            >
+              ✕
+            </button>
+            <h2 style={{ margin: 0, "font-size": "18px" }}>Library</h2>
+          </div>
+          <Show
+            when={savedBooks().length > 0}
+            fallback={
+              <p style={{ opacity: 0.5 }}>
+                No saved books. Use "Open File" to add one.
+              </p>
+            }
+          >
+            <div style={{ "overflow-y": "auto", flex: 1 }}>
+              <For each={savedBooks()}>
+                {(b) => (
+                  <button
+                    onClick={async () => {
+                      const r = await loadBook(b.id);
+                      if (r)
+                        batch(() => {
+                          setText(r.text);
+                          setTitle(r.title);
+                          setBookId(r.id);
+                          setCursor(r.cursor);
+                          setView("reader");
+                        });
+                    }}
+                    style={{
+                      ...btnStyle,
+                      "text-align": "left",
+                      border: "none",
+                    }}
+                  >
+                    <div style={{ "font-weight": "bold" }}>{b.title}</div>
+                    <div style={{ "font-size": "12px", opacity: 0.5 }}>
+                      Last read: {new Date(b.updatedAt).toLocaleDateString()}
+                    </div>
+                  </button>
+                )}
+              </For>
+            </div>
+          </Show>
+        </div>
+      </Show>
+
+      {/* UPLOADER */}
+      <Show when={view() === "uploader"}>
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            "z-index": 30,
+            display: "flex",
+            "flex-direction": "column",
             "align-items": "center",
             "justify-content": "center",
             background: config().backgroundColor,
             color: config().textColor,
           }}
         >
-          <FileUploader onFileLoad={handleFileLoad} />
+          <FileUploader onLoad={handleFileLoad} />
           <button
-            onClick={() => setShowUploader(false)}
+            onClick={goReader}
             style={{
-              ...menuButtonStyle,
+              ...btnStyle,
               margin: "16px",
               background: config().textColor,
               color: config().backgroundColor,
@@ -508,10 +754,11 @@ export function App() {
             onClick={() => {
               setText(sampleText);
               setTitle("Sample");
+              setBookId(null);
               setCursor(0);
-              setShowUploader(false);
+              setView("reader");
             }}
-            style={menuButtonStyle}
+            style={btnStyle}
           >
             Load Sample Text
           </button>
@@ -521,7 +768,7 @@ export function App() {
   );
 }
 
-const menuButtonStyle: JSX.CSSProperties = {
+const btnStyle: JSX.CSSProperties = {
   padding: "12px 16px",
   "font-size": "16px",
   border: "1px solid rgba(128,128,128,0.3)",
@@ -529,6 +776,20 @@ const menuButtonStyle: JSX.CSSProperties = {
   background: "transparent",
   color: "inherit",
   cursor: "pointer",
-  "text-align": "left",
   width: "100%",
+  "text-align": "center",
+};
+
+const iconBtnStyle: JSX.CSSProperties = {
+  width: "44px",
+  height: "44px",
+  "font-size": "22px",
+  border: "none",
+  "border-radius": "10px",
+  background: "transparent",
+  color: "inherit",
+  cursor: "pointer",
+  display: "flex",
+  "align-items": "center",
+  "justify-content": "center",
 };

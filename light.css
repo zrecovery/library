@@ -52,6 +52,6 @@
   --alert-background: #efefef;
   --alert-text: #000;
 
-  --light-background: #fff;;
+  --light-background: #fff;
   background-color: var(--light-background);
 }

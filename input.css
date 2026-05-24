@@ -90,7 +90,8 @@ button .icon {
   margin: auto 0;
   height: 3px;
   z-index: 0;
-  background: linear-gradient(to right,
+  background: linear-gradient(
+    to right,
     var(--range-lower-color) 0%,
     var(--range-lower-color) calc(100% * var(--range-ratio)),
     var(--range-upper-color) calc(100% * var(--range-ratio)),
@@ -130,7 +131,16 @@ button .icon {
 }
 
 .color-picker-hue .range-track {
-  background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+  background: linear-gradient(
+    to right,
+    #f00,
+    #ff0,
+    #0f0,
+    #0ff,
+    #00f,
+    #f0f,
+    #f00
+  );
 }
 
 .color-picker-hue .range-thumb {
@@ -138,11 +148,19 @@ button .icon {
 }
 
 .color-picker-saturation .range-track {
-  background: linear-gradient(to right, var(--color-picker-empty-saturation), var(--color-picker-full-saturation));
+  background: linear-gradient(
+    to right,
+    var(--color-picker-empty-saturation),
+    var(--color-picker-full-saturation)
+  );
 }
 
 .color-picker-value .range-track {
-  background: linear-gradient(to right, var(--color-picker-empty-value), var(--color-picker-full-value));
+  background: linear-gradient(
+    to right,
+    var(--color-picker-empty-value),
+    var(--color-picker-full-value)
+  );
 }
 
 .color-picker-saturation .range-thumb,
@@ -274,7 +292,7 @@ button.screen-option-item {
 
 .screen-option-item:first-child {
   border-radius: 16px 16px 0 0;
-} 
+}
 
 .screen-option-item:last-child {
   border-bottom: 0 none;

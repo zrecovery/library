@@ -7,8 +7,8 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-import ReadPage from './readpage.js';
-import dom from '../../ui/util/dom.js';
+import ReadPage from "./readpage.js";
+import dom from "../../ui/util/dom.js";
 
 export default class ReadSubPage {
   /**
@@ -24,27 +24,26 @@ export default class ReadSubPage {
   }
   show() {
     this.isCurrent = true;
-    this.container.classList.add('read-sub-page-current');
-    this.container.removeAttribute('aria-hidden');
+    this.container.classList.add("read-sub-page-current");
+    this.container.removeAttribute("aria-hidden");
     dom.enableKeyboardFocus(this.container);
     dom.disableKeyboardFocus(this.readPage.controlPage.container);
   }
   hide() {
     this.isCurrent = false;
-    this.container.classList.remove('read-sub-page-current');
-    this.container.setAttribute('aria-hidden', 'true');
+    this.container.classList.remove("read-sub-page-current");
+    this.container.setAttribute("aria-hidden", "true");
     dom.disableKeyboardFocus(this.container);
     dom.enableKeyboardFocus(this.readPage.controlPage.container);
   }
   currentActive() {
     return this.isCurrent;
   }
-  onFirstActivate() { }
+  onFirstActivate() {}
   onActivate() {
     this.hide();
   }
-  onInactivate() { }
-  onResize() { }
-  cursorChange(cursor, config) { }
+  onInactivate() {}
+  onResize() {}
+  cursorChange(cursor, config) {}
 }
-

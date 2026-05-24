@@ -7,23 +7,23 @@
  * defined by the Mozilla Public License, v. 2.0.
  */
 
-import IndexPage from './index/indexpage.js';
-import ReadIndex from './index/readindex.js';
-import JumpPage from './jump/jumppage.js';
-import ReadSpeech from './speech/readspeech.js';
-import ControlPage from './control/controlpage.js';
-import FlipTextPage from './text/fliptextpage.js';
-import ScrollTextPage from './text/scrolltextpage.js';
-import Page from '../page.js';
-import file from '../../data/file.js';
-import config from '../../data/config.js';
-import onResize from '../../ui/util/onresize.js';
-import i18n from '../../i18n/i18n.js';
-import wakelock from '../../ui/util/wakelock.js';
+import IndexPage from "./index/indexpage.js";
+import ReadIndex from "./index/readindex.js";
+import JumpPage from "./jump/jumppage.js";
+import ReadSpeech from "./speech/readspeech.js";
+import ControlPage from "./control/controlpage.js";
+import FlipTextPage from "./text/fliptextpage.js";
+import ScrollTextPage from "./text/scrolltextpage.js";
+import Page from "../page.js";
+import file from "../../data/file.js";
+import config from "../../data/config.js";
+import onResize from "../../ui/util/onresize.js";
+import i18n from "../../i18n/i18n.js";
+import wakelock from "../../ui/util/wakelock.js";
 
 export default class ReadPage extends Page {
   constructor() {
-    super(document.querySelector('#read_page'));
+    super(document.querySelector("#read_page"));
 
     /** @type {boolean} */
     this.useSideIndex = null;
@@ -32,29 +32,33 @@ export default class ReadPage extends Page {
   }
   matchUrl(url) {
     if (!/\/read\/\d+/.test(url)) return null;
-    const id = +url.split('/').pop();
+    const id = +url.split("/").pop();
     if (!id) return null;
     return { id };
   }
-  getUrl({ id }) { return '/read/' + id; }
+  getUrl({ id }) {
+    return "/read/" + id;
+  }
   async onFirstActivate() {
-    this.container = document.querySelector('#read_page');
+    this.container = document.querySelector("#read_page");
 
-    this.controlPageElement = this.container.querySelector('.read-control');
+    this.controlPageElement = this.container.querySelector(".read-control");
     this.controlPage = new ControlPage(this.controlPageElement, this);
 
-    this.indexPageElement = this.container.querySelector('.read-index');
+    this.indexPageElement = this.container.querySelector(".read-index");
     this.indexPage = new IndexPage(this.indexPageElement, this);
 
-    this.jumpPageElement = this.container.querySelector('.read-jump');
+    this.jumpPageElement = this.container.querySelector(".read-jump");
     this.jumpPage = new JumpPage(this.jumpPageElement, this);
 
     this.speech = new ReadSpeech(this);
 
     this.subPages = [this.controlPage, this.indexPage, this.jumpPage];
-    this.subPages.forEach(page => { page.onFirstActivate(); });
+    this.subPages.forEach((page) => {
+      page.onFirstActivate();
+    });
 
-    this.container.addEventListener('scroll', event => {
+    this.container.addEventListener("scroll", (event) => {
       this.container.scrollTop = 0;
       this.container.scrollLeft = 0;
       event.preventDefault();
@@ -63,13 +67,21 @@ export default class ReadPage extends Page {
     const mayShare = this.canShareFile();
     this.shareFile = this.shareFile.bind(this);
     if (mayShare) {
-      this.controlPage.registerMoreMenu(i18n.getMessage('readMenuShare'), this.shareFile);
+      this.controlPage.registerMoreMenu(
+        i18n.getMessage("readMenuShare"),
+        this.shareFile,
+      );
     }
     this.downloadFile = this.downloadFile.bind(this);
-    const maybeNeedDownload = !mayShare ||
-      (navigator.userAgentData?.mobile !== true && !['iPhone', 'iPad'].includes(navigator.platform));
+    const maybeNeedDownload =
+      !mayShare ||
+      (navigator.userAgentData?.mobile !== true &&
+        !["iPhone", "iPad"].includes(navigator.platform));
     if (maybeNeedDownload) {
-      this.controlPage.registerMoreMenu(i18n.getMessage('readMenuDownload'), this.downloadFile);
+      this.controlPage.registerMoreMenu(
+        i18n.getMessage("readMenuDownload"),
+        this.downloadFile,
+      );
     }
   }
   /**
@@ -77,14 +89,18 @@ export default class ReadPage extends Page {
    */
   async onActivate({ id }) {
     /** @type {string} */
-    this.langTag = await config.get('cjk_lang_tag', 'und');
+    this.langTag = await config.get("cjk_lang_tag", "und");
     /** @type {'flip' | 'scroll'} */
-    this.renderStyle = await config.get('view_mode', 'flip');
+    this.renderStyle = await config.get("view_mode", "flip");
     /** @type {'normal' | 'speech' | 'disable'} */
-    this.autoLockConfig = await config.get('auto_lock', 'speech');
+    this.autoLockConfig = await config.get("auto_lock", "speech");
 
     // EXPERT_CONFIG when index page show as side bar
-    this.screenWidthSideIndex = await config.expert('appearance.screen_width_side_index', 'number', 960);
+    this.screenWidthSideIndex = await config.expert(
+      "appearance.screen_width_side_index",
+      "number",
+      960,
+    );
 
     this.articleId = id;
     const [meta, index, content] = await Promise.all([
@@ -93,7 +109,7 @@ export default class ReadPage extends Page {
       file.content(id),
     ]);
 
-    if (this.autoLockConfig === 'disable') {
+    if (this.autoLockConfig === "disable") {
       wakelock.request();
     }
 
@@ -110,19 +126,21 @@ export default class ReadPage extends Page {
     this.speech.metaLoad(this.meta);
 
     this.readIndex = new ReadIndex(this);
-    if (this.renderStyle === 'flip') {
+    if (this.renderStyle === "flip") {
       this.textPage = new FlipTextPage(this);
-      this.container.classList.add('read-page-flip');
+      this.container.classList.add("read-page-flip");
     } else {
       this.textPage = new ScrollTextPage(this);
-      this.container.classList.add('read-page-scroll');
+      this.container.classList.add("read-page-scroll");
     }
     await this.textPage.onActivate({ id });
 
-    document.addEventListener('keydown', this.keyboardEvents);
+    document.addEventListener("keydown", this.keyboardEvents);
     this.router.setTitle(this.meta.title, this.getLang());
 
-    this.subPages.forEach(page => { page.onActivate(); });
+    this.subPages.forEach((page) => {
+      page.onActivate();
+    });
     this.updateSideIndex();
   }
   async onUpdate({ id }) {
@@ -130,7 +148,7 @@ export default class ReadPage extends Page {
     this.onActivate({ id });
   }
   async onInactivate() {
-    if (this.autoLockConfig === 'disable') {
+    if (this.autoLockConfig === "disable") {
       wakelock.release();
     }
     this.meta = null;
@@ -139,17 +157,19 @@ export default class ReadPage extends Page {
     this.pages = null;
     this.readIndex = null;
     this.useSideIndex = null;
-    document.removeEventListener('keydown', this.keyboardEvents);
-    this.subPages.forEach(page => { page.onInactivate(); });
+    document.removeEventListener("keydown", this.keyboardEvents);
+    this.subPages.forEach((page) => {
+      page.onInactivate();
+    });
     this.speech.stop();
     this.speech.metaUnload();
     this.textPage.onInactivate();
     this.textPage = null;
-    this.container.classList.remove('read-page-scroll', 'read-page-flip');
+    this.container.classList.remove("read-page-scroll", "read-page-flip");
     this.router.setTitle();
   }
   gotoList() {
-    this.router.go('list');
+    this.router.go("list");
   }
   show() {
     super.show();
@@ -165,10 +185,12 @@ export default class ReadPage extends Page {
   }
   onResize() {
     this.updateSideIndex();
-    this.subPages.forEach(page => { page.onResize(); });
+    this.subPages.forEach((page) => {
+      page.onResize();
+    });
   }
   keyboardEvents(event) {
-    if (event.code === 'Escape') {
+    if (event.code === "Escape") {
       const current = this.activedSubpage();
       if (current) current.hide();
       else if (this.controlPage.hasFocus) this.controlPage.hide();
@@ -178,9 +200,9 @@ export default class ReadPage extends Page {
   updateIndexRender(resized = this.useSideIndex) {
     const active = this.isIndexActive();
     if (active) {
-      this.container.classList.add('read-show-index');
+      this.container.classList.add("read-show-index");
     } else {
-      this.container.classList.remove('read-show-index');
+      this.container.classList.remove("read-show-index");
     }
     if (active && !this.useSideIndex) {
       this.controlPage.disable();
@@ -202,11 +224,11 @@ export default class ReadPage extends Page {
     if (sideIndex === this.useSideIndex) return;
     this.useSideIndex = sideIndex;
     if (sideIndex) {
-      this.container.classList.add('read-page-wide');
-      this.container.classList.remove('read-page-thin');
+      this.container.classList.add("read-page-wide");
+      this.container.classList.remove("read-page-thin");
     } else {
-      this.container.classList.remove('read-page-wide');
-      this.container.classList.add('read-page-thin');
+      this.container.classList.remove("read-page-wide");
+      this.container.classList.add("read-page-thin");
     }
     if (this.isIndexActive()) {
       this.updateIndexRender(true);
@@ -298,43 +320,58 @@ export default class ReadPage extends Page {
     this.meta.cursor = cursor;
     file.setMeta(this.meta);
     this.textPage.cursorChange(cursor, config);
-    this.subPages.forEach(page => page.cursorChange(cursor, config));
+    this.subPages.forEach((page) => page.cursorChange(cursor, config));
     this.speech.cursorChange(cursor, config);
   }
-  getContent() { return this.content; }
-  getMeta() { return this.meta; }
-  getLang() { return this.langTag; }
-  isSpeaking() { return this.speech.isWorking(); }
-  getBookmarks() { return this.index.bookmarks; }
-  getContents() { return this.index.content; }
+  getContent() {
+    return this.content;
+  }
+  getMeta() {
+    return this.meta;
+  }
+  getLang() {
+    return this.langTag;
+  }
+  isSpeaking() {
+    return this.speech.isWorking();
+  }
+  getBookmarks() {
+    return this.index.bookmarks;
+  }
+  getContents() {
+    return this.index.content;
+  }
   canShareFile() {
     try {
       if (!navigator.share) return false;
       if (!navigator.canShare) return false;
-      const testFile = new File([''], 'file.txt', { type: 'text/plain' });
+      const testFile = new File([""], "file.txt", { type: "text/plain" });
       return navigator.canShare({ files: [testFile] });
     } catch (_ignore) {
       return false;
     }
   }
   downloadContent() {
-    const text = '\ufeff' + this.content.replace(/\r\n|\r|\n/g, '\r\n');
+    const text = "\ufeff" + this.content.replace(/\r\n|\r|\n/g, "\r\n");
     return new TextEncoder().encode(text).buffer;
   }
   shareFile() {
-    const file = new File([this.downloadContent()], this.meta.title + '.txt', { type: 'text/plain' });
+    const file = new File([this.downloadContent()], this.meta.title + ".txt", {
+      type: "text/plain",
+    });
     return navigator.share({ files: [file] });
   }
   downloadFile() {
-    const blob = new Blob([this.downloadContent()], { type: 'text/plain' });
+    const blob = new Blob([this.downloadContent()], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.download = this.meta.title + '.txt';
+    const link = document.createElement("a");
+    link.download = this.meta.title + ".txt";
     link.href = url;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    setTimeout(() => { URL.revokeObjectURL(url); }, 10e3);
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 10e3);
   }
 }
-

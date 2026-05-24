@@ -2,101 +2,101 @@
 *,
 *::before,
 *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html,
 body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    /* Safari: prevent rubber-band/elastic overscroll */
-    position: fixed;
-    top: 0;
-    left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* Safari: prevent rubber-band/elastic overscroll */
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 body {
-    font-family:
-        -apple-system, "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB",
-        sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-    /* Safari: prevent overscroll background */
-    background-color: #000;
+  font-family:
+    -apple-system, "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Safari: prevent overscroll background */
+  background-color: #000;
 }
 
 /* ---- Paragraph text ---- */
 
 .read-body {
-    overflow-y: hidden;
-    overflow-wrap: break-word;
-    word-break: break-all;
+  overflow-y: hidden;
+  overflow-wrap: break-word;
+  word-break: break-all;
 }
 
 .read-body .text {
-    margin: 0;
-    padding: 0;
-    text-indent: 2em;
-    margin-bottom: 0.5em;
+  margin: 0;
+  padding: 0;
+  text-indent: 2em;
+  margin-bottom: 0.5em;
 }
 
 .read-body .text.text-heading {
-    font-weight: bold;
-    font-size: 1.15em;
-    text-indent: 0;
-    margin-top: 0.75em;
-    margin-bottom: 0.3em;
+  font-weight: bold;
+  font-size: 1.15em;
+  text-indent: 0;
+  margin-top: 0.75em;
+  margin-bottom: 0.3em;
 }
 
 .read-body .text.text-truncated-start {
-    text-indent: 0;
+  text-indent: 0;
 }
 
 /* Two-column divider */
 .read-body-right {
-    border-left: 1px solid rgba(128, 128, 128, 0.12);
+  border-left: 1px solid rgba(128, 128, 128, 0.12);
 }
 
 /* ---- Menu ---- */
 
 .menu-overlay {
-    animation: fadeIn 0.15s ease;
+  animation: fadeIn 0.15s ease;
 }
 
 .menu-panel {
-    animation: slideUp 0.25s ease;
+  animation: slideUp 0.25s ease;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-    from {
-        transform: translateY(100%);
-    }
-    to {
-        transform: translateY(0);
-    }
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 /* ---- Selection ---- */
 
 ::selection {
-    background: rgba(100, 100, 255, 0.25);
+  background: rgba(100, 100, 255, 0.25);
 }
 
 /* ---- Scrollbar (hide on WebKit) ---- */
 
 ::-webkit-scrollbar {
-    display: none;
+  display: none;
 }

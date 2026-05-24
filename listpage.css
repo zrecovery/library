@@ -79,7 +79,9 @@ button.list-sort {
   padding: 18px 30px;
   height: 60px;
   display: block;
-  transition: height, padding ease 0.1s;
+  transition:
+    height,
+    padding ease 0.1s;
   overflow-y: hidden;
 }
 
@@ -183,4 +185,3 @@ button.list-sort {
 .file-list-container .list-item-empty {
   padding: 20px 0;
 }
-

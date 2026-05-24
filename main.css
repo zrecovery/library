@@ -27,7 +27,8 @@
   --page-height: calc(var(--viewport-height) - var(--extra-height));
 }
 
-html, body {
+html,
+body {
   overflow: hidden;
   position: fixed;
   margin: 0;
@@ -309,4 +310,3 @@ button.list-item-container.hover {
 [tabindex="-1"] {
   outline: none;
 }
-

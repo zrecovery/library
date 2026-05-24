@@ -125,7 +125,7 @@
   vertical-align: middle;
 }
 
-.config-option-page  {
+.config-option-page {
   left: 100%;
   transition: left ease 0.05s;
 }
@@ -178,9 +178,13 @@
   top: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(to right,
-    var(--default-background) 0, var(--default-background) var(--close-slide-x),
-    transparent var(--close-slide-x), transparent var(--close-slide-x));
+  background: linear-gradient(
+    to right,
+    var(--default-background) 0,
+    var(--default-background) var(--close-slide-x),
+    transparent var(--close-slide-x),
+    transparent var(--close-slide-x)
+  );
   opacity: 0.6;
 }
 
@@ -284,7 +288,6 @@
 }
 
 @media screen and (min-width: 800px) {
-
   .config-page-content {
     padding-left: calc(calc(100vw - 800px) / 2);
     padding-right: calc(calc(100vw - 800px) / 2);
@@ -314,4 +317,3 @@
     border-radius: 5px;
   }
 }
-
