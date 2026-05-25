@@ -365,74 +365,88 @@ export function App() {
 
   return (
     <div class="app-root" style={rootStyle()}>
-      {/* READER */}
-      <Show when={view() === "reader"}>
-        <FlipPage
-          content={text()}
-          cursor={cursor()}
-          viewportWidth={viewportW()}
-          viewportHeight={viewportH()}
-          fontSize={config().fontSize}
-          lineHeight={config().lineHeight}
-          paragraphSpacing={config().paragraphSpacing}
-          textColor={config().textColor}
-          backgroundColor={config().backgroundColor}
-          twoColumnThreshold={config().twoColumnThreshold}
-          touchActions={config().touchActions}
-          contentsList={contents()}
-          onCursorChange={setCursor}
-          onMenuRequest={goMenu}
-        />
-      </Show>
+      {/* READER — always rendered */}
+      <FlipPage
+        content={text()}
+        cursor={cursor()}
+        viewportWidth={viewportW()}
+        viewportHeight={viewportH()}
+        fontSize={config().fontSize}
+        lineHeight={config().lineHeight}
+        paragraphSpacing={config().paragraphSpacing}
+        textColor={config().textColor}
+        backgroundColor={config().backgroundColor}
+        twoColumnThreshold={config().twoColumnThreshold}
+        touchActions={config().touchActions}
+        contentsList={contents()}
+        onCursorChange={setCursor}
+        onMenuRequest={goMenu}
+      />
 
       {/* MENU */}
       <Show when={view() === "menu"}>
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            "z-index": 10,
-            display: "flex",
-            "flex-direction": "column",
-            "justify-content": "flex-end",
-          }}
-        >
-          <div onClick={goReader} style={{ flex: 1 }} />
+        <>
+          {/* Backdrop — only captures clicks, doesn't block rendering */}
+          <div
+            onClick={goReader}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              "z-index": 9,
+              background: "transparent",
+            }}
+          />
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              bottom: 0,
+              "z-index": 10,
               background: config().backgroundColor,
               color: config().textColor,
-              padding: "24px 16px",
+              padding: "20px",
               "padding-bottom":
-                "max(32px, env(safe-area-inset-bottom, 0px) + 16px)",
-              "border-radius": "16px 16px 0 0",
-              "max-height": "70vh",
+                "max(20px, env(safe-area-inset-bottom, 0px) + 4px)",
+              "border-radius": "20px 20px 0 0",
+              "max-height": "65vh",
               "overflow-y": "auto",
             }}
           >
-            <h2 style={{ margin: "0 0 16px", "font-size": "18px" }}>
+            <h2 style={{ margin: "0 0 12px", "font-size": "18px" }}>
               {title()} – {progress()}%
             </h2>
+            {/* Draggable progress slider */}
             <div
               style={{
-                height: "4px",
-                background: config().textColor + "20",
-                "border-radius": "2px",
-                margin: "0 0 20px",
-                overflow: "hidden",
+                display: "flex",
+                "align-items": "center",
+                margin: "0 0 16px",
               }}
             >
-              <div
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="0.1"
+                value={progress()}
+                onInput={(e) => {
+                  const p = parseFloat(e.currentTarget.value);
+                  setCursor(Math.floor((p / 100) * text().length));
+                }}
                 style={{
-                  height: "100%",
-                  width: `${progress()}%`,
-                  background: config().textColor,
-                  "border-radius": "2px",
-                  transition: "width 0.3s",
+                  flex: "1",
+                  height: "6px",
+                  "-webkit-appearance": "none",
+                  appearance: "none",
+                  background: `linear-gradient(to right, ${config().textColor} ${progress()}%, ${config().textColor}20 ${progress()}%)`,
+                  "border-radius": "3px",
+                  outline: "none",
+                  cursor: "pointer",
                 }}
               />
             </div>
@@ -525,19 +539,9 @@ export function App() {
                   ⏮
                 </button>
               </div>
-              <button
-                onClick={goReader}
-                style={{
-                  ...btnStyle,
-                  background: config().textColor,
-                  color: config().backgroundColor,
-                }}
-              >
-                Continue Reading
-              </button>
             </div>
           </div>
-        </div>
+        </>
       </Show>
 
       {/* SEARCH PANEL */}
@@ -651,6 +655,8 @@ export function App() {
             right: 0,
             bottom: 0,
             "z-index": 20,
+            background: config().backgroundColor,
+            color: config().textColor,
             display: "flex",
             "flex-direction": "column",
             padding: "max(16px, env(safe-area-inset-top, 0px)) 16px 16px",

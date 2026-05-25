@@ -46,8 +46,8 @@ interface MeasureContext {
  * Mirror FlipPage's colStyle EXACTLY.
  *
  * FlipPage renders:
- *   <div style="position:absolute; top:max(16px,...); bottom:max(24px,...);
- *               left:16px (or calc(50%+8px)); right:...; overflow:hidden;
+ *   <div style="position:absolute; top:max(16px,...); bottom:max(36px,...);
+ *               left:16px (or 50% with padding); right:...; overflow:hidden;
  *               overflow-wrap:break-word; word-break:break-all">
  */
 function makeMeasureCtx(
@@ -69,17 +69,20 @@ function makeMeasureCtx(
   if (isRight) inner.className += " read-body-right";
 
   const topStr = "max(16px, env(safe-area-inset-top, 0px))";
-  const botStr = "max(24px, calc(env(safe-area-inset-bottom, 0px) + 8px))";
+  const botStr = "max(36px, calc(env(safe-area-inset-bottom, 0px) + 20px))";
 
   let leftStr: string;
   let rightStr: string;
+  let extraStyle = "";
   if (isTwoCol) {
     if (isRight) {
-      leftStr = "calc(50% + 8px)";
+      leftStr = "50%";
       rightStr = "16px";
+      extraStyle = "padding-left:16px;";
     } else {
       leftStr = "16px";
-      rightStr = "calc(50% + 8px)";
+      rightStr = "50%";
+      extraStyle = "padding-right:16px;";
     }
   } else {
     leftStr = "16px";
@@ -90,7 +93,9 @@ function makeMeasureCtx(
     "position:absolute;" +
     `top:${topStr};bottom:${botStr};` +
     `left:${leftStr};right:${rightStr};` +
-    "overflow:visible;overflow-wrap:break-word;word-break:break-all;";
+    "overflow:visible;overflow-wrap:break-word;word-break:break-all;" +
+    "box-sizing:border-box;" +
+    extraStyle;
 
   outer.appendChild(inner);
 
@@ -437,8 +442,8 @@ export const layoutPage = (
   ctx.inner.style.cssText =
     "position:absolute;" +
     "top:max(16px, env(safe-area-inset-top, 0px));" +
-    "bottom:max(24px, calc(env(safe-area-inset-bottom, 0px) + 8px));" +
-    "left:calc(50% + 8px);right:16px;" +
+    "bottom:max(36px, calc(env(safe-area-inset-bottom, 0px) + 20px));" +
+    "left:50%;right:16px;box-sizing:border-box;padding-left:16px;" +
     "overflow:visible;overflow-wrap:break-word;word-break:break-all;";
   ctx.contentHeight = ctx.inner.clientHeight;
   ctx.contentWidth = ctx.inner.clientWidth;
@@ -498,8 +503,8 @@ export const layoutPageEndingAt = (
   ctx.inner.style.cssText =
     "position:absolute;" +
     "top:max(16px, env(safe-area-inset-top, 0px));" +
-    "bottom:max(24px, calc(env(safe-area-inset-bottom, 0px) + 8px));" +
-    "left:16px;right:calc(50% + 8px);" +
+    "bottom:max(36px, calc(env(safe-area-inset-bottom, 0px) + 20px));" +
+    "left:16px;right:50%;box-sizing:border-box;padding-right:16px;" +
     "overflow:visible;overflow-wrap:break-word;word-break:break-all;";
   ctx.contentHeight = ctx.inner.clientHeight;
   ctx.contentWidth = ctx.inner.clientWidth;

@@ -19,6 +19,7 @@ import {
 } from "solid-js";
 import type { PageLayoutResult } from "./types";
 import { layoutPage, layoutPageEndingAt } from "./layout-engine";
+import { getContentsIndexAt } from "./contents";
 
 export interface FlipPageProps {
   content: string;
@@ -68,6 +69,11 @@ export function FlipPage(props: FlipPageProps) {
     const l = layout();
     if (!l || props.content.length === 0) return "0%";
     return ((l.nextCursor / props.content.length) * 100).toFixed(2) + "%";
+  });
+
+  const currentChapter = createMemo(() => {
+    const idx = getContentsIndexAt(props.contentsList, props.cursor);
+    return idx >= 0 ? props.contentsList[idx].title : "";
   });
 
   const canGoNext = createMemo(() => {
@@ -364,13 +370,18 @@ export function FlipPage(props: FlipPageProps) {
   const colStyle = (isLeft: boolean) => ({
     position: "absolute" as const,
     top: "max(16px, env(safe-area-inset-top, 0px))",
-    bottom: "max(24px, calc(env(safe-area-inset-bottom, 0px) + 8px))",
+    bottom: "max(36px, calc(env(safe-area-inset-bottom, 0px) + 20px))",
     overflow: "hidden",
     "overflow-wrap": "break-word",
     "word-break": "break-all",
-    ...(isLeft
-      ? { left: "16px", right: isTwoColumn() ? "calc(50% + 8px)" : "16px" }
-      : { left: "calc(50% + 8px)", right: "16px" }),
+    "box-sizing": "border-box" as const,
+    // Single column: span full width between margins
+    // Two columns: split at 50% with 16px padding gap from midline
+    ...(isTwoColumn()
+      ? isLeft
+        ? { left: "16px", right: "50%", "padding-right": "16px" }
+        : { left: "50%", right: "16px", "padding-left": "16px" }
+      : { left: "16px", right: "16px" }),
   });
 
   return (
@@ -512,6 +523,16 @@ export function FlipPage(props: FlipPageProps) {
           "z-index": 1,
         }}
       >
+        <span
+          style={{
+            overflow: "hidden",
+            "text-overflow": "ellipsis",
+            "white-space": "nowrap",
+            "max-width": "70%",
+          }}
+        >
+          {currentChapter()}
+        </span>
         <span>{progress()}</span>
       </div>
 
