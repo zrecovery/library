@@ -15,7 +15,13 @@ import { FlipPage } from "./FlipPage";
 import type { ReaderConfig } from "./types";
 import { defaultConfig, createViewport } from "./types";
 import { generateContents, type ContentEntry } from "./contents";
-import { saveBook, updateCursor, listBooks, loadBook } from "./storage";
+import {
+  saveBook,
+  updateCursor,
+  listBooks,
+  loadBook,
+  deleteBook,
+} from "./storage";
 import { IndexPanel } from "./IndexPanel";
 
 const sampleText = `第一章　楔子
@@ -230,31 +236,27 @@ function FileUploader(props: {
   );
 }
 
-type View =
-  | "reader"
-  | "menu"
-  | "index"
-  | "searchPanel"
-  | "uploader"
-  | "library"
-  | "jump";
+type View = "reader" | "menu" | "index" | "searchPanel" | "library" | "jump";
 
 export function App() {
   const [text, setText] = createSignal(sampleText);
   const [title, setTitle] = createSignal("Sample");
   const [bookId, setBookId] = createSignal<string | null>(null);
   const [cursor, setCursor] = createSignal(0);
-  const [view, setView] = createSignal<View>("reader");
+  const [view, setView] = createSignal<View>("library");
   const [config, setConfig] = createSignal<ReaderConfig>(defaultConfig);
   const [viewportW, setViewportW] = createSignal(createViewport().width);
   const [viewportH, setViewportH] = createSignal(createViewport().height);
   const [darkMode, setDarkMode] = createSignal(false);
   const [jumpPercent, setJumpPercent] = createSignal("");
+  const [chapterPattern, setChapterPattern] = createSignal("");
   const [savedBooks, setSavedBooks] = createSignal<
     Awaited<ReturnType<typeof listBooks>>
   >([]);
 
-  const contents = createMemo<ContentEntry[]>(() => generateContents(text()));
+  const contents = createMemo<ContentEntry[]>(() =>
+    generateContents(text(), chapterPattern()),
+  );
 
   onMount(() => {
     const u = () => {
@@ -268,7 +270,7 @@ export function App() {
     listBooks()
       .then(async (books) => {
         setSavedBooks(books);
-        // Auto-open the most recently read book on startup
+        // Auto-open the most recently read book, otherwise show library
         if (books.length > 0) {
           const r = await loadBook(books[0].id);
           if (r)
@@ -277,6 +279,7 @@ export function App() {
               setTitle(r.title);
               setBookId(r.id);
               setCursor(r.cursor);
+              setView("reader");
             });
         }
       })
@@ -324,7 +327,6 @@ export function App() {
   const goMenu = () => setView("menu");
   const goIndex = () => setView("index");
   const goSearch = () => setView("searchPanel");
-  const goUploader = () => setView("uploader");
   const goLibrary = () => {
     listBooks()
       .then(setSavedBooks)
@@ -491,13 +493,6 @@ export function App() {
                   📚
                 </button>
                 <button
-                  onClick={goUploader}
-                  style={iconBtnStyle}
-                  title="Open File"
-                >
-                  📂
-                </button>
-                <button
                   onClick={() =>
                     setConfig((p) => ({
                       ...p,
@@ -550,6 +545,8 @@ export function App() {
           text={text()}
           cursor={cursor()}
           contents={contents()}
+          chapterPattern={chapterPattern()}
+          onChapterPatternChange={setChapterPattern}
           textColor={config().textColor}
           backgroundColor={config().backgroundColor}
           initialTab="search"
@@ -567,6 +564,8 @@ export function App() {
           text={text()}
           cursor={cursor()}
           contents={contents()}
+          chapterPattern={chapterPattern()}
+          onChapterPatternChange={setChapterPattern}
           textColor={config().textColor}
           backgroundColor={config().backgroundColor}
           onNavigate={(c) => {
@@ -654,7 +653,7 @@ export function App() {
             left: 0,
             right: 0,
             bottom: 0,
-            "z-index": 20,
+            "z-index": 10,
             background: config().backgroundColor,
             color: config().textColor,
             display: "flex",
@@ -662,112 +661,99 @@ export function App() {
             padding: "max(16px, env(safe-area-inset-top, 0px)) 16px 16px",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              "align-items": "center",
-              "margin-bottom": "16px",
-              gap: "8px",
-            }}
-          >
-            <button
-              onClick={goReader}
-              style={{
-                border: "none",
-                background: "transparent",
-                color: "inherit",
-                cursor: "pointer",
-                "font-size": "18px",
-                padding: "4px 8px",
-              }}
-            >
-              ✕
-            </button>
-            <h2 style={{ margin: 0, "font-size": "18px" }}>Library</h2>
-          </div>
+          <FileUploader onLoad={handleFileLoad} />
           <Show
             when={savedBooks().length > 0}
             fallback={
-              <p style={{ opacity: 0.5 }}>
-                No saved books. Use "Open File" to add one.
+              <p style={{ opacity: 0.5, padding: "20px 0" }}>
+                No saved books yet.
               </p>
             }
           >
             <div style={{ "overflow-y": "auto", flex: 1 }}>
               <For each={savedBooks()}>
                 {(b) => (
-                  <button
-                    onClick={async () => {
-                      const r = await loadBook(b.id);
-                      if (r)
-                        batch(() => {
-                          setText(r.text);
-                          setTitle(r.title);
-                          setBookId(r.id);
-                          setCursor(r.cursor);
-                          setView("reader");
-                        });
-                    }}
+                  <div
                     style={{
-                      ...btnStyle,
-                      "text-align": "left",
-                      border: "none",
+                      display: "flex",
+                      gap: "4px",
+                      "align-items": "center",
                     }}
                   >
-                    <div style={{ "font-weight": "bold" }}>{b.title}</div>
-                    <div style={{ "font-size": "12px", opacity: 0.5 }}>
-                      Last read: {new Date(b.updatedAt).toLocaleDateString()}
-                    </div>
-                  </button>
+                    <button
+                      onClick={async () => {
+                        const r = await loadBook(b.id);
+                        if (r)
+                          batch(() => {
+                            setText(r.text);
+                            setTitle(r.title);
+                            setBookId(r.id);
+                            setCursor(r.cursor);
+                            setView("reader");
+                          });
+                      }}
+                      style={{
+                        ...btnStyle,
+                        flex: "1",
+                        "text-align": "left",
+                        border: "none",
+                      }}
+                    >
+                      <div style={{ "font-weight": "bold" }}>{b.title}</div>
+                      <div style={{ "font-size": "12px", opacity: 0.5 }}>
+                        Last read: {new Date(b.updatedAt).toLocaleDateString()}
+                      </div>
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const r = await loadBook(b.id);
+                        if (r) {
+                          const blob = new Blob([r.text], {
+                            type: "text/plain",
+                          });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement("a");
+                          a.download = (r.title || "book") + ".txt";
+                          a.href = url;
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        }
+                      }}
+                      style={{
+                        ...iconBtnStyle,
+                        width: "36px",
+                        height: "36px",
+                        "font-size": "16px",
+                      }}
+                      title="Export"
+                    >
+                      ⬇
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (confirm(`Delete "${b.title}"?`)) {
+                          await deleteBook(b.id);
+                          listBooks()
+                            .then(setSavedBooks)
+                            .catch(() => {});
+                        }
+                      }}
+                      style={{
+                        ...iconBtnStyle,
+                        width: "36px",
+                        height: "36px",
+                        "font-size": "16px",
+                        color: "#e74c3c",
+                      }}
+                      title="Delete"
+                    >
+                      🗑
+                    </button>
+                  </div>
                 )}
               </For>
             </div>
           </Show>
-        </div>
-      </Show>
-
-      {/* UPLOADER */}
-      <Show when={view() === "uploader"}>
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            "z-index": 30,
-            display: "flex",
-            "flex-direction": "column",
-            "align-items": "center",
-            "justify-content": "center",
-            background: config().backgroundColor,
-            color: config().textColor,
-          }}
-        >
-          <FileUploader onLoad={handleFileLoad} />
-          <button
-            onClick={goReader}
-            style={{
-              ...btnStyle,
-              margin: "16px",
-              background: config().textColor,
-              color: config().backgroundColor,
-            }}
-          >
-            Back to Reading
-          </button>
-          <button
-            onClick={() => {
-              setText(sampleText);
-              setTitle("Sample");
-              setBookId(null);
-              setCursor(0);
-              setView("reader");
-            }}
-            style={btnStyle}
-          >
-            Load Sample Text
-          </button>
         </div>
       </Show>
     </div>

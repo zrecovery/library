@@ -36,10 +36,22 @@ const MAX_ENTRIES = 5000;
 /**
  * Generate table of contents from text content.
  * Lines that are short (≤ MAX_HEADING_LENGTH) and match chapter-like
- * patterns are treated as headings.
+ * patterns or a custom regex are treated as headings.
  */
-export function generateContents(content: string): ContentEntry[] {
+export function generateContents(
+  content: string,
+  customPattern?: string,
+): ContentEntry[] {
   if (!content) return [];
+
+  let customReg: RegExp | null = null;
+  if (customPattern) {
+    try {
+      customReg = new RegExp(customPattern, "iu");
+    } catch {
+      /* invalid regex, ignore */
+    }
+  }
 
   const lines = content.split("\n");
   const entries: ContentEntry[] = [];
@@ -47,16 +59,18 @@ export function generateContents(content: string): ContentEntry[] {
 
   for (const line of lines) {
     const trimmed = line.trim();
-    cursor += line.length + 1; // +1 for the \n we split on
+    cursor += line.length + 1;
 
     if (!trimmed) continue;
     if (trimmed.length > MAX_HEADING_LENGTH) continue;
 
-    const isHeading = CHAPTER_PATTERNS.some((p) => p.test(trimmed));
+    const isHeading =
+      CHAPTER_PATTERNS.some((p) => p.test(trimmed)) ||
+      (customReg?.test(trimmed) ?? false);
 
     if (isHeading) {
       entries.push({
-        cursor: cursor - line.length - 1, // back to start of this line
+        cursor: cursor - line.length - 1,
         title: trimmed,
       });
       if (entries.length >= MAX_ENTRIES) break;

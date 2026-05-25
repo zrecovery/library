@@ -22,6 +22,8 @@ export function IndexPanel(props: {
   text: string;
   cursor: number;
   contents: ContentEntry[];
+  chapterPattern: string;
+  onChapterPatternChange: (pattern: string) => void;
   textColor: string;
   backgroundColor: string;
   initialTab?: Tab;
@@ -149,6 +151,26 @@ export function IndexPanel(props: {
       >
         {/* CONTENTS TAB */}
         <Show when={tab() === "contents"}>
+          <div style={{ padding: "8px 16px 0" }}>
+            <input
+              type="text"
+              value={props.chapterPattern}
+              onInput={(e) =>
+                props.onChapterPatternChange(e.currentTarget.value)
+              }
+              placeholder="Custom regex (e.g. ^第.+章)"
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                "font-size": "14px",
+                border: `1px solid ${props.textColor}22`,
+                "border-radius": "8px",
+                background: "transparent",
+                color: props.textColor,
+                outline: "none",
+              }}
+            />
+          </div>
           <div
             ref={contentsRef}
             style={{ flex: 1, "overflow-y": "auto", padding: "8px 16px" }}
