@@ -11,7 +11,9 @@
 
 import type { PageLayoutResult, ViewportSize, ReaderConfig } from "./types";
 
-// ---- Helpers ----
+// =============================================================================
+//  Whitespace Helpers
+// =============================================================================
 
 const skipWhitespace = (content: string, cursor: number): number => {
   let pos = Math.max(0, cursor);
@@ -33,13 +35,51 @@ const skipWhitespaceBackward = (content: string, cursor: number): number => {
 const calcStep = (vw: number, vh: number, fontSize: number): number =>
   Math.max(Math.floor((vw * vh) / (fontSize * fontSize)), 50);
 
-// ---- Measurement context ----
+// =============================================================================
+//  Measurement Context
+// =============================================================================
 
 interface MeasureContext {
   outer: HTMLElement;
   inner: HTMLElement;
   contentHeight: number;
   contentWidth: number;
+}
+
+/**
+ * Build the CSS string for an inner column element (mirrors FlipPage's colStyle).
+ * @param isRight When true, renders right-half positioning; otherwise left-half or single-column.
+ */
+function colInnerStyle(isTwoCol: boolean, isRight: boolean): string {
+  const topStr = "max(16px, env(safe-area-inset-top, 0px))";
+  const botStr = "max(36px, calc(env(safe-area-inset-bottom, 0px) + 20px))";
+
+  let leftStr: string;
+  let rightStr: string;
+  let extraStyle = "";
+  if (isTwoCol) {
+    if (isRight) {
+      leftStr = "50%";
+      rightStr = "16px";
+      extraStyle = "padding-left:16px;";
+    } else {
+      leftStr = "16px";
+      rightStr = "50%";
+      extraStyle = "padding-right:16px;";
+    }
+  } else {
+    leftStr = "16px";
+    rightStr = "16px";
+  }
+
+  return (
+    "position:absolute;" +
+    `top:${topStr};bottom:${botStr};` +
+    `left:${leftStr};right:${rightStr};` +
+    "overflow:visible;overflow-wrap:break-word;word-break:break-all;" +
+    "box-sizing:border-box;" +
+    extraStyle
+  );
 }
 
 /**
@@ -68,34 +108,7 @@ function makeMeasureCtx(
   inner.className = "read-body";
   if (isRight) inner.className += " read-body-right";
 
-  const topStr = "max(16px, env(safe-area-inset-top, 0px))";
-  const botStr = "max(36px, calc(env(safe-area-inset-bottom, 0px) + 20px))";
-
-  let leftStr: string;
-  let rightStr: string;
-  let extraStyle = "";
-  if (isTwoCol) {
-    if (isRight) {
-      leftStr = "50%";
-      rightStr = "16px";
-      extraStyle = "padding-left:16px;";
-    } else {
-      leftStr = "16px";
-      rightStr = "50%";
-      extraStyle = "padding-right:16px;";
-    }
-  } else {
-    leftStr = "16px";
-    rightStr = "16px";
-  }
-
-  inner.style.cssText =
-    "position:absolute;" +
-    `top:${topStr};bottom:${botStr};` +
-    `left:${leftStr};right:${rightStr};` +
-    "overflow:visible;overflow-wrap:break-word;word-break:break-all;" +
-    "box-sizing:border-box;" +
-    extraStyle;
+  inner.style.cssText = colInnerStyle(isTwoCol, isRight);
 
   outer.appendChild(inner);
 
@@ -111,8 +124,17 @@ function removeMeasureCtx(ctx: MeasureContext): void {
   document.body.removeChild(ctx.outer);
 }
 
-// ---- Paragraph filling ----
+// =============================================================================
+//  Paragraph Filling
+// =============================================================================
 
+/**
+ * Mutable accumulator for the fillChunk loop.
+ *
+ * Fields are intentionally mutable — fillChunk mutates `s` in place to avoid
+ * allocation overhead while progressively filling the measurement DOM with
+ * text paragraphs. The caller creates one FillState and passes it repeatedly.
+ */
 interface FillState {
   cursor: number;
   paragraph: HTMLElement | null;
@@ -125,6 +147,7 @@ function fillChunk(
   container: HTMLElement,
   content: string,
   s: FillState,
+  fontSize: number,
 ): void {
   if (s.cursor == null) s.cursor = s.end ?? 0;
   if (s.end != null && s.cursor >= s.end) {
@@ -134,7 +157,7 @@ function fillChunk(
   const step = calcStep(
     container.clientWidth || 300,
     container.clientHeight || 400,
-    18,
+    fontSize,
   );
 
   let pos = s.cursor;
@@ -176,12 +199,48 @@ function fillChunk(
   });
 }
 
-// ---- Forward column layout ----
+// =============================================================================
+//  Binary Search Helper (shared by forward and backward layout)
+// =============================================================================
+
+/**
+ * Given a text node and a visible bottom boundary (in viewport pixels),
+ * binary-search within the node's text to find the index of the last
+ * character whose bounding rect is fully above the boundary.
+ *
+ * Returns the index. Caller can compute nextCursor = paragraphStart + index.
+ */
+function binarySearchVisibleBoundary(
+  textNode: Node & { textContent: string },
+  visibleBottom: number,
+): number {
+  let lo = 0;
+  let hi = textNode.textContent.length - 1;
+  const range = document.createRange();
+
+  while (lo <= hi) {
+    const mid = Math.floor((lo + hi) / 2);
+    range.setStart(textNode, mid);
+    range.setEnd(textNode, mid + 1);
+    const rects = Array.from(range.getClientRects());
+    const rectTop =
+      rects.find((r) => r.width * r.height > 0)?.top ?? rects[0]?.top ?? 0;
+    if (rectTop < visibleBottom) lo = mid + 1;
+    else hi = mid - 1;
+  }
+
+  return hi;
+}
+
+// =============================================================================
+//  Forward Column Layout
+// =============================================================================
 
 function layoutColumnForward(
   content: string,
   cursor: number,
   ctx: MeasureContext,
+  fontSize: number,
 ): { nextCursor: number; height: number | null } {
   const start = skipWhitespace(content, cursor);
   if (start >= content.length)
@@ -200,9 +259,9 @@ function layoutColumnForward(
   let overflow = false;
 
   while (!s.error) {
-    fillChunk(inner, content, s);
+    fillChunk(inner, content, s, fontSize);
     if (inner.clientHeight !== inner.scrollHeight) {
-      fillChunk(inner, content, s);
+      fillChunk(inner, content, s, fontSize);
       overflow = true;
       break;
     }
@@ -212,8 +271,8 @@ function layoutColumnForward(
   if (!overflow) return { nextCursor: s.cursor, height: null };
 
   // Find overflow boundary
-  const innerRect = inner.getBoundingClientRect();
-  const visBottom = innerRect.bottom;
+  const measureRect = inner.getBoundingClientRect();
+  const visibleBottom = measureRect.bottom;
 
   const paragraphs = Array.from(
     inner.querySelectorAll<HTMLElement>("p[data-start]"),
@@ -222,44 +281,47 @@ function layoutColumnForward(
     paragraphs
       .slice()
       .reverse()
-      .find((p) => p.getBoundingClientRect().top < visBottom) ?? paragraphs[0];
+      .find((p) => p.getBoundingClientRect().top < visibleBottom) ??
+    paragraphs[0];
 
   const paraStart = Number(firstOut.dataset.start);
   const textNode = firstOut.firstChild;
   if (!textNode || !textNode.textContent)
     return { nextCursor: paraStart, height: null };
 
-  const text = textNode.textContent;
-  let lo = 0,
-    hi = text.length - 1;
-  const range = document.createRange();
-
-  while (lo <= hi) {
-    const mid = Math.floor((lo + hi) / 2);
-    range.setStart(textNode, mid);
-    range.setEnd(textNode, mid + 1);
-    const rects = Array.from(range.getClientRects());
-    const rectTop =
-      rects.find((r) => r.width * r.height > 0)?.top ?? rects[0]?.top ?? 0;
-    if (rectTop < visBottom) lo = mid + 1;
-    else hi = mid - 1;
-  }
+  const hi = binarySearchVisibleBoundary(
+    textNode as Node & { textContent: string },
+    visibleBottom,
+  );
 
   // Measure exact pixel height (like original: body.style.height = targetHeight)
   let height: number;
   if (hi < 0) {
-    height = firstOut.getBoundingClientRect().top - innerRect.top;
+    height = firstOut.getBoundingClientRect().top - measureRect.top;
   } else {
-    range.setStart(textNode, lo - 1);
-    range.setEnd(textNode, lo);
-    height = range.getBoundingClientRect().bottom - innerRect.top;
+    const range = document.createRange();
+    range.setStart(textNode, hi);
+    range.setEnd(textNode, hi + 1);
+    height = range.getBoundingClientRect().bottom - measureRect.top;
   }
 
-  return { nextCursor: paraStart + lo, height };
+  return { nextCursor: paraStart + hi + 1, height };
 }
 
-// ---- Build HTML from measurement DOM ----
+// =============================================================================
+//  HTML Building
+// =============================================================================
 
+/**
+ * Transform the measurement DOM into the final HTML string for a column.
+ *
+ * Strategy: clone the measurement DOM and truncate paragraphs that extend
+ * beyond `nextCursor`. Paragraphs fully past the cursor are removed; partially
+ * included ones have their visible text cut and a hidden span preserving the
+ * remainder (so that "text-truncated-end" styling can render ellipsis, etc.).
+ * The in-place mutation is safe because the measurement DOM is discarded after
+ * this call.
+ */
 function buildHTML(inner: HTMLElement, nextCursor: number): string {
   const paragraphs = Array.from(
     inner.querySelectorAll<HTMLElement>("p[data-start]"),
@@ -290,18 +352,21 @@ function buildHTML(inner: HTMLElement, nextCursor: number): string {
   return inner.innerHTML;
 }
 
-// ---- Backward column layout ----
+// =============================================================================
+//  Backward Column Layout
+// =============================================================================
 
 function layoutColumnBackward(
   content: string,
   targetNextCursor: number,
   ctx: MeasureContext,
+  fontSize: number,
 ): number {
   if (!targetNextCursor) return 0;
 
   const inner = ctx.inner;
   inner.innerHTML = "";
-  const step = calcStep(ctx.contentWidth, ctx.contentHeight, 18);
+  const step = calcStep(ctx.contentWidth, ctx.contentHeight, fontSize);
   const end = skipWhitespaceBackward(content, targetNextCursor);
 
   let low = Math.max(end - step, 0);
@@ -318,7 +383,7 @@ function layoutColumnBackward(
     };
 
     while (!s.error) {
-      fillChunk(inner, content, s);
+      fillChunk(inner, content, s, fontSize);
       if (inner.clientHeight !== inner.scrollHeight) break;
       if (inner.scrollHeight > ctx.contentHeight * 4) break;
     }
@@ -337,14 +402,14 @@ function layoutColumnBackward(
 
   if (inner.clientHeight === inner.scrollHeight) return low;
 
-  const innerRect = inner.getBoundingClientRect();
-  let boundary = innerRect.top + inner.scrollHeight - inner.clientHeight;
+  const measureRect = inner.getBoundingClientRect();
+  let visibleBottom = measureRect.top + inner.scrollHeight - inner.clientHeight;
 
   const paragraphs = Array.from(
     inner.querySelectorAll<HTMLElement>("p[data-start]"),
   );
   let firstOut = paragraphs.find(
-    (p) => p.getBoundingClientRect().bottom > boundary,
+    (p) => p.getBoundingClientRect().bottom > visibleBottom,
   );
   if (!firstOut) return low;
 
@@ -359,39 +424,32 @@ function layoutColumnBackward(
       error: false,
     };
     while (!s.error) {
-      fillChunk(inner, content, s);
+      fillChunk(inner, content, s, fontSize);
       if (inner.clientHeight !== inner.scrollHeight) break;
     }
     firstOut = ref
       ? (ref.previousSibling as HTMLElement)
       : (inner.lastChild as HTMLElement);
     if (!firstOut) return low;
-    boundary = innerRect.top + inner.scrollHeight - inner.clientHeight;
+    visibleBottom = measureRect.top + inner.scrollHeight - inner.clientHeight;
   }
 
   const firstOutStart = Number(firstOut.dataset.start);
   const textNode = firstOut.firstChild;
   if (!textNode || !textNode.textContent) return firstOutStart;
 
-  let lo = 0,
-    hi = textNode.textContent.length - 1;
-  const range = document.createRange();
-  while (lo <= hi) {
-    const mid = Math.floor((lo + hi) / 2);
-    range.setStart(textNode, mid);
-    range.setEnd(textNode, mid + 1);
-    const rects = Array.from(range.getClientRects());
-    const rectTop =
-      rects.find((r) => r.width * r.height > 0)?.top ?? rects[0]?.top ?? 0;
-    if (rectTop < boundary) lo = mid + 1;
-    else hi = mid - 1;
-  }
+  const hi = binarySearchVisibleBoundary(
+    textNode as Node & { textContent: string },
+    visibleBottom,
+  );
 
   inner.innerHTML = "";
-  return skipWhitespace(content, firstOutStart + lo);
+  return skipWhitespace(content, firstOutStart + hi + 1);
 }
 
-// ---- Public API ----
+// =============================================================================
+//  Public API
+// =============================================================================
 
 export const layoutPage = (
   _container: HTMLElement,
@@ -407,7 +465,12 @@ export const layoutPage = (
 
   if (!isTwoCol) {
     const ctx = makeMeasureCtx(viewport, config, false, false);
-    const { nextCursor, height } = layoutColumnForward(content, cursor, ctx);
+    const { nextCursor, height } = layoutColumnForward(
+      content,
+      cursor,
+      ctx,
+      config.fontSize,
+    );
     const nc = Math.min(nextCursor, content.length);
     const html = buildHTML(ctx.inner, nc);
     removeMeasureCtx(ctx);
@@ -422,7 +485,7 @@ export const layoutPage = (
   // Two-column
   const ctx = makeMeasureCtx(viewport, config, true, false);
 
-  const leftR = layoutColumnForward(content, cursor, ctx);
+  const leftR = layoutColumnForward(content, cursor, ctx, config.fontSize);
   if (leftR.nextCursor >= content.length) {
     const html = buildHTML(ctx.inner, leftR.nextCursor);
     removeMeasureCtx(ctx);
@@ -439,16 +502,16 @@ export const layoutPage = (
   // Switch to right column — rebuild inner with right-column styles
   // (reuse same outer, replace inner positioning)
   ctx.inner.className = "read-body read-body-right";
-  ctx.inner.style.cssText =
-    "position:absolute;" +
-    "top:max(16px, env(safe-area-inset-top, 0px));" +
-    "bottom:max(36px, calc(env(safe-area-inset-bottom, 0px) + 20px));" +
-    "left:50%;right:16px;box-sizing:border-box;padding-left:16px;" +
-    "overflow:visible;overflow-wrap:break-word;word-break:break-all;";
+  ctx.inner.style.cssText = colInnerStyle(true, true);
   ctx.contentHeight = ctx.inner.clientHeight;
   ctx.contentWidth = ctx.inner.clientWidth;
 
-  const rightR = layoutColumnForward(content, leftR.nextCursor, ctx);
+  const rightR = layoutColumnForward(
+    content,
+    leftR.nextCursor,
+    ctx,
+    config.fontSize,
+  );
   const rightNC = Math.min(rightR.nextCursor, content.length);
   const rightHTML = buildHTML(ctx.inner, rightNC);
   removeMeasureCtx(ctx);
@@ -484,7 +547,12 @@ export const layoutPageEndingAt = (
 
   if (!isTwoCol) {
     const ctx = makeMeasureCtx(viewport, config, false, false);
-    const start = layoutColumnBackward(content, targetNextCursor, ctx);
+    const start = layoutColumnBackward(
+      content,
+      targetNextCursor,
+      ctx,
+      config.fontSize,
+    );
     removeMeasureCtx(ctx);
     return layoutPage(
       _container,
@@ -497,19 +565,24 @@ export const layoutPageEndingAt = (
   }
 
   const ctx = makeMeasureCtx(viewport, config, true, false);
-  const rightStart = layoutColumnBackward(content, targetNextCursor, ctx);
+  const rightStart = layoutColumnBackward(
+    content,
+    targetNextCursor,
+    ctx,
+    config.fontSize,
+  );
 
   ctx.inner.className = "read-body";
-  ctx.inner.style.cssText =
-    "position:absolute;" +
-    "top:max(16px, env(safe-area-inset-top, 0px));" +
-    "bottom:max(36px, calc(env(safe-area-inset-bottom, 0px) + 20px));" +
-    "left:16px;right:50%;box-sizing:border-box;padding-right:16px;" +
-    "overflow:visible;overflow-wrap:break-word;word-break:break-all;";
+  ctx.inner.style.cssText = colInnerStyle(true, false);
   ctx.contentHeight = ctx.inner.clientHeight;
   ctx.contentWidth = ctx.inner.clientWidth;
 
-  const leftStart = layoutColumnBackward(content, rightStart, ctx);
+  const leftStart = layoutColumnBackward(
+    content,
+    rightStart,
+    ctx,
+    config.fontSize,
+  );
   removeMeasureCtx(ctx);
 
   return layoutPage(

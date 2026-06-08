@@ -18,20 +18,36 @@ export interface ContentEntry {
 /** Maximum line length to consider as a potential heading */
 const MAX_HEADING_LENGTH = 100;
 
-/** Patterns that suggest a line is a chapter heading */
-const CHAPTER_PATTERNS = [
-  /^第[0-9零一二三四五六七八九十百千万]+[章节卷部篇]/,
-  /^[0-9]+[\.\、\s]+/,
-  /^序[章言]?/,
-  /^楔子/,
-  /^尾声/,
-  /^后记/,
-  /^番外/,
-  /^附录/,
+/**
+ * Patterns that suggest a line is a chapter heading.
+ * Using named entries for clarity.
+ */
+const CHAPTER_PATTERNS: ReadonlyArray<{ name: string; pattern: RegExp }> = [
+  {
+    name: "Chinese chapter",
+    pattern: /^第[0-9零一二三四五六七八九十百千万]+[章节卷部篇]/,
+  },
+  { name: "Numbered section", pattern: /^[0-9]+[\.\、\s]+/ },
+  { name: "Preface", pattern: /^序[章言]?/ },
+  { name: "Prologue", pattern: /^楔子/ },
+  { name: "Epilogue", pattern: /^尾声/ },
+  { name: "Afterword", pattern: /^后记/ },
+  { name: "Extra", pattern: /^番外/ },
+  { name: "Appendix", pattern: /^附录/ },
 ];
 
 /** Maximum number of contents entries before we give up */
 const MAX_ENTRIES = 5000;
+
+/**
+ * Check whether a trimmed line looks like a chapter heading.
+ */
+function isChapterHeading(trimmed: string, customReg: RegExp | null): boolean {
+  return (
+    CHAPTER_PATTERNS.some(({ pattern }) => pattern.test(trimmed)) ||
+    (customReg?.test(trimmed) ?? false)
+  );
+}
 
 /**
  * Generate table of contents from text content.
@@ -59,22 +75,19 @@ export function generateContents(
 
   for (const line of lines) {
     const trimmed = line.trim();
-    cursor += line.length + 1;
 
-    if (!trimmed) continue;
-    if (trimmed.length > MAX_HEADING_LENGTH) continue;
-
-    const isHeading =
-      CHAPTER_PATTERNS.some((p) => p.test(trimmed)) ||
-      (customReg?.test(trimmed) ?? false);
-
-    if (isHeading) {
-      entries.push({
-        cursor: cursor - line.length - 1,
-        title: trimmed,
-      });
-      if (entries.length >= MAX_ENTRIES) break;
+    if (trimmed && trimmed.length <= MAX_HEADING_LENGTH) {
+      if (isChapterHeading(trimmed, customReg)) {
+        entries.push({
+          // cursor points to start of this line (before we add its length)
+          cursor,
+          title: trimmed,
+        });
+        if (entries.length >= MAX_ENTRIES) break;
+      }
     }
+
+    cursor += line.length + 1;
   }
 
   return entries;

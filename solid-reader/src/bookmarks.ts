@@ -20,22 +20,36 @@ export interface Bookmark {
 
 const STORAGE_KEY = "solid-reader-bookmarks";
 
-function getStoredBookmarks(): Bookmark[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as Bookmark[];
-  } catch {
-    return [];
-  }
+/**
+ * Read / write a typed value from localStorage, handling parse errors.
+ */
+function persistJSON<T>(key: string): {
+  get: () => T | null;
+  set: (value: T) => void;
+} {
+  return {
+    get() {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? (JSON.parse(raw) as T) : null;
+      } catch {
+        return null;
+      }
+    },
+    set(value: T) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch {
+        // storage full or disabled — silently ignore
+      }
+    },
+  };
 }
 
-function setStoredBookmarks(bookmarks: Bookmark[]): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(bookmarks));
-  } catch {
-    // storage full or disabled — silently ignore
-  }
+const storedBookmarks = persistJSON<Bookmark[]>(STORAGE_KEY);
+
+function getStoredBookmarks(): Bookmark[] {
+  return storedBookmarks.get() ?? [];
 }
 
 /**
@@ -66,7 +80,7 @@ export function addBookmark(
   };
 
   bookmarks.push(bookmark);
-  setStoredBookmarks(bookmarks);
+  storedBookmarks.set(bookmarks);
   return bookmark;
 }
 
@@ -75,12 +89,12 @@ export function addBookmark(
  */
 export function removeBookmark(id: string): void {
   const bookmarks = getStoredBookmarks().filter((b) => b.id !== id);
-  setStoredBookmarks(bookmarks);
+  storedBookmarks.set(bookmarks);
 }
 
 /**
  * Clear all bookmarks.
  */
 export function clearBookmarks(): void {
-  setStoredBookmarks([]);
+  storedBookmarks.set([]);
 }

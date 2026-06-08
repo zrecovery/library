@@ -1,11 +1,13 @@
 import { createSignal } from "solid-js";
 import { getCache, getCurrentPageCache, setCache } from "./db";
 
-type ReaderSignals = {
+interface ReaderSignals {
   setCurrentPage: (n: number) => void;
   setTotal: (n: number) => void;
-};
+}
+
 let currentKey = "";
+
 const getLayoutKey = (
   id: number,
   el: HTMLElement,
@@ -15,50 +17,56 @@ const getLayoutKey = (
   return `${id}-${el.clientWidth}-${style.fontSize}-${style.lineHeight}-${style.fontFamily}-${style.padding}`;
 };
 
+/** Build the style string for the measurement element */
+function buildMeasureStyle(
+  containerWidth: number,
+  style: CSSStyleDeclaration,
+): string {
+  return [
+    "position: absolute",
+    "visibility: hidden",
+    `width: ${containerWidth}px`,
+    `font-size: ${style.fontSize}`,
+    `line-height: ${style.lineHeight}`,
+    `font-family: ${style.fontFamily}`,
+    "white-space: pre-wrap",
+    "word-break: break-word",
+    `padding: ${style.padding}`,
+    `box-sizing: ${style.boxSizing}`,
+  ].join(";");
+}
+
 async function doBuild(
   el: HTMLElement,
   text: string,
   style: CSSStyleDeclaration,
 ) {
   const measure = document.createElement("div");
-
-  measure.style.cssText = `
-    position: absolute;
-    visibility: hidden;
-    width: ${el.clientWidth}px;
-    font-size: ${style.fontSize};
-    line-height: ${style.lineHeight};
-    font-family: ${style.fontFamily};
-    white-space: pre-wrap;
-    word-break: break-word;
-    padding: ${style.padding};
-    box-sizing: ${style.boxSizing};
-  `;
-
+  measure.style.cssText = buildMeasureStyle(el.clientWidth, style);
   document.body.appendChild(measure);
 
   const lines = text.split("\n");
   const pageHeight = el.clientHeight;
 
-  let pages: number[] = [];
-  let start = 0;
+  const pages: number[] = [];
+  let lineStart = 0;
 
-  while (start < lines.length) {
+  while (lineStart < lines.length) {
     let buffer = "";
-    let end = start;
+    let lineEnd = lineStart;
 
-    while (end < lines.length) {
-      const next = buffer + lines[end] + "\n";
+    while (lineEnd < lines.length) {
+      const next = buffer + lines[lineEnd] + "\n";
       measure.textContent = next;
 
       if (measure.scrollHeight > pageHeight) break;
 
       buffer = next;
-      end++;
+      lineEnd++;
     }
 
-    pages.push(start);
-    start = end;
+    pages.push(lineStart);
+    lineStart = lineEnd;
   }
 
   document.body.removeChild(measure);
@@ -77,9 +85,11 @@ export const useReader = async (
   async function build() {
     await rebuild(true);
   }
+
   function getKey() {
     return currentKey;
   }
+
   async function rebuild(initial = false) {
     const el = container();
     const text = body();

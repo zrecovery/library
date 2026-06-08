@@ -22,6 +22,9 @@ export default class ReadSubPage {
     this.isCurrent = false;
     this.hide();
   }
+
+  // ---- visibility ----
+
   show() {
     this.isCurrent = true;
     this.container.classList.add("read-sub-page-current");
@@ -29,6 +32,7 @@ export default class ReadSubPage {
     dom.enableKeyboardFocus(this.container);
     dom.disableKeyboardFocus(this.readPage.controlPage.container);
   }
+
   hide() {
     this.isCurrent = false;
     this.container.classList.remove("read-sub-page-current");
@@ -36,14 +40,22 @@ export default class ReadSubPage {
     dom.disableKeyboardFocus(this.container);
     dom.enableKeyboardFocus(this.readPage.controlPage.container);
   }
-  currentActive() {
+
+  // ---- lifecycle ----
+
+  isActive() {
     return this.isCurrent;
   }
+
   onFirstActivate() {}
+
   onActivate() {
     this.hide();
   }
+
   onInactivate() {}
+
   onResize() {}
+
   cursorChange(cursor, config) {}
 }

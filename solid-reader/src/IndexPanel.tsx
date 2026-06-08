@@ -1,22 +1,385 @@
 /**
  * Index panel — tReader-style overlay with tabs for Contents / Search / Bookmarks.
  */
-import { createSignal, createMemo, Show, For } from "solid-js";
+import {
+  createSignal,
+  createMemo,
+  Show,
+  For,
+  createEffect,
+  on,
+  type JSX,
+} from "solid-js";
 import type { ContentEntry } from "./contents";
 import { getContentsIndexAt } from "./contents";
 import { searchText, type SearchMatch } from "./search";
-import {
-  getBookmarks,
-  addBookmark,
-  removeBookmark,
-  type Bookmark,
-} from "./bookmarks";
+import { getBookmarks, addBookmark, removeBookmark } from "./bookmarks";
 
 type Tab = "contents" | "search" | "bookmarks";
 
-// Persist search state across panel open/close (clears on page refresh)
-let savedSearchQuery = "";
-let savedSearchResults: SearchMatch[] = [];
+// ---------------------------------------------------------------------------
+// Shared styles
+// ---------------------------------------------------------------------------
+
+const panelBtnStyle: JSX.CSSProperties = {
+  border: "none",
+  background: "transparent",
+  color: "inherit",
+  cursor: "pointer",
+};
+
+const tabBtnStyle: JSX.CSSProperties = {
+  ...panelBtnStyle,
+  padding: "6px 14px",
+  "font-size": "14px",
+  "border-radius": "8px",
+  "font-weight": "500",
+};
+
+const inputStyle = (textColor: string, ico: string): JSX.CSSProperties => ({
+  width: "100%",
+  padding: "8px 12px",
+  "font-size": "14px",
+  border: `1px solid ${textColor}${ico}`,
+  "border-radius": "8px",
+  background: "transparent",
+  color: textColor,
+  outline: "none",
+});
+
+const listItemBtnStyle = (textColor: string): JSX.CSSProperties => ({
+  display: "block",
+  width: "100%",
+  padding: "12px 8px",
+  "font-size": "15px",
+  "text-align": "left",
+  border: "none",
+  "border-radius": "6px",
+  background: "transparent",
+  color: textColor,
+  cursor: "pointer",
+  "white-space": "nowrap",
+  overflow: "hidden",
+  "text-overflow": "ellipsis",
+});
+
+const emptyMsgStyle: JSX.CSSProperties = {
+  opacity: 0.5,
+  padding: "20px 0",
+};
+
+// ---------------------------------------------------------------------------
+// Tiny persistence helper — search state survives panel close/reopen
+// ---------------------------------------------------------------------------
+
+/**
+ * Creates a signal whose value is also mirrored in a mutable "saved" variable,
+ * so it survives component mount/unmount but resets on page refresh.
+ */
+function createPersistedSignal<T>(initial: T): [() => T, (v: T) => void] {
+  let saved: T = initial;
+  const [value, setValue] = createSignal<T>(saved);
+  const set = (v: T) => {
+    saved = v;
+    setValue(() => saved);
+  };
+  return [value, set];
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Find the index of the match closest to `cursor`. */
+function findNearestMatch(
+  results: readonly SearchMatch[],
+  cursor: number,
+): number {
+  if (results.length <= 1) return 0;
+  let nearest = 0;
+  let minDist = Math.abs(results[0].cursor - cursor);
+  for (let i = 1; i < results.length; i++) {
+    const d = Math.abs(results[i].cursor - cursor);
+    if (d < minDist) {
+      minDist = d;
+      nearest = i;
+    }
+  }
+  return nearest;
+}
+
+/** Scroll a specific child of a container into view (deferred). */
+function scrollChildIntoView(
+  container: HTMLElement | undefined,
+  index: number,
+): void {
+  queueMicrotask(() => {
+    const el = container?.children[index] as HTMLElement | undefined;
+    el?.scrollIntoView({ block: "center", behavior: "smooth" });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Tab sub-components
+// ---------------------------------------------------------------------------
+
+interface TabProps {
+  textColor: string;
+  text: string; // full book text (search needs it)
+  cursor: number;
+  onNavigate: (cursor: number) => void;
+}
+
+function ContentsTab(props: {
+  textColor: string;
+  contents: ContentEntry[];
+  cursor: number;
+  chapterPattern: string;
+  onChapterPatternChange: (pattern: string) => void;
+  onNavigate: (cursor: number) => void;
+}) {
+  const currentChapterIdx = createMemo(() =>
+    getContentsIndexAt(props.contents, props.cursor),
+  );
+  let contentsRef!: HTMLDivElement;
+
+  // Auto-scroll to current chapter when this tab becomes visible.
+  // We use createEffect with a ref gate instead of the old createMemo pattern.
+  createEffect(
+    on(
+      () => ({ idx: currentChapterIdx(), ref: contentsRef }),
+      ({ idx, ref }) => {
+        if (idx >= 0 && ref) {
+          scrollChildIntoView(ref, idx);
+        }
+      },
+    ),
+  );
+
+  return (
+    <>
+      <div style={{ padding: "8px 16px 0" }}>
+        <input
+          type="text"
+          value={props.chapterPattern}
+          onInput={(e) => props.onChapterPatternChange(e.currentTarget.value)}
+          placeholder="Custom regex (e.g. ^第.+章)"
+          style={{ ...inputStyle(props.textColor, "22"), "font-size": "14px" }}
+        />
+      </div>
+      <div
+        ref={contentsRef}
+        style={{ flex: 1, "overflow-y": "auto", padding: "8px 16px" }}
+      >
+        <For each={props.contents}>
+          {(entry, i) => (
+            <button
+              onClick={() => props.onNavigate(entry.cursor)}
+              style={{
+                ...listItemBtnStyle(props.textColor),
+                background:
+                  i() === currentChapterIdx()
+                    ? props.textColor + "10"
+                    : "transparent",
+                "font-weight": i() === currentChapterIdx() ? "bold" : "normal",
+              }}
+            >
+              {i() === currentChapterIdx() ? "▶ " : ""}
+              {entry.title}
+            </button>
+          )}
+        </For>
+        <Show when={props.contents.length === 0}>
+          <p style={emptyMsgStyle}>No chapters detected.</p>
+        </Show>
+      </div>
+    </>
+  );
+}
+
+function SearchTab(props: TabProps) {
+  const [searchQuery, setSearchQuery] = createPersistedSignal("");
+  const [searchResults, setSearchResults] = createPersistedSignal<
+    SearchMatch[]
+  >([]);
+  let searchListRef!: HTMLDivElement;
+
+  const doSearch = () => {
+    const q = searchQuery().trim();
+    const results = q ? searchText(props.text, q) : [];
+    setSearchResults(results);
+    if (results.length > 0) {
+      const nearest = findNearestMatch(results, props.cursor);
+      scrollChildIntoView(searchListRef, nearest);
+    }
+  };
+
+  return (
+    <>
+      <div style={{ padding: "12px 16px", display: "flex", gap: "8px" }}>
+        <input
+          type="text"
+          value={searchQuery()}
+          onInput={(e) => setSearchQuery(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") doSearch();
+          }}
+          placeholder="Search..."
+          style={{
+            ...inputStyle(props.textColor, "33"),
+            flex: "1",
+            padding: "10px 12px",
+            "font-size": "16px",
+          }}
+        />
+        <button
+          onClick={doSearch}
+          style={{ ...panelBtnStyle, padding: "10px 16px" }}
+        >
+          Go
+        </button>
+      </div>
+      <div
+        ref={searchListRef}
+        style={{ flex: 1, "overflow-y": "auto", padding: "0 16px" }}
+      >
+        <Show when={searchResults().length > 0}>
+          <p
+            style={{
+              "font-size": "12px",
+              opacity: 0.5,
+              margin: "0 0 8px 4px",
+            }}
+          >
+            {searchResults().length} results
+          </p>
+          <For each={searchResults()}>
+            {(m) => {
+              const before = m.line.slice(
+                Math.max(0, m.matchStart - 12),
+                m.matchStart,
+              );
+              const match = m.line.slice(
+                m.matchStart,
+                m.matchStart + m.matchLen,
+              );
+              const after = m.line.slice(
+                m.matchStart + m.matchLen,
+                m.matchStart + m.matchLen + 120,
+              );
+              return (
+                <button
+                  onClick={() => props.onNavigate(m.cursor)}
+                  style={{
+                    ...listItemBtnStyle(props.textColor),
+                    "line-height": "2.4",
+                    "min-height": "50px",
+                    padding: "12px 10px",
+                  }}
+                >
+                  {before}
+                  <mark
+                    style={{
+                      color: props.textColor,
+                      background: props.textColor + "25",
+                      "font-weight": "bold",
+                    }}
+                  >
+                    {match}
+                  </mark>
+                  {after}
+                </button>
+              );
+            }}
+          </For>
+        </Show>
+        <Show when={searchQuery().trim() && searchResults().length === 0}>
+          <p style={emptyMsgStyle}>No matches for "{searchQuery().trim()}"</p>
+        </Show>
+      </div>
+    </>
+  );
+}
+
+function BookmarksTab(props: {
+  textColor: string;
+  cursor: number;
+  text: string;
+  onNavigate: (cursor: number) => void;
+}) {
+  const bookmarks = createMemo(() => getBookmarks());
+
+  return (
+    <>
+      <div
+        style={{
+          padding: "12px 16px 0",
+          display: "flex",
+          "justify-content": "flex-end",
+        }}
+      >
+        <button
+          onClick={() => {
+            const label = prompt(
+              "Bookmark label:",
+              `${((props.cursor / props.text.length) * 100).toFixed(1)}%`,
+            );
+            addBookmark(props.cursor, props.text.length, label || undefined);
+          }}
+          style={{
+            ...panelBtnStyle,
+            padding: "8px 14px",
+            "font-size": "14px",
+          }}
+        >
+          + Add
+        </button>
+      </div>
+      <div style={{ flex: 1, "overflow-y": "auto", padding: "8px 16px" }}>
+        <For each={bookmarks()}>
+          {(bm) => (
+            <div
+              style={{
+                display: "flex",
+                "align-items": "center",
+                gap: "4px",
+              }}
+            >
+              <button
+                onClick={() => props.onNavigate(bm.cursor)}
+                style={{
+                  ...listItemBtnStyle(props.textColor),
+                  flex: "1",
+                  "font-size": "14px",
+                }}
+              >
+                {bm.label} – {bm.percent}%
+              </button>
+              <button
+                onClick={() => removeBookmark(bm.id)}
+                style={{
+                  ...panelBtnStyle,
+                  padding: "4px 8px",
+                  "font-size": "12px",
+                  color: "#e74c3c",
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </For>
+        <Show when={bookmarks().length === 0}>
+          <p style={emptyMsgStyle}>No bookmarks.</p>
+        </Show>
+      </div>
+    </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Panel shell
+// ---------------------------------------------------------------------------
 
 export function IndexPanel(props: {
   text: string;
@@ -31,58 +394,11 @@ export function IndexPanel(props: {
   onClose: () => void;
 }) {
   const [tab, setTab] = createSignal<Tab>(props.initialTab ?? "contents");
-  const [searchQuery, setSearchQuery] = createSignal(savedSearchQuery);
-  const [searchResults, setSearchResults] =
-    createSignal<SearchMatch[]>(savedSearchResults);
-  const bookmarks = createMemo(() => getBookmarks());
-  const currentChapterIdx = createMemo(() =>
-    getContentsIndexAt(props.contents, props.cursor),
-  );
-  let contentsRef!: HTMLDivElement;
-  let searchListRef!: HTMLDivElement;
 
   const activeTabStyle = (t: Tab) => ({
     ...tabBtnStyle,
     color: tab() === t ? props.textColor : props.textColor + "60",
     background: tab() === t ? props.textColor + "12" : "transparent",
-  });
-
-  const doSearch = () => {
-    const q = searchQuery().trim();
-    savedSearchQuery = q;
-    const results = q ? searchText(props.text, q) : [];
-    savedSearchResults = results;
-    setSearchResults(results);
-    if (results.length > 0) {
-      // Find the match nearest to current cursor
-      let nearest = 0;
-      let minDist = Math.abs(results[0].cursor - props.cursor);
-      for (let i = 1; i < results.length; i++) {
-        const d = Math.abs(results[i].cursor - props.cursor);
-        if (d < minDist) {
-          minDist = d;
-          nearest = i;
-        }
-      }
-      // Scroll to the nearest match after render
-      queueMicrotask(() => {
-        const el = searchListRef?.children[nearest] as HTMLElement | undefined;
-        el?.scrollIntoView({ block: "center", behavior: "smooth" });
-      });
-    }
-  };
-
-  const scrollToChapter = () => {
-    const idx = currentChapterIdx();
-    if (idx >= 0 && contentsRef) {
-      const c = contentsRef.children[idx] as HTMLElement | undefined;
-      c?.scrollIntoView({ block: "center", behavior: "smooth" });
-    }
-  };
-
-  // Auto-scroll when contents tab opens
-  createMemo(() => {
-    if (tab() === "contents") queueMicrotask(scrollToChapter);
   });
 
   return (
@@ -133,6 +449,12 @@ export function IndexPanel(props: {
             Chapters
           </button>
           <button
+            onClick={() => setTab("search")}
+            style={activeTabStyle("search")}
+          >
+            Search
+          </button>
+          <button
             onClick={() => setTab("bookmarks")}
             style={activeTabStyle("bookmarks")}
           >
@@ -151,265 +473,36 @@ export function IndexPanel(props: {
       >
         {/* CONTENTS TAB */}
         <Show when={tab() === "contents"}>
-          <div style={{ padding: "8px 16px 0" }}>
-            <input
-              type="text"
-              value={props.chapterPattern}
-              onInput={(e) =>
-                props.onChapterPatternChange(e.currentTarget.value)
-              }
-              placeholder="Custom regex (e.g. ^第.+章)"
-              style={{
-                width: "100%",
-                padding: "8px 12px",
-                "font-size": "14px",
-                border: `1px solid ${props.textColor}22`,
-                "border-radius": "8px",
-                background: "transparent",
-                color: props.textColor,
-                outline: "none",
-              }}
-            />
-          </div>
-          <div
-            ref={contentsRef}
-            style={{ flex: 1, "overflow-y": "auto", padding: "8px 16px" }}
-          >
-            <For each={props.contents}>
-              {(entry, i) => (
-                <button
-                  onClick={() => props.onNavigate(entry.cursor)}
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    padding: "12px 8px",
-                    "font-size": "15px",
-                    "text-align": "left",
-                    background:
-                      i() === currentChapterIdx()
-                        ? props.textColor + "10"
-                        : "transparent",
-                    border: "none",
-                    "border-radius": "6px",
-                    color: props.textColor,
-                    cursor: "pointer",
-                    "font-weight":
-                      i() === currentChapterIdx() ? "bold" : "normal",
-                    "white-space": "nowrap",
-                    overflow: "hidden",
-                    "text-overflow": "ellipsis",
-                  }}
-                >
-                  {i() === currentChapterIdx() ? "▶ " : ""}
-                  {entry.title}
-                </button>
-              )}
-            </For>
-            <Show when={props.contents.length === 0}>
-              <p style={{ opacity: 0.5, padding: "20px 0" }}>
-                No chapters detected.
-              </p>
-            </Show>
-          </div>
+          <ContentsTab
+            textColor={props.textColor}
+            contents={props.contents}
+            cursor={props.cursor}
+            chapterPattern={props.chapterPattern}
+            onChapterPatternChange={props.onChapterPatternChange}
+            onNavigate={props.onNavigate}
+          />
         </Show>
 
         {/* SEARCH TAB */}
         <Show when={tab() === "search"}>
-          <div style={{ padding: "12px 16px", display: "flex", gap: "8px" }}>
-            <input
-              type="text"
-              value={searchQuery()}
-              onInput={(e) => setSearchQuery(e.currentTarget.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") doSearch();
-              }}
-              placeholder="Search..."
-              style={{
-                flex: "1",
-                padding: "10px 12px",
-                "font-size": "16px",
-                border: `1px solid ${props.textColor}33`,
-                "border-radius": "8px",
-                background: "transparent",
-                color: props.textColor,
-                outline: "none",
-              }}
-            />
-            <button
-              onClick={doSearch}
-              style={{ ...panelBtnStyle, padding: "10px 16px" }}
-            >
-              Go
-            </button>
-          </div>
-          <div
-            ref={searchListRef}
-            style={{ flex: 1, "overflow-y": "auto", padding: "0 16px" }}
-          >
-            <Show when={searchResults().length > 0}>
-              <p
-                style={{
-                  "font-size": "12px",
-                  opacity: 0.5,
-                  margin: "0 0 8px 4px",
-                }}
-              >
-                {searchResults().length} results
-              </p>
-              <For each={searchResults()}>
-                {(m) => {
-                  const before = m.line.slice(
-                    Math.max(0, m.matchStart - 12),
-                    m.matchStart,
-                  );
-                  const match = m.line.slice(
-                    m.matchStart,
-                    m.matchStart + m.matchLen,
-                  );
-                  const after = m.line.slice(
-                    m.matchStart + m.matchLen,
-                    m.matchStart + m.matchLen + 120,
-                  );
-                  return (
-                    <button
-                      onClick={() => props.onNavigate(m.cursor)}
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        padding: "12px 10px",
-                        "font-size": "15px",
-                        "text-align": "left",
-                        border: "none",
-                        "border-radius": "6px",
-                        background: "transparent",
-                        color: props.textColor,
-                        cursor: "pointer",
-                        "white-space": "nowrap",
-                        overflow: "hidden",
-                        "text-overflow": "ellipsis",
-                        "line-height": "2.4",
-                        "min-height": "50px",
-                      }}
-                    >
-                      {before}
-                      <mark
-                        style={{
-                          color: props.textColor,
-                          background: props.textColor + "25",
-                          "font-weight": "bold",
-                        }}
-                      >
-                        {match}
-                      </mark>
-                      {after}
-                    </button>
-                  );
-                }}
-              </For>
-            </Show>
-            <Show when={searchQuery().trim() && searchResults().length === 0}>
-              <p style={{ opacity: 0.5, padding: "20px 0" }}>
-                No matches for "{searchQuery().trim()}"
-              </p>
-            </Show>
-          </div>
+          <SearchTab
+            textColor={props.textColor}
+            text={props.text}
+            cursor={props.cursor}
+            onNavigate={props.onNavigate}
+          />
         </Show>
 
         {/* BOOKMARKS TAB */}
         <Show when={tab() === "bookmarks"}>
-          <div
-            style={{
-              padding: "12px 16px 0",
-              display: "flex",
-              "justify-content": "flex-end",
-            }}
-          >
-            <button
-              onClick={() => {
-                const label = prompt(
-                  "Bookmark label:",
-                  `${((props.cursor / props.text.length) * 100).toFixed(1)}%`,
-                );
-                addBookmark(
-                  props.cursor,
-                  props.text.length,
-                  label || undefined,
-                );
-              }}
-              style={{
-                ...panelBtnStyle,
-                padding: "8px 14px",
-                "font-size": "14px",
-              }}
-            >
-              + Add
-            </button>
-          </div>
-          <div style={{ flex: 1, "overflow-y": "auto", padding: "8px 16px" }}>
-            <For each={bookmarks()}>
-              {(bm) => (
-                <div
-                  style={{
-                    display: "flex",
-                    "align-items": "center",
-                    gap: "4px",
-                  }}
-                >
-                  <button
-                    onClick={() => props.onNavigate(bm.cursor)}
-                    style={{
-                      flex: "1",
-                      display: "block",
-                      padding: "12px 8px",
-                      "font-size": "14px",
-                      "text-align": "left",
-                      border: "none",
-                      "border-radius": "6px",
-                      background: "transparent",
-                      color: props.textColor,
-                      cursor: "pointer",
-                      "white-space": "nowrap",
-                      overflow: "hidden",
-                      "text-overflow": "ellipsis",
-                    }}
-                  >
-                    {bm.label} – {bm.percent}%
-                  </button>
-                  <button
-                    onClick={() => removeBookmark(bm.id)}
-                    style={{
-                      ...panelBtnStyle,
-                      padding: "4px 8px",
-                      "font-size": "12px",
-                      color: "#e74c3c",
-                    }}
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
-            </For>
-            <Show when={bookmarks().length === 0}>
-              <p style={{ opacity: 0.5, padding: "20px 0" }}>No bookmarks.</p>
-            </Show>
-          </div>
+          <BookmarksTab
+            textColor={props.textColor}
+            cursor={props.cursor}
+            text={props.text}
+            onNavigate={props.onNavigate}
+          />
         </Show>
       </div>
     </div>
   );
 }
-
-const panelBtnStyle: JSX.CSSProperties = {
-  border: "none",
-  background: "transparent",
-  color: "inherit",
-  cursor: "pointer",
-};
-
-const tabBtnStyle: JSX.CSSProperties = {
-  ...panelBtnStyle,
-  padding: "6px 14px",
-  "font-size": "14px",
-  "border-radius": "8px",
-  "font-weight": "500",
-};

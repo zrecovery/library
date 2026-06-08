@@ -22,6 +22,14 @@ import i18n from "../../i18n/i18n.js";
 import wakelock from "../../ui/util/wakelock.js";
 
 export default class ReadPage extends Page {
+  // ---- Static CSS class names ----
+  static CSS_FLIP = "read-page-flip";
+  static CSS_SCROLL = "read-page-scroll";
+  static CSS_WIDE = "read-page-wide";
+  static CSS_THIN = "read-page-thin";
+  static CSS_SHOW_INDEX = "read-show-index";
+
+  // ---- Constructor ----
   constructor() {
     super(document.querySelector("#read_page"));
 
@@ -30,6 +38,8 @@ export default class ReadPage extends Page {
     this.onResize = this.onResize.bind(this);
     this.keyboardEvents = this.keyboardEvents.bind(this);
   }
+
+  // ---- URL routing ----
   matchUrl(url) {
     if (!/\/read\/\d+/.test(url)) return null;
     const id = +url.split("/").pop();
@@ -39,6 +49,8 @@ export default class ReadPage extends Page {
   getUrl({ id }) {
     return "/read/" + id;
   }
+
+  // ---- Lifecycle (init / activate / update / inactivate) ----
   async onFirstActivate() {
     this.container = document.querySelector("#read_page");
 
@@ -54,9 +66,7 @@ export default class ReadPage extends Page {
     this.speech = new ReadSpeech(this);
 
     this.subPages = [this.controlPage, this.indexPage, this.jumpPage];
-    this.subPages.forEach((page) => {
-      page.onFirstActivate();
-    });
+    this.forEachSubPage((page) => page.onFirstActivate());
 
     this.container.addEventListener("scroll", (event) => {
       this.container.scrollTop = 0;
@@ -64,26 +74,9 @@ export default class ReadPage extends Page {
       event.preventDefault();
     });
 
-    const mayShare = this.canShareFile();
-    this.shareFile = this.shareFile.bind(this);
-    if (mayShare) {
-      this.controlPage.registerMoreMenu(
-        i18n.getMessage("readMenuShare"),
-        this.shareFile,
-      );
-    }
-    this.downloadFile = this.downloadFile.bind(this);
-    const maybeNeedDownload =
-      !mayShare ||
-      (navigator.userAgentData?.mobile !== true &&
-        !["iPhone", "iPad"].includes(navigator.platform));
-    if (maybeNeedDownload) {
-      this.controlPage.registerMoreMenu(
-        i18n.getMessage("readMenuDownload"),
-        this.downloadFile,
-      );
-    }
+    this.registerFileActions();
   }
+
   /**
    * @param {{ id: number }} config
    */
@@ -128,25 +121,25 @@ export default class ReadPage extends Page {
     this.readIndex = new ReadIndex(this);
     if (this.renderStyle === "flip") {
       this.textPage = new FlipTextPage(this);
-      this.container.classList.add("read-page-flip");
+      this.container.classList.add(ReadPage.CSS_FLIP);
     } else {
       this.textPage = new ScrollTextPage(this);
-      this.container.classList.add("read-page-scroll");
+      this.container.classList.add(ReadPage.CSS_SCROLL);
     }
     await this.textPage.onActivate({ id });
 
     document.addEventListener("keydown", this.keyboardEvents);
     this.router.setTitle(this.meta.title, this.getLang());
 
-    this.subPages.forEach((page) => {
-      page.onActivate();
-    });
+    this.forEachSubPage((page) => page.onActivate());
     this.updateSideIndex();
   }
+
   async onUpdate({ id }) {
     this.onInactivate();
     this.onActivate({ id });
   }
+
   async onInactivate() {
     if (this.autoLockConfig === "disable") {
       wakelock.release();
@@ -158,19 +151,16 @@ export default class ReadPage extends Page {
     this.readIndex = null;
     this.useSideIndex = null;
     document.removeEventListener("keydown", this.keyboardEvents);
-    this.subPages.forEach((page) => {
-      page.onInactivate();
-    });
+    this.forEachSubPage((page) => page.onInactivate());
     this.speech.stop();
     this.speech.metaUnload();
     this.textPage.onInactivate();
     this.textPage = null;
-    this.container.classList.remove("read-page-scroll", "read-page-flip");
+    this.container.classList.remove(ReadPage.CSS_SCROLL, ReadPage.CSS_FLIP);
     this.router.setTitle();
   }
-  gotoList() {
-    this.router.go("list");
-  }
+
+  // ---- Show / hide ----
   show() {
     super.show();
     // Some text page render requires rendered dom to meansure its element size
@@ -179,30 +169,64 @@ export default class ReadPage extends Page {
     this.indexPage.initUpdatePage();
     onResize.addListener(this.onResize);
   }
+
   hide() {
     super.hide();
     onResize.removeListener(this.onResize);
   }
+
+  // ---- Resize ----
   onResize() {
     this.updateSideIndex();
-    this.subPages.forEach((page) => {
-      page.onResize();
-    });
+    this.forEachSubPage((page) => page.onResize());
   }
+
+  // ---- Keyboard ----
   keyboardEvents(event) {
     if (event.code === "Escape") {
-      const current = this.activedSubpage();
+      const current = this.activeSubPage();
       if (current) current.hide();
       else if (this.controlPage.hasFocus) this.controlPage.hide();
       else this.controlPage.focus();
     }
   }
+
+  // ---- Navigation ----
+  gotoList() {
+    this.router.go("list");
+  }
+
+  // ---- Index page management ----
+  isIndexActive() {
+    return this.indexPage?.isCurrent;
+  }
+
+  isSideIndexActive() {
+    return this.useSideIndex && this.indexPage.isCurrent;
+  }
+
+  /**
+   * @param {'show' | 'hide'} action - The slide action to perform on the index page.
+   * @param {number} offset - The pixel offset for the slide transition.
+   */
+  slideIndexPage(action, offset) {
+    this.indexPage.slideShow(action, offset);
+  }
+
+  toggleIndexPage(page) {
+    if (this.isIndexActive() && this.indexPage.isSubPageCurrent(page)) {
+      this.indexPage.hide();
+    } else {
+      this.indexPage.show(page);
+    }
+  }
+
   updateIndexRender(resized = this.useSideIndex) {
     const active = this.isIndexActive();
     if (active) {
-      this.container.classList.add("read-show-index");
+      this.container.classList.add(ReadPage.CSS_SHOW_INDEX);
     } else {
-      this.container.classList.remove("read-show-index");
+      this.container.classList.remove(ReadPage.CSS_SHOW_INDEX);
     }
     if (active && !this.useSideIndex) {
       this.controlPage.disable();
@@ -218,48 +242,46 @@ export default class ReadPage extends Page {
       this.textPage.onResize();
     }
   }
+
   updateSideIndex() {
     const [pageWidth, pageHeight] = onResize.currentSize();
     const sideIndex = pageWidth >= this.screenWidthSideIndex;
     if (sideIndex === this.useSideIndex) return;
     this.useSideIndex = sideIndex;
     if (sideIndex) {
-      this.container.classList.add("read-page-wide");
-      this.container.classList.remove("read-page-thin");
+      this.container.classList.add(ReadPage.CSS_WIDE);
+      this.container.classList.remove(ReadPage.CSS_THIN);
     } else {
-      this.container.classList.remove("read-page-wide");
-      this.container.classList.add("read-page-thin");
+      this.container.classList.remove(ReadPage.CSS_WIDE);
+      this.container.classList.add(ReadPage.CSS_THIN);
     }
     if (this.isIndexActive()) {
       this.updateIndexRender(true);
     }
   }
-  isIndexActive() {
-    return this.indexPage?.isCurrent;
+
+  // ---- Active sub-page detection ----
+  activeSubPage() {
+    if (this.isIndexActive()) return this.indexPage;
+    if (this.isControlActive()) return this.controlPage;
+    if (this.isJumpActive()) return this.jumpPage;
+    return null;
   }
-  isSideIndexActive() {
-    return this.useSideIndex && this.indexPage.isCurrent;
-  }
-  slideIndexPage(action, offset) {
-    this.indexPage.slideShow(action, offset);
-  }
-  toggleIndexPage(page) {
-    if (this.isIndexActive() && this.indexPage.isSubPageCurrent(page)) {
-      this.indexPage.hide();
-    } else {
-      this.indexPage.show(page);
-    }
-  }
+
+  // ---- Control page delegation ----
   isControlActive() {
     return this.controlPage.isShow;
   }
+
   disableControlPage() {
     this.controlPage.hide();
     this.controlPage.disable();
   }
+
   enableControlPage() {
     this.controlPage.enable();
   }
+
   showControlPage(focus) {
     if (focus) {
       this.controlPage.focus();
@@ -267,80 +289,112 @@ export default class ReadPage extends Page {
       this.controlPage.show();
     }
   }
+
   hideControlPage() {
     this.controlPage.hide();
   }
+
   toggleControlPage() {
     if (this.controlPage.isShow) this.controlPage.hide();
     else this.controlPage.show();
   }
+
+  // ---- Jump page delegation ----
   isJumpActive() {
     return this.jumpPage.isCurrent;
   }
+
   showJumpPage() {
     return this.jumpPage.show();
   }
-  activedSubpage() {
-    if (this.isIndexActive()) return this.indexPage;
-    if (this.isControlActive()) return this.controlPage;
-    if (this.isJumpActive()) return this.jumpPage;
-    return null;
-  }
+
+  // ---- Text page state queries ----
   isTextPageOnTop() {
     if (this.isControlActive() || this.isJumpActive()) return false;
     if (this.isIndexActive()) return this.isSideIndexActive();
     return true;
   }
-  async toggleSpeech() {
-    this.speech.toggle();
-  }
-  /**
-   * @returns The text position where user had read
-   */
-  getRawCursor() {
-    return this.meta.cursor;
-  }
-  /**
-   * @returns The text position where current page rendered
-   */
+
+  /** @returns The text position where current page rendered */
   getRenderCursor() {
     return this.textPage.getRenderCursor();
   }
+
+  // ---- Speech delegation ----
+  async toggleSpeech() {
+    this.speech.toggle();
+  }
+
+  isSpeaking() {
+    return this.speech.isWorking();
+  }
+
+  // ---- Cursor / metadata ----
+  /** @returns The text position where user had read */
+  getRawCursor() {
+    return this.meta.cursor;
+  }
+
   /**
-   * @typedef {Object} CursorChangeConfig
-   * @property {boolean} resetSpeech
-   * @property {boolean} resetRender
-   */
-  /**
-   * @param {number} cursor
-   * @param {CursorChangeConfig} config
+   * @param {number} cursor - The new cursor position.
+   * @param {{resetSpeech: boolean, resetRender: boolean}} config
    */
   setCursor(cursor, config) {
     if (this.meta.cursor === cursor) return;
     this.meta.cursor = cursor;
     file.setMeta(this.meta);
     this.textPage.cursorChange(cursor, config);
-    this.subPages.forEach((page) => page.cursorChange(cursor, config));
+    this.forEachSubPage((page) => page.cursorChange(cursor, config));
     this.speech.cursorChange(cursor, config);
   }
+
   getContent() {
     return this.content;
   }
+
   getMeta() {
     return this.meta;
   }
+
   getLang() {
     return this.langTag;
   }
-  isSpeaking() {
-    return this.speech.isWorking();
-  }
+
   getBookmarks() {
     return this.index.bookmarks;
   }
+
   getContents() {
     return this.index.content;
   }
+
+  // ---- File operations (share / download) ----
+  /**
+   * Registers share and download actions in the control page's more menu.
+   * Called once during {@link onFirstActivate}.
+   */
+  registerFileActions() {
+    const mayShare = this.canShareFile();
+    this.shareFile = this.shareFile.bind(this);
+    if (mayShare) {
+      this.controlPage.registerMoreMenu(
+        i18n.getMessage("readMenuShare"),
+        this.shareFile,
+      );
+    }
+    this.downloadFile = this.downloadFile.bind(this);
+    const maybeNeedDownload =
+      !mayShare ||
+      (navigator.userAgentData?.mobile !== true &&
+        !["iPhone", "iPad"].includes(navigator.platform));
+    if (maybeNeedDownload) {
+      this.controlPage.registerMoreMenu(
+        i18n.getMessage("readMenuDownload"),
+        this.downloadFile,
+      );
+    }
+  }
+
   canShareFile() {
     try {
       if (!navigator.share) return false;
@@ -351,16 +405,19 @@ export default class ReadPage extends Page {
       return false;
     }
   }
+
   downloadContent() {
     const text = "\ufeff" + this.content.replace(/\r\n|\r|\n/g, "\r\n");
     return new TextEncoder().encode(text).buffer;
   }
+
   shareFile() {
     const file = new File([this.downloadContent()], this.meta.title + ".txt", {
       type: "text/plain",
     });
     return navigator.share({ files: [file] });
   }
+
   downloadFile() {
     const blob = new Blob([this.downloadContent()], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
@@ -373,5 +430,14 @@ export default class ReadPage extends Page {
     setTimeout(() => {
       URL.revokeObjectURL(url);
     }, 10e3);
+  }
+
+  // ---- Helpers ----
+  /**
+   * Calls the given function on every sub-page (control, index, jump).
+   * @param {(page: import("./index/indexpage.js").default | import("./control/controlpage.js").default | import("./jump/jumppage.js").default) => void} fn
+   */
+  forEachSubPage(fn) {
+    this.subPages.forEach(fn);
   }
 }

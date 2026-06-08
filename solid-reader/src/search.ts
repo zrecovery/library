@@ -12,6 +12,7 @@ export interface SearchMatch {
   readonly matchLen: number;
 }
 
+/** Maximum number of search results before stopping the scan */
 const SEARCH_LIMIT = 500;
 
 /**
@@ -22,11 +23,8 @@ const SEARCH_LIMIT = 500;
 export function searchText(content: string, query: string): SearchMatch[] {
   if (!query || !content) return [];
 
-  // Escape special regex characters (same as tReader)
-  const escaped = query.replace(
-    /[-[\]{}()*+?.,\\^$|#\s]/g,
-    (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, "0")}`,
-  );
+  // Escape special regex characters so the query is matched literally
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const reg = new RegExp(`(${escaped})`, "iu");
 
   const lines = content.split("\n");

@@ -5,12 +5,22 @@
  * 将 textWrapper 宽度展开到所有列的总宽，然后 overflow:hidden + translateX 翻页。
  */
 
+// ---- constants ----
+
+/** Gap between columns, in pixels */
 export const COLUMN_GAP = 32;
+
+/** CSS transition for page changes */
+export const PAGE_TRANSITION = "transform 0.3s ease";
+
+// ---- types ----
 
 export interface LayoutSnapshot {
   readonly columnWidth: number;
   readonly totalPages: number;
 }
+
+// ---- rendering ----
 
 /**
  * 全文渲染到容器。使用 DocumentFragment 批量插入。
@@ -28,6 +38,8 @@ export const renderFullText = (container: HTMLElement, text: string): void => {
 
   container.appendChild(fragment);
 };
+
+// ---- measurement ----
 
 /**
  * 计算可用宽度（扣除 padding）。
@@ -66,6 +78,8 @@ export const computeTotalPages = (
   };
 };
 
+// ---- navigation ----
+
 /**
  * translateX 偏移量（负值）
  */
@@ -77,5 +91,3 @@ export const computePageOffset = (
   const clamped = Math.max(0, Math.min(page - 1, layout.totalPages - 1));
   return -clamped * (layout.columnWidth + columnGap);
 };
-
-export const PAGE_TRANSITION = "transform 0.3s ease";
