@@ -1,8 +1,0 @@
-{
-  "name": "@library/domain",
-  "version": "1.0.0",
-  "module": "./index.ts",
-  "exports": {
-    ".": "./index.ts"
-  }
-}
