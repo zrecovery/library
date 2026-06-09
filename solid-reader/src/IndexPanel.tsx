@@ -1,5 +1,7 @@
 /**
  * Index panel — tReader-style overlay with tabs for Contents / Search / Bookmarks.
+ * 索引面板：仿 tReader 的全屏覆盖层，包含目录/搜索/书签三个标签页。
+ * 整体布局结构：顶部 Header（关闭按钮 + 标签切换栏） + 下方内容区（按当前标签条件渲染对应子组件）。
  */
 import {
   createSignal,
@@ -73,6 +75,9 @@ const emptyMsgStyle: JSX.CSSProperties = {
 // ---------------------------------------------------------------------------
 
 /**
+ * 创建一个“持久信号”，其值同时保存在闭包内的可变变量中，
+ * 因此能在组件挂载/卸载之间存活，但页面刷新时重置为初始值。
+ *
  * Creates a signal whose value is also mirrored in a mutable "saved" variable,
  * so it survives component mount/unmount but resets on page refresh.
  */
@@ -90,7 +95,12 @@ function createPersistedSignal<T>(initial: T): [() => T, (v: T) => void] {
 // Helpers
 // ---------------------------------------------------------------------------
 
-/** Find the index of the match closest to `cursor`. */
+/**
+ * 在所有搜索结果中找到距离当前光标位置最近的那一条的索引。
+ * 用于搜索后自动滚动到离阅读位置最近的匹配项。
+ *
+ * Find the index of the match closest to `cursor`.
+ */
 function findNearestMatch(
   results: readonly SearchMatch[],
   cursor: number,
@@ -108,7 +118,12 @@ function findNearestMatch(
   return nearest;
 }
 
-/** Scroll a specific child of a container into view (deferred). */
+/**
+ * 将容器内指定索引的子元素滚动到可视区域。
+ * 使用 queueMicrotask 延迟到下一微任务执行，确保 DOM 已更新后再滚动。
+ *
+ * Scroll a specific child of a container into view (deferred).
+ */
 function scrollChildIntoView(
   container: HTMLElement | undefined,
   index: number,
@@ -130,6 +145,10 @@ interface TabProps {
   onNavigate: (cursor: number) => void;
 }
 
+/**
+ * 目录标签页 — 展示章节列表，支持自定义章节正则匹配。
+ * 自动高亮当前所在章节，并在切换标签页时滚动到对应位置。
+ */
 function ContentsTab(props: {
   textColor: string;
   contents: ContentEntry[];
@@ -197,6 +216,11 @@ function ContentsTab(props: {
   );
 }
 
+/**
+ * 搜索标签页 — 提供全文搜索功能，支持回车触发搜索。
+ * 搜索结果按行匹配，高亮匹配文本，点击可跳转到对应位置。
+ * 搜索状态通过 createPersistedSignal 在面板关闭/重开间保持。
+ */
 function SearchTab(props: TabProps) {
   const [searchQuery, setSearchQuery] = createPersistedSignal("");
   const [searchResults, setSearchResults] = createPersistedSignal<
@@ -301,6 +325,10 @@ function SearchTab(props: TabProps) {
   );
 }
 
+/**
+ * 书签标签页 — 展示已保存的书签列表，支持添加和删除书签。
+ * 每个书签记录阅读进度（百分比），点击可跳转。
+ */
 function BookmarksTab(props: {
   textColor: string;
   cursor: number;
@@ -378,9 +406,15 @@ function BookmarksTab(props: {
 }
 
 // ---------------------------------------------------------------------------
-// Panel shell
+// Panel shell — 面板壳组件
+// 整体布局：全屏绝对定位 → Header（关闭 + 标签切换） → 内容区（条件渲染子标签页）
 // ---------------------------------------------------------------------------
 
+/**
+ * 索引面板壳组件 — 全屏覆盖层容器。
+ * 结构：顶部 Header 栏（关闭按钮 + Contents/Search/Bookmarks 标签切换）
+ *       下方 flex 内容区，按当前选中标签条件渲染 ContentsTab / SearchTab / BookmarksTab。
+ */
 export function IndexPanel(props: {
   text: string;
   cursor: number;

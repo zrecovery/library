@@ -9,11 +9,18 @@ import {
 import { type Accessor, type Setter } from "solid-js";
 
 interface ReaderPaginationProps {
+  /** 当前页码（响应式读取） */
   current: Accessor<number>;
+  /** 总页数（响应式读取） */
   pages: Accessor<number>;
+  /** 页码变更回调 */
   change: Setter<number>;
 }
 
+/**
+ * 阅读器分页组件 — 对通用 Pagination 组件的封装，
+ * 确保 current 和 pages 取值 ≥ 1 并暴露给外部使用。
+ */
 const ReaderPagination = (props: ReaderPaginationProps) => {
   return (
     <Pagination

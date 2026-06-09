@@ -6,8 +6,14 @@ interface ReaderSignals {
   setTotal: (n: number) => void;
 }
 
+/** 当前排版缓存键（供外部读取，用于存储当前页码） */
 let currentKey = "";
 
+/**
+ * 生成排版缓存键。
+ * 基于容器宽度、字体大小、行高、字体族和 padding 拼接，
+ * 故意排除 height —— 避免窗口高度变化导致缓存失效（宽度不变时排版结果相同）。
+ */
 const getLayoutKey = (
   id: number,
   el: HTMLElement,
@@ -17,7 +23,7 @@ const getLayoutKey = (
   return `${id}-${el.clientWidth}-${style.fontSize}-${style.lineHeight}-${style.fontFamily}-${style.padding}`;
 };
 
-/** Build the style string for the measurement element */
+/** 构建测量元素的 CSS 样式字符串。复制容器的主要排版属性，隐藏该元素用于测量。 */
 function buildMeasureStyle(
   containerWidth: number,
   style: CSSStyleDeclaration,
@@ -36,6 +42,13 @@ function buildMeasureStyle(
   ].join(";");
 }
 
+/**
+ * 逐行填充测量算法 — 将文本按自然行拆分后逐行填入隐藏的测量元素，
+ * 当 scrollHeight 超过页面高度时切分新页，记录每页的起始行号。
+ *
+ * 策略：外层循环逐页切分，内层循环逐行累加并对比 scrollHeight，
+ * 超过页面高度则回退（不包含当前行），完成一页后继续处理剩余行。
+ */
 async function doBuild(
   el: HTMLElement,
   text: string,
@@ -99,7 +112,9 @@ export const useReader = async (
     const key = getLayoutKey(id, el, style);
 
     currentKey = key;
-    // ✅ 先尝试缓存
+
+    // ✅ 先尝试读取缓存 — 如果布局参数未变，直接复用已有的分页结果
+    // 缓存命中逻辑：用 layoutKey 查询 IndexedDB，命中则跳过昂贵的逐行测量，直接恢复分页和当前页码。
     const cached = await getCache(key);
     const currentCached = await getCurrentPageCache(key);
 
@@ -108,20 +123,21 @@ export const useReader = async (
 
       setPageIndex(idx);
 
+      // 恢复上次阅读的页码（如果有）
       if (currentCached.isOk()) {
         queueMicrotask(() => {
           const page = currentCached.unwrap();
-          const safePage = Math.min(page, idx.length - 1);
+          const safePage = Math.min(page, idx.length - 1); // 防止超过总页数
 
           signals.setCurrentPage(safePage);
         });
       }
 
       signals.setTotal(idx.length);
-      return; // ⭐⭐⭐ 核心：命中缓存直接退出
+      return; // ⭐⭐⭐ 核心：命中缓存直接退出，不做重复计算
     }
 
-    // ❗没有缓存才计算
+    // ❗缓存未命中时才执行昂贵的逐行测量计算
     const pages = await doBuild(el, text, style);
 
     setPageIndex(pages);
@@ -130,6 +146,7 @@ export const useReader = async (
     await setCache(key, pages);
   }
 
+  /** 获取指定页码的文本内容（按行号切片） */
   function getPageContent(page: number) {
     const text = body();
     const idx = pageIndex();
@@ -149,7 +166,7 @@ export const useReader = async (
     rebuild,
     getPageContent,
     pageIndex,
-    getLayoutKey, // 暴露给外部写 currentPage
+    getLayoutKey, // 暴露给外部，用于存储当前页码到 IndexedDB
     getKey,
   };
 };

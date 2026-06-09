@@ -1,8 +1,9 @@
 /**
  * 列式阅读器排版引擎 — CSS multi-column
  *
- * 全文一次渲染，浏览器 multi-column 自动分列。
- * 将 textWrapper 宽度展开到所有列的总宽，然后 overflow:hidden + translateX 翻页。
+ * 全文一次渲染到 DOM，利用浏览器 CSS multi-column 自动分列。
+ * 核心思路：将 textWrapper 宽度展开到所有列的总宽，再通过 overflow:hidden + translateX 实现翻页。
+ * 每次翻页只需改变 translateX 偏移量，无需重新排版。
  */
 
 // ---- constants ----
@@ -23,6 +24,8 @@ export interface LayoutSnapshot {
 // ---- rendering ----
 
 /**
+ * 将全文渲染到容器中。每行一个 &lt;p&gt; 标签，使用 DocumentFragment 批量插入 DOM 以减少回流。
+ *
  * 全文渲染到容器。使用 DocumentFragment 批量插入。
  */
 export const renderFullText = (container: HTMLElement, text: string): void => {
@@ -54,6 +57,13 @@ export const computeAvailableWidth = (el: HTMLElement): number => {
 };
 
 /**
+ * 测量总页数。
+ *
+ * 展开-测量策略：
+ * ① 先将容器 width 设为 auto，让浏览器展开所有内容，通过 scrollWidth 读取真实总宽度；
+ * ② 再将 width 设回总宽度值（必须这样，否则浏览器只在一屏内分列）；
+ * ③ 用总宽度 ÷ (列宽 + 列间距) 计算总页数。
+ *
  * 测量总页数。同时展开 textWrapper 宽度到所有列的总宽。
  */
 export const computeTotalPages = (
@@ -65,7 +75,7 @@ export const computeTotalPages = (
     return { columnWidth: 0, totalPages: 1 };
   }
 
-  // 展开 → 测量
+  // 展开 → 测量：先将宽度设为 auto 获取真实总宽度
   container.style.width = "auto";
   const totalWidth = container.scrollWidth;
 
@@ -81,6 +91,9 @@ export const computeTotalPages = (
 // ---- navigation ----
 
 /**
+ * 计算翻页所需的 translateX 偏移量（负值）。
+ * page 从 1 开始计数，结果用于 CSS transform: translateX()。
+ *
  * translateX 偏移量（负值）
  */
 export const computePageOffset = (

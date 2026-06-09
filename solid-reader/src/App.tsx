@@ -1,5 +1,7 @@
 /**
  * Solid Reader — TXT reader with chapters, search, bookmarks, IndexedDB persistence.
+ *
+ * App 是应用的根组件，持有全部全局状态，并组合各子面板。
  */
 import {
   createSignal,
@@ -8,8 +10,6 @@ import {
   Show,
   batch,
   onMount,
-  For,
-  type JSX,
 } from "solid-js";
 import { FlipPage } from "./FlipPage";
 import type { ReaderConfig } from "./types";
@@ -23,6 +23,9 @@ import {
   deleteBook,
 } from "./storage";
 import { IndexPanel } from "./IndexPanel";
+import { MenuPanel } from "./MenuPanel";
+import { JumpPanel } from "./JumpPanel";
+import { LibraryPanel } from "./LibraryPanel";
 
 const sampleText = `第一章　楔子
 
@@ -206,58 +209,61 @@ const sampleText = `第一章　楔子
 
 第三章未完待续`;
 
-function FileUploader(props: {
-  onLoad: (text: string, title: string) => void;
-}) {
-  let input!: HTMLInputElement;
-  return (
-    <div style={{ padding: "20px", "text-align": "center" }}>
-      <input
-        ref={input}
-        type="file"
-        onChange={(e) => {
-          const f = e.currentTarget.files?.[0];
-          if (f) {
-            const r = new FileReader();
-            r.onload = () =>
-              props.onLoad(
-                r.result as string,
-                f.name.replace(/\.(txt|gz)$/i, ""),
-              );
-            r.readAsText(f, "UTF-8");
-          }
-        }}
-        style={{ display: "none" }}
-      />
-      <button onClick={() => input.click()} style={btnStyle}>
-        Open TXT File
-      </button>
-    </div>
-  );
-}
-
+/** 视图名称联合类型 */
 type View = "reader" | "menu" | "index" | "searchPanel" | "library" | "jump";
 
+/**
+ * App 根组件 — 持有全局状态，组合各功能面板。
+ *
+ * 状态包括：文本内容、书名、书ID、光标位置、当前视图、阅读配置、
+ * 视口尺寸、深色模式、跳转百分比、章节匹配模式、已保存书籍列表。
+ */
 export function App() {
+  // ==================== 核心状态 ====================
+
+  /** 当前加载的全文文本（初始为示例文本） */
   const [text, setText] = createSignal(sampleText);
+  /** 当前书名 */
   const [title, setTitle] = createSignal("Sample");
+  /** 当前书籍的 IndexedDB 存储 ID，null 表示尚未持久化 */
   const [bookId, setBookId] = createSignal<string | null>(null);
+  /** 当前阅读光标位置（字符偏移量） */
   const [cursor, setCursor] = createSignal(0);
+  /** 当前显示的视图面板 */
   const [view, setView] = createSignal<View>("library");
+  /** 阅读器配置（字体、行高、配色等） */
   const [config, setConfig] = createSignal<ReaderConfig>(defaultConfig);
+  /** 视口宽度（px），响应窗口大小变化 */
   const [viewportW, setViewportW] = createSignal(createViewport().width);
+  /** 视口高度（px），响应窗口大小变化 */
   const [viewportH, setViewportH] = createSignal(createViewport().height);
+  /** 深色模式开关 */
   const [darkMode, setDarkMode] = createSignal(false);
+  /** 跳转面板中输入的百分比值（字符串形式） */
   const [jumpPercent, setJumpPercent] = createSignal("");
+  /** 章节识别正则模式，空字符串表示使用默认模式 */
   const [chapterPattern, setChapterPattern] = createSignal("");
+  /** 已保存的书籍列表（来自 IndexedDB） */
   const [savedBooks, setSavedBooks] = createSignal<
     Awaited<ReturnType<typeof listBooks>>
   >([]);
 
+  // ==================== 派生状态 ====================
+
+  /** 根据文本和章节模式生成的目录条目列表 */
   const contents = createMemo<ContentEntry[]>(() =>
     generateContents(text(), chapterPattern()),
   );
 
+  /** 当前阅读进度百分比字符串（0-100，保留一位小数） */
+  const progress = createMemo(() => {
+    const l = text().length;
+    return l ? ((cursor() / l) * 100).toFixed(1) : "0";
+  });
+
+  // ==================== 生命周期 ====================
+
+  // 初始化：监听视口变化，加载已保存的书籍列表，自动打开最近阅读的书
   onMount(() => {
     const u = () => {
       setViewportW(document.documentElement.clientWidth);
@@ -270,7 +276,7 @@ export function App() {
     listBooks()
       .then(async (books) => {
         setSavedBooks(books);
-        // Auto-open the most recently read book, otherwise show library
+        // 自动打开最近阅读的书籍，否则显示书库
         if (books.length > 0) {
           const r = await loadBook(books[0].id);
           if (r)
@@ -291,6 +297,9 @@ export function App() {
     };
   });
 
+  // ==================== 副作用 ====================
+
+  /** 当前书的阅读进度变化时，延迟 1 秒自动保存到 IndexedDB（防抖） */
   createEffect(() => {
     const id = bookId(),
       c = cursor();
@@ -300,6 +309,7 @@ export function App() {
     }
   });
 
+  /** 深色模式切换时，自动更新阅读器的文字色和背景色 */
   createEffect(() =>
     setConfig((p) => ({
       ...p,
@@ -308,6 +318,9 @@ export function App() {
     })),
   );
 
+  // ==================== 操作函数 ====================
+
+  /** 处理本地文件加载：保存到 IndexedDB，切换为该书 */
   const handleFileLoad = async (t: string, title: string) => {
     const id = Date.now().toString(36);
     await saveBook(id, title, t, 0);
@@ -323,26 +336,27 @@ export function App() {
       .catch(() => {});
   };
 
+  // 视图导航函数
   const goReader = () => setView("reader");
   const goMenu = () => setView("menu");
   const goIndex = () => setView("index");
   const goSearch = () => setView("searchPanel");
+
+  /** 跳转到书库视图（同时刷新书籍列表） */
   const goLibrary = () => {
     listBooks()
       .then(setSavedBooks)
       .catch(() => {});
     setView("library");
   };
+
+  /** 跳转到进度跳转面板（清空上次输入） */
   const goJump = () => {
     setJumpPercent("");
     setView("jump");
   };
 
-  const progress = createMemo(() => {
-    const l = text().length;
-    return l ? ((cursor() / l) * 100).toFixed(1) : "0";
-  });
-
+  /** 执行跳转：将百分比转换为光标位置并回到阅读界面 */
   const handleJump = () => {
     const p = parseFloat(jumpPercent());
     if (!isNaN(p) && p >= 0 && p <= 100) {
@@ -351,6 +365,47 @@ export function App() {
     }
   };
 
+  /** 从书库打开一本书 */
+  const handleOpenBook = async (id: string) => {
+    const r = await loadBook(id);
+    if (r)
+      batch(() => {
+        setText(r.text);
+        setTitle(r.title);
+        setBookId(r.id);
+        setCursor(r.cursor);
+        setView("reader");
+      });
+  };
+
+  /** 从书库导出一本书为 TXT 文件下载 */
+  const handleExportBook = async (id: string) => {
+    const r = await loadBook(id);
+    if (r) {
+      const blob = new Blob([r.text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.download = (r.title || "book") + ".txt";
+      a.href = url;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
+
+  /** 从书库删除一本书（弹出确认对话框） */
+  const handleDeleteBook = async (id: string) => {
+    const b = savedBooks().find((x) => x.id === id);
+    if (b && confirm(`Delete "${b.title}"?`)) {
+      await deleteBook(id);
+      listBooks()
+        .then(setSavedBooks)
+        .catch(() => {});
+    }
+  };
+
+  // ==================== 样式 ====================
+
+  /** 根容器样式 — 全屏覆盖，跟随主题色切换 */
   const rootStyle = () => ({
     position: "fixed" as const,
     top: "0",
@@ -365,9 +420,11 @@ export function App() {
     transition: "background-color 0.3s, color 0.3s",
   });
 
+  // ==================== 渲染 ====================
+
   return (
     <div class="app-root" style={rootStyle()}>
-      {/* READER — always rendered */}
+      {/* 阅读器 — 始终渲染 */}
       <FlipPage
         content={text()}
         cursor={cursor()}
@@ -385,162 +442,45 @@ export function App() {
         onMenuRequest={goMenu}
       />
 
-      {/* MENU */}
-      <Show when={view() === "menu"}>
-        <>
-          {/* Backdrop — only captures clicks, doesn't block rendering */}
-          <div
-            onClick={goReader}
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              "z-index": 9,
-              background: "transparent",
-            }}
-          />
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              bottom: 0,
-              "z-index": 10,
-              background: config().backgroundColor,
-              color: config().textColor,
-              padding: "20px",
-              "padding-bottom":
-                "max(20px, env(safe-area-inset-bottom, 0px) + 4px)",
-              "border-radius": "20px 20px 0 0",
-              "max-height": "65vh",
-              "overflow-y": "auto",
-            }}
-          >
-            <h2 style={{ margin: "0 0 12px", "font-size": "18px" }}>
-              {title()} – {progress()}%
-            </h2>
-            {/* Draggable progress slider */}
-            <div
-              style={{
-                display: "flex",
-                "align-items": "center",
-                margin: "0 0 16px",
-              }}
-            >
-              <input
-                type="range"
-                min="0"
-                max="100"
-                step="0.1"
-                value={progress()}
-                onInput={(e) => {
-                  const p = parseFloat(e.currentTarget.value);
-                  setCursor(Math.floor((p / 100) * text().length));
-                }}
-                style={{
-                  flex: "1",
-                  height: "6px",
-                  "-webkit-appearance": "none",
-                  appearance: "none",
-                  background: `linear-gradient(to right, ${config().textColor} ${progress()}%, ${config().textColor}20 ${progress()}%)`,
-                  "border-radius": "3px",
-                  outline: "none",
-                  cursor: "pointer",
-                }}
-              />
-            </div>
-            <div
-              style={{
-                display: "flex",
-                "flex-direction": "column",
-                gap: "8px",
-              }}
-            >
-              {/* Icon toolbar — single row */}
-              <div
-                style={{
-                  display: "flex",
-                  gap: "6px",
-                  "justify-content": "center",
-                  "flex-wrap": "wrap",
-                }}
-              >
-                <button
-                  onClick={goIndex}
-                  style={iconBtnStyle}
-                  title="Chapters / Bookmarks"
-                >
-                  📑
-                </button>
-                <button onClick={goSearch} style={iconBtnStyle} title="Search">
-                  🔍
-                </button>
-                <button
-                  onClick={goJump}
-                  style={iconBtnStyle}
-                  title="Jump to Progress"
-                >
-                  📍
-                </button>
-                <button
-                  onClick={goLibrary}
-                  style={iconBtnStyle}
-                  title="Library"
-                >
-                  📚
-                </button>
-                <button
-                  onClick={() =>
-                    setConfig((p) => ({
-                      ...p,
-                      fontSize: Math.max(12, Math.min(32, p.fontSize - 1)),
-                    }))
-                  }
-                  style={iconBtnStyle}
-                  title="Font -"
-                >
-                  A⁻
-                </button>
-                <button
-                  onClick={() =>
-                    setConfig((p) => ({
-                      ...p,
-                      fontSize: Math.max(12, Math.min(32, p.fontSize + 1)),
-                    }))
-                  }
-                  style={iconBtnStyle}
-                  title="Font +"
-                >
-                  A⁺
-                </button>
-                <button
-                  onClick={() => setDarkMode((p) => !p)}
-                  style={iconBtnStyle}
-                  title={darkMode() ? "Light Mode" : "Dark Mode"}
-                >
-                  {darkMode() ? "☀️" : "🌙"}
-                </button>
-                <button
-                  onClick={() => {
-                    setCursor(0);
-                    goReader();
-                  }}
-                  style={iconBtnStyle}
-                  title="Go to Start"
-                >
-                  ⏮
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
-      </Show>
+      {/* MENU 面板 — 进度条 + 工具栏 */}
+      <MenuPanel
+        isActive={() => view() === "menu"}
+        title={title}
+        progress={progress}
+        text={text}
+        backgroundColor={() => config().backgroundColor}
+        textColor={() => config().textColor}
+        darkMode={darkMode}
+        fontSize={() => config().fontSize}
+        onBackToReader={goReader}
+        onGoIndex={goIndex}
+        onGoSearch={goSearch}
+        onGoJump={goJump}
+        onGoLibrary={goLibrary}
+        onFontDown={() =>
+          setConfig((p) => ({
+            ...p,
+            fontSize: Math.max(12, Math.min(32, p.fontSize - 1)),
+          }))
+        }
+        onFontUp={() =>
+          setConfig((p) => ({
+            ...p,
+            fontSize: Math.max(12, Math.min(32, p.fontSize + 1)),
+          }))
+        }
+        onToggleDark={() => setDarkMode((p) => !p)}
+        onGoStart={() => {
+          setCursor(0);
+          goReader();
+        }}
+        onProgressChange={(percent) =>
+          setCursor(Math.floor((percent / 100) * text().length))
+        }
+      />
 
-      {/* SEARCH PANEL */}
-      <Show when={view() === "searchPanel"}>
+      {/* SEARCH / INDEX 面板 — 搜索与目录共用 IndexPanel */}
+      <Show when={view() === "searchPanel" || view() === "index"}>
         <IndexPanel
           text={text()}
           cursor={cursor()}
@@ -549,7 +489,7 @@ export function App() {
           onChapterPatternChange={setChapterPattern}
           textColor={config().textColor}
           backgroundColor={config().backgroundColor}
-          initialTab="search"
+          initialTab={view() === "searchPanel" ? "search" : "contents"}
           onNavigate={(c) => {
             setCursor(c);
             goReader();
@@ -558,230 +498,28 @@ export function App() {
         />
       </Show>
 
-      {/* INDEX (chapters / bookmarks) */}
-      <Show when={view() === "index"}>
-        <IndexPanel
-          text={text()}
-          cursor={cursor()}
-          contents={contents()}
-          chapterPattern={chapterPattern()}
-          onChapterPatternChange={setChapterPattern}
-          textColor={config().textColor}
-          backgroundColor={config().backgroundColor}
-          onNavigate={(c) => {
-            setCursor(c);
-            goReader();
-          }}
-          onClose={goReader}
-        />
-      </Show>
+      {/* JUMP 面板 — 输入百分比跳转 */}
+      <JumpPanel
+        isActive={() => view() === "jump"}
+        jumpPercent={jumpPercent}
+        backgroundColor={() => config().backgroundColor}
+        textColor={() => config().textColor}
+        onPercentChange={setJumpPercent}
+        onJump={handleJump}
+        onBackToReader={goReader}
+      />
 
-      {/* JUMP */}
-      <Show when={view() === "jump"}>
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            "z-index": 20,
-            display: "flex",
-            "flex-direction": "column",
-            "justify-content": "flex-end",
-          }}
-        >
-          <div onClick={goReader} style={{ flex: 1 }} />
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: config().backgroundColor,
-              color: config().textColor,
-              padding: "24px 16px",
-              "padding-bottom":
-                "max(32px, env(safe-area-inset-bottom, 0px) + 16px)",
-              "border-radius": "16px 16px 0 0",
-            }}
-          >
-            <h2 style={{ margin: "0 0 16px", "font-size": "18px" }}>
-              Jump to Progress
-            </h2>
-            <div
-              style={{ display: "flex", gap: "8px", "align-items": "center" }}
-            >
-              <input
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                value={jumpPercent()}
-                onInput={(e) => setJumpPercent(e.currentTarget.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleJump();
-                }}
-                placeholder="0-100"
-                autofocus
-                style={{
-                  flex: "1",
-                  padding: "10px 12px",
-                  "font-size": "16px",
-                  border: `1px solid ${config().textColor}33`,
-                  "border-radius": "8px",
-                  background: "transparent",
-                  color: config().textColor,
-                  outline: "none",
-                }}
-              />
-              <span style={{ "font-size": "18px" }}>%</span>
-            </div>
-            <button
-              onClick={handleJump}
-              style={{ ...btnStyle, "margin-top": "12px" }}
-            >
-              Go
-            </button>
-          </div>
-        </div>
-      </Show>
-
-      {/* LIBRARY */}
-      <Show when={view() === "library"}>
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            "z-index": 10,
-            background: config().backgroundColor,
-            color: config().textColor,
-            display: "flex",
-            "flex-direction": "column",
-            padding: "max(16px, env(safe-area-inset-top, 0px)) 16px 16px",
-          }}
-        >
-          <FileUploader onLoad={handleFileLoad} />
-          <Show
-            when={savedBooks().length > 0}
-            fallback={
-              <p style={{ opacity: 0.5, padding: "20px 0" }}>
-                No saved books yet.
-              </p>
-            }
-          >
-            <div style={{ "overflow-y": "auto", flex: 1 }}>
-              <For each={savedBooks()}>
-                {(b) => (
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "4px",
-                      "align-items": "center",
-                    }}
-                  >
-                    <button
-                      onClick={async () => {
-                        const r = await loadBook(b.id);
-                        if (r)
-                          batch(() => {
-                            setText(r.text);
-                            setTitle(r.title);
-                            setBookId(r.id);
-                            setCursor(r.cursor);
-                            setView("reader");
-                          });
-                      }}
-                      style={{
-                        ...btnStyle,
-                        flex: "1",
-                        "text-align": "left",
-                        border: "none",
-                      }}
-                    >
-                      <div style={{ "font-weight": "bold" }}>{b.title}</div>
-                      <div style={{ "font-size": "12px", opacity: 0.5 }}>
-                        Last read: {new Date(b.updatedAt).toLocaleDateString()}
-                      </div>
-                    </button>
-                    <button
-                      onClick={async () => {
-                        const r = await loadBook(b.id);
-                        if (r) {
-                          const blob = new Blob([r.text], {
-                            type: "text/plain",
-                          });
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement("a");
-                          a.download = (r.title || "book") + ".txt";
-                          a.href = url;
-                          a.click();
-                          URL.revokeObjectURL(url);
-                        }
-                      }}
-                      style={{
-                        ...iconBtnStyle,
-                        width: "36px",
-                        height: "36px",
-                        "font-size": "16px",
-                      }}
-                      title="Export"
-                    >
-                      ⬇
-                    </button>
-                    <button
-                      onClick={async () => {
-                        if (confirm(`Delete "${b.title}"?`)) {
-                          await deleteBook(b.id);
-                          listBooks()
-                            .then(setSavedBooks)
-                            .catch(() => {});
-                        }
-                      }}
-                      style={{
-                        ...iconBtnStyle,
-                        width: "36px",
-                        height: "36px",
-                        "font-size": "16px",
-                        color: "#e74c3c",
-                      }}
-                      title="Delete"
-                    >
-                      🗑
-                    </button>
-                  </div>
-                )}
-              </For>
-            </div>
-          </Show>
-        </div>
-      </Show>
+      {/* LIBRARY 面板 — 书库管理 */}
+      <LibraryPanel
+        isActive={() => view() === "library"}
+        savedBooks={savedBooks}
+        backgroundColor={() => config().backgroundColor}
+        textColor={() => config().textColor}
+        onFileLoad={handleFileLoad}
+        onOpenBook={handleOpenBook}
+        onExportBook={handleExportBook}
+        onDeleteBook={handleDeleteBook}
+      />
     </div>
   );
 }
-
-const btnStyle: JSX.CSSProperties = {
-  padding: "12px 16px",
-  "font-size": "16px",
-  border: "1px solid rgba(128,128,128,0.3)",
-  "border-radius": "8px",
-  background: "transparent",
-  color: "inherit",
-  cursor: "pointer",
-  width: "100%",
-  "text-align": "center",
-};
-
-const iconBtnStyle: JSX.CSSProperties = {
-  width: "44px",
-  height: "44px",
-  "font-size": "22px",
-  border: "none",
-  "border-radius": "10px",
-  background: "transparent",
-  color: "inherit",
-  cursor: "pointer",
-  display: "flex",
-  "align-items": "center",
-  "justify-content": "center",
-};

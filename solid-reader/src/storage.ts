@@ -1,4 +1,12 @@
 /**
+ * IndexedDB 存储 — 用于持久化书籍内容和阅读进度。
+ *
+ * 数据库："reader-db" 版本 12
+ * 对象仓库 "books"：key = bookId, value = { id, title, text, cursor, updatedAt }
+ *
+ * 错误处理：所有 IndexedDB 操作返回 Promise。底层事务/请求的拒绝会传播给调用方，
+ * 本模块自身不重试也不打印日志 — 调用方负责处理存储错误（如弹出提示、回退到内存状态）。
+ *
  * IndexedDB storage for books and reading progress.
  *
  * Database: "reader-db" version 12
@@ -47,6 +55,9 @@ function openDB(): Promise<IDBDatabase> {
 }
 
 /**
+ * 打开一个事务并执行回调函数。封装了"打开数据库 → 开启事务 → 获取对象仓库"的样板代码，
+ * 减少各操作函数中的重复逻辑。回调接收 store 和 tx 两个参数，返回值作为 Promise 结果。
+ *
  * Open a transaction on the book store and run the callback.
  * Reduces repetitive db → tx → store boilerplate.
  */
@@ -60,7 +71,11 @@ async function withStore<T>(
   return fn(store, tx);
 }
 
-/** Load all saved books (metadata only, no full text) */
+/**
+ * 列出所有已保存的书籍（仅元数据，不含全文），按更新时间倒序排列。
+ *
+ * Load all saved books (metadata only, no full text).
+ */
 export async function listBooks(): Promise<Omit<BookRecord, "text">[]> {
   return withStore("readonly", (store) => {
     return new Promise((resolve, reject) => {
@@ -83,7 +98,11 @@ export async function listBooks(): Promise<Omit<BookRecord, "text">[]> {
   });
 }
 
-/** Save a book and its reading progress */
+/**
+ * 保存一本书的全文和阅读进度（新增或覆盖已有记录）。
+ *
+ * Save a book and its reading progress.
+ */
 export async function saveBook(
   id: string,
   title: string,
@@ -106,7 +125,11 @@ export async function saveBook(
   });
 }
 
-/** Update only the cursor (reading progress) */
+/**
+ * 仅更新阅读进度（光标位置），不改变书籍文本内容。
+ *
+ * Update only the cursor (reading progress).
+ */
 export async function updateCursor(id: string, cursor: number): Promise<void> {
   return withStore("readwrite", (store, tx) => {
     return new Promise((resolve, reject) => {
@@ -127,7 +150,11 @@ export async function updateCursor(id: string, cursor: number): Promise<void> {
   });
 }
 
-/** Load a full book record */
+/**
+ * 加载完整的书籍记录（含全文）。
+ *
+ * Load a full book record.
+ */
 export async function loadBook(id: string): Promise<BookRecord | undefined> {
   return withStore("readonly", (store) => {
     return new Promise((resolve, reject) => {
@@ -140,7 +167,11 @@ export async function loadBook(id: string): Promise<BookRecord | undefined> {
   });
 }
 
-/** Delete a book */
+/**
+ * 根据 ID 删除一本书及其所有关联数据。
+ *
+ * Delete a book.
+ */
 export async function deleteBook(id: string): Promise<void> {
   return withStore("readwrite", (store, tx) => {
     return new Promise((resolve, reject) => {

@@ -1,4 +1,9 @@
 /**
+ * 书签 / 阅读进度模块。
+ *
+ * 使用 localStorage 存储书签（也可适配为 IndexedDB）。
+ * 每个书签保存文本中的光标位置、百分比进度和用户标签。
+ *
  * Bookmark / reading progress module.
  *
  * Stores bookmarks in localStorage (or could be adapted for IndexedDB).
@@ -21,6 +26,9 @@ export interface Bookmark {
 const STORAGE_KEY = "solid-reader-bookmarks";
 
 /**
+ * 泛型 localStorage 读写辅助函数，自动处理 JSON 解析/序列化错误。
+ * 读取失败或存储满/禁用时静默返回 null / 忽略写入。
+ *
  * Read / write a typed value from localStorage, handling parse errors.
  */
 function persistJSON<T>(key: string): {
@@ -53,6 +61,8 @@ function getStoredBookmarks(): Bookmark[] {
 }
 
 /**
+ * 获取所有已保存的书签，按光标位置升序排列。
+ *
  * Get all saved bookmarks, sorted by cursor position.
  */
 export function getBookmarks(): Bookmark[] {
@@ -60,6 +70,8 @@ export function getBookmarks(): Bookmark[] {
 }
 
 /**
+ * 在指定光标位置添加一个新书签。自动计算百分比进度，生成唯一 ID。
+ *
  * Add a new bookmark at the given position.
  */
 export function addBookmark(
@@ -85,6 +97,8 @@ export function addBookmark(
 }
 
 /**
+ * 根据 ID 删除一个书签。
+ *
  * Remove a bookmark by ID.
  */
 export function removeBookmark(id: string): void {
@@ -93,6 +107,8 @@ export function removeBookmark(id: string): void {
 }
 
 /**
+ * 清空所有书签。
+ *
  * Clear all bookmarks.
  */
 export function clearBookmarks(): void {
