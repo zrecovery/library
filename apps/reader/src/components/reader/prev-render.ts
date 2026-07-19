@@ -3,10 +3,15 @@ import { DOMElement } from "solid-js/jsx-runtime";
 
 const getPrevLineStart = (text: string, end_cursor: number): number => {
     const idx = text.lastIndexOf("\n", end_cursor - 1);
-    return idx === -1 ? 0 : idx + 1;
+    console.log(`idx: ${idx}`);
+    return idx === -1 ? 0 : idx;
 };
 
-export const prevRender = (text: string, container: DOMElement, currentStart: number): number => {
+export const prevRender = (
+    text: string,
+    container: DOMElement,
+    currentStart: number,
+): number => {
     if (currentStart === 0) {
         container.textContent = "";
         return 0;
@@ -17,6 +22,7 @@ export const prevRender = (text: string, container: DOMElement, currentStart: nu
         const nextStart = getPrevLineStart(text, candidateStart);
         container.textContent = text.substring(nextStart, currentStart);
         const isOverflow = container.clientHeight < container.scrollHeight;
+        console.log(`next: ${nextStart}`);
 
         if (isOverflow) {
             return { overflow: nextStart, safe: safeStart };
@@ -24,10 +30,11 @@ export const prevRender = (text: string, container: DOMElement, currentStart: nu
         if (nextStart === 0) {
             return { overflow: 0, safe: 0 };
         }
-        return findFirstOverflowLine(nextStart, nextStart); // 修正：safeStart = nextStart
+        return findFirstOverflowLine(nextStart, nextStart);
     };
 
     const lineRange = findFirstOverflowLine(currentStart, currentStart);
+    console.log(`lineRange: ${lineRange}`);
     if (lineRange.overflow === lineRange.safe) {
         // 无法找到溢出点（所有起点都安全），显示全部内容
         container.textContent = text.substring(0, currentStart);
