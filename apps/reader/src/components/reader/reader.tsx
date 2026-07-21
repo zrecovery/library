@@ -3,9 +3,9 @@ import { render } from "./render";
 import { prevRender } from "./prev-render";
 import {
     Slider,
-    SliderTrack,
     SliderFill,
     SliderThumb,
+    SliderTrack,
 } from "@/registry/ui/slider";
 import { Button } from "@/registry/ui/button";
 
@@ -27,6 +27,7 @@ const Reader: Component<{ article: string }> = (props) => {
     let displayContainer: HTMLDivElement | undefined;
 
     const [getCursor, setCursor] = createSignal(0);
+    const [getSliderCurosr, setSliderCursor] = createSignal(false);
     const [getNextCursor, setNextCursor] = createSignal(0);
     const [getCurrentText, setCurrentText] = createSignal("");
 
@@ -45,6 +46,11 @@ const Reader: Component<{ article: string }> = (props) => {
         }
     };
 
+    createEffect(() => {
+        if (getSliderCurosr()) {
+            renderCurrentPage(getCursor());
+        }
+    })
     // 4. 初始化第一页
     const initReader = () => {
         renderCurrentPage(0);
@@ -52,6 +58,7 @@ const Reader: Component<{ article: string }> = (props) => {
 
     // 处理翻页逻辑
     const handlePrev = () => {
+        setSliderCursor(false)
         const container = getMeasuringContainer();
         const prevStart = prevRender(article(), container, getCursor());
         if (prevStart < getCursor()) {
@@ -72,14 +79,13 @@ const Reader: Component<{ article: string }> = (props) => {
 
     return (
         <div>
-            {/* 显示区域 */}
             <article
                 id="display-area"
                 ref={(el) => (displayContainer = el)}
                 class="whitespace-pre-wrap"
                 style={{
                     width: "100%",
-                    height: "50vh",
+                    height: "80vh",
                     border: "1px solid #ccc",
                     padding: "20px",
                     overflow: "hidden",
@@ -88,10 +94,10 @@ const Reader: Component<{ article: string }> = (props) => {
                     "font-family": "serif",
                     "white-space": "pre-wrap",
                 }}
-            ></article>
+            />
 
             <p>
-                光标: {getCursor()} / {article().length}
+                {`${getCursor() / article().length * 100} %`}
             </p>
 
             <div>
@@ -101,10 +107,11 @@ const Reader: Component<{ article: string }> = (props) => {
 
             <Slider
                 defaultValue={[0]}
-                step={0.01}
-                value={[(getCursor() / article().length) * 100]}
-                maxValue={100}
+                step={1}
+                value={[getCursor()]}
+                maxValue={article().length}
                 class="w-[60%]"
+                onChange={v => { setCursor(v[0]); setSliderCursor(true) }}
             >
                 <SliderTrack>
                     <SliderFill />

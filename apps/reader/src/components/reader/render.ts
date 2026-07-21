@@ -1,10 +1,7 @@
 import { DOMElement } from "solid-js/jsx-runtime";
 
 const getNextLine = (text: string, start_cursor: number): number => {
-    console.log(`start_cursor: ${start_cursor}`)
     const result = text.indexOf("\n", start_cursor)
-    console.log(`Result: ${result}`)
-    console.log(`txt:${text.length}`)
     if (result === -1) {
         return text.length
     }
@@ -15,8 +12,6 @@ export const render = (text: string, container: DOMElement, start_cursor = 0) =>
     const findLastSafeLine = (start: number) => {
         const next = getNextLine(text, start);
         container.textContent = text.substring(start_cursor, next);
-        console.log(`clientHeight: ${container.clientHeight}`)
-        console.log(`scrollHeight: ${container.scrollHeight}`)
         if (container.clientHeight < container.scrollHeight) {
             return { start: start, end: next }; // 溢出，返回当前行
         }
