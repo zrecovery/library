@@ -1,8 +1,8 @@
-import { type Component, ErrorBoundary } from "solid-js";
+import { type Component, ErrorBoundary, Suspense, lazy } from "solid-js";
 import { novel } from "./.tmp";
-import Reader from "./components/reader/reader";
 import { Route, Router } from "@solidjs/router";
 import NavigationMenuComponent from "./components/navigation";
+import Reader from "./components/reader/reader";
 
 const App: Component = () => {
     return (
@@ -19,10 +19,12 @@ const App: Component = () => {
                         </div>
                     )}
                 >
-                    <Router>
-                        <Route path="/" component={() => <h1>Hello</h1>} />
-                        <Route path="/novel" component={() => <Reader article={novel} />} />
-                    </Router>
+                    <Suspense fallback={<h2>Loading profile...</h2>}>
+                        <Router>
+                            <Route path="/" component={() => <h1>Hello</h1>} />
+                            <Route path="/novel" component={() => <Reader article={novel} />} />
+                        </Router>
+                    </Suspense>
                 </ErrorBoundary>
             </main>
         </>

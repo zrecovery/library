@@ -1,6 +1,5 @@
-import { createEffect, createSignal, onMount, type Component } from "solid-js";
+import { createEffect, createResource, createSignal, onMount, type Component } from "solid-js";
 import { render } from "./render";
-import { prevRender } from "./prev-render";
 import {
     Slider,
     SliderFill,
@@ -8,6 +7,7 @@ import {
     SliderTrack,
 } from "@/registry/ui/slider";
 import { Button } from "@/registry/ui/button";
+import { openDB } from "idb";
 
 const Reader: Component<{ article: string }> = (props) => {
     const article = () => props.article;
@@ -30,6 +30,10 @@ const Reader: Component<{ article: string }> = (props) => {
     const [getSliderCurosr, setSliderCursor] = createSignal(false);
     const [getNextCursor, setNextCursor] = createSignal(0);
     const [getCurrentText, setCurrentText] = createSignal("");
+    const [getCurrentPage, setCurrentPage] = createSignal(1);
+    const [getNextPage, setNextPage] = createSignal(1);
+    const [getPrevPage, setPrevPage] = createSignal(1);
+    const [getCache, setCache] = createSignal([{ page: 1, start: 0 }])
 
     // 3. 渲染当前页到显示容器
     const renderCurrentPage = (startCursor: number) => {
@@ -38,7 +42,6 @@ const Reader: Component<{ article: string }> = (props) => {
         setNextCursor(endCursor);
         setCursor(startCursor);
 
-        // 🔥 关键：从文章中截取当前页的文本，显示给用户
         const pageText = article().slice(startCursor, endCursor);
         setCurrentText(pageText);
         if (displayContainer) {
@@ -47,8 +50,17 @@ const Reader: Component<{ article: string }> = (props) => {
     };
 
     createEffect(() => {
-        if (getSliderCurosr()) {
-            renderCurrentPage(getCursor());
+        console.log(getCurrentPage())
+        if (getCache().length > 1) {
+
+            const result = getCache().filter(a => a.page === getCurrentPage())
+
+            const next = getCache().filter(a => a.page === (getCurrentPage() + 1))
+            const pageText = article().substring(result[0].start, next[0].start);
+            setCurrentText(pageText);
+            if (displayContainer) {
+                displayContainer.textContent = pageText;
+            }
         }
     })
     // 4. 初始化第一页
@@ -58,23 +70,72 @@ const Reader: Component<{ article: string }> = (props) => {
 
     // 处理翻页逻辑
     const handlePrev = () => {
-        setSliderCursor(false)
-        const container = getMeasuringContainer();
-        const prevStart = prevRender(article(), container, getCursor());
-        if (prevStart < getCursor()) {
-            renderCurrentPage(prevStart);
-        }
+        const prev = getPrevPage() >= 2 ? getPrevPage() - 1 : 1;
+        setCurrentPage(getPrevPage());
+        setPrevPage(prev)
+        setCurrentPage(getCurrentPage() + 1)
     };
 
     const handleNext = () => {
-        if (getNextCursor() < article().length) {
-            renderCurrentPage(getNextCursor());
-        }
+        const next = getNextPage() <= getCache().length - 1 ? getNextPage() + 1 : 1;
+        setPrevPage(getCurrentPage())
+        setCurrentPage(getNextPage());
+        setNextPage(next)
     };
 
+    let cache = [{ page: 1, start: 0 }]
+
+    const dbPromise = openDB("cache", 2, {
+        upgrade(db) {
+            db.createObjectStore("test");
+        },
+    });
+    const getIdbCache = async (text: string) => {
+        const db = await dbPromise;
+        const r = db.get('test', "test")
+        return r;
+
+    }
+    const setIdbCache = async (result: []) => {
+        const db = await dbPromise;
+        db.put('test', result, "test")
+    }
+
+    const computeCache = async (text: string, container: HTMLElement, cursor = 0, page = 1) => {
+        const [cache] = createResource(text, getIdbCache)
+        if (cache()) {
+            return cache()
+        }
+        let result = [{ page: 1, start: 0 }]
+
+        while (cursor < text.length - 1) {
+            cursor = render(text, container, cursor);
+            page = page + 1;
+            result.push({ page, start: cursor })
+        }
+        setIdbCache(result)
+
+        return result;
+    }
+
+
+
     // 在组件挂载后初始化
-    onMount(() => {
-        initReader();
+    onMount(async () => {
+        //initReader()
+        const container = getMeasuringContainer();
+        const [result] = createResource(async () => {
+            const cache = await computeCache(article(), container, 0, 1)
+            setCache(cache)
+
+            const pageText = article().slice(0, cache[1].start);
+            console.log(pageText)
+            setCurrentText(pageText);
+            if (displayContainer) {
+                displayContainer.textContent = pageText;
+            }
+        });
+
     });
 
     return (
@@ -96,9 +157,6 @@ const Reader: Component<{ article: string }> = (props) => {
                 }}
             />
 
-            <p>
-                {`${getCursor() / article().length * 100} %`}
-            </p>
 
             <div>
                 <Button onClick={handlePrev}>上一页</Button>
@@ -108,10 +166,11 @@ const Reader: Component<{ article: string }> = (props) => {
             <Slider
                 defaultValue={[0]}
                 step={1}
-                value={[getCursor()]}
-                maxValue={article().length}
+                value={[getCurrentPage()]}
+                maxValue={getCache().length - 1}
                 class="w-[60%]"
-                onChange={v => { setCursor(v[0]); setSliderCursor(true) }}
+                onChange={v => { setCurrentPage(v[0]); setSliderCursor(true) }}
+                minValue={1}
             >
                 <SliderTrack>
                     <SliderFill />
