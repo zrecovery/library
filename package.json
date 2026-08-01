@@ -1,21 +1,21 @@
 {
-  "name": "library",
-  "type": "module",
-  "module": "index.ts",
-  "private": true,
-  "scripts": {
-    "lint": "npx @biomejs/biome lint --write ./",
-    "format": "npx @biomejs/biome format --write ./",
-    "check": "npx @biomejs/biome check --write ./"
-  },
-  "peerDependencies": {
-    "typescript": "latest"
-  },
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ],
-  "dependencies": {
-    "result": "workspace:*"
-  }
+	"name": "library",
+	"type": "module",
+	"module": "index.ts",
+	"private": true,
+	"scripts": {
+		"lint": "npx @biomejs/biome lint --write ./",
+		"format": "npx @biomejs/biome format --write ./",
+		"check": "npx @biomejs/biome check --write ./"
+	},
+	"peerDependencies": {
+		"typescript": "latest"
+	},
+	"workspaces": [
+		"packages/*",
+		"apps/*"
+	],
+	"dependencies": {
+		"result": "workspace:*"
+	}
 }

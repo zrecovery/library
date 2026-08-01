@@ -1,5 +1,5 @@
 {
-  "name": "result",
-  "module": "./src/index.ts",
-  "type": "module"
+	"name": "result",
+	"module": "./src/index.ts",
+	"type": "module"
 }

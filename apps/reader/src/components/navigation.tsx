@@ -1,21 +1,19 @@
 import {
-    NavigationMenu,
-    NavigationMenuTrigger,
-} from "@/registry/ui/navigation-menu"
-
+	NavigationMenu,
+	NavigationMenuTrigger,
+} from "@/registry/ui/navigation-menu";
 
 const NavigationMenuComponent = () => {
-    return (
-        <NavigationMenu>
+	return (
+		<NavigationMenu>
+			<NavigationMenuTrigger as="a" href="/">
+				Home
+			</NavigationMenuTrigger>
+			<NavigationMenuTrigger as="a" href="/novel">
+				小说
+			</NavigationMenuTrigger>
+		</NavigationMenu>
+	);
+};
 
-            <NavigationMenuTrigger as="a" href="/">
-                Home
-            </NavigationMenuTrigger>
-            <NavigationMenuTrigger as="a" href="/novel">
-                小说
-            </NavigationMenuTrigger>
-        </NavigationMenu>
-    )
-}
-
-export default NavigationMenuComponent
+export default NavigationMenuComponent;

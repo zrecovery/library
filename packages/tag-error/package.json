@@ -1,5 +1,5 @@
 {
-  "name": "tag-error",
-  "module": "index.ts",
-  "type": "module"
+	"name": "tag-error",
+	"module": "index.ts",
+	"type": "module"
 }

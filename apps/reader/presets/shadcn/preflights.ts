@@ -1,10 +1,10 @@
-import type { Preflight } from "unocss"
-import type { Theme } from "unocss/preset-wind4"
+import type { Preflight } from "unocss";
+import type { Theme } from "unocss/preset-wind4";
 
 export const preflights: Preflight<Theme>[] = [
-  {
-    getCSS: ({ theme }) => {
-      return `
+	{
+		getCSS: ({ theme }) => {
+			return `
         :root {
           --radius: 0.625rem;
           --background: oklch(1 0 0);
@@ -95,8 +95,7 @@ export const preflights: Preflight<Theme>[] = [
           padding: 16px;
           border: 1px solid var(--normal-border);
         }
-      `
-    },
-  },
-]
-
+      `;
+		},
+	},
+];
