@@ -41,7 +41,11 @@ export class TaggedError<T> extends Error {
 	 * @param tag - 附加的上下文数据，可以是枚举
 	 * @param raw - 可选的原始错误堆栈，用于保留原始错误的堆栈信息
 	 */
-	constructor(message: string, tag: T, readonly raw?: string) {
+	constructor(
+		message: string,
+		tag: T,
+		readonly raw?: string,
+	) {
 		super(message);
 		this.name = "TaggedError";
 		this.tag = tag;
