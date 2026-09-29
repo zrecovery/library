@@ -1,28 +1,21 @@
 {
   "compilerOptions": {
+    // General
     "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    // Enable latest features
-    "lib": ["ESNext", "DOM"],
+    "jsxImportSource": "@solidjs/web",
     "target": "ESNext",
-    "module": "ESNext",
-    "moduleDetection": "force",
-    "allowJs": true,
 
-    // Bundler mode
+    // Modules
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
     "noEmit": true,
 
-    // Best practices
+    // Type Checking & Safety
     "strict": true,
     "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true,
-
-    // Some stricter flags (disabled by default)
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false
+    "types": ["vite/client"]
   }
 }
